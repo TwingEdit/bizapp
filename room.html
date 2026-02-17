@@ -29,7 +29,7 @@ button{
 
 <h1>💞 Bizim Odamız</h1>
 
-<button onclick="kiss()">💋 Öpücük Gönder</button>
+<button onclick="kiss()">💋 Opücük Gönder</button>
 
 <div id="msg">Bağlanıyor...</div>
 
@@ -77,7 +77,7 @@ window.kiss = function(){
 onChildAdded(roomRef, (snapshot) => {
   const data = snapshot.val();
   if(data.sender !== userId){
-    document.getElementById("msg").innerText = "💋 Öpücük Geldi!";
+    document.getElementById("msg").innerText = "💋 Opücük Geldi!";
   }
 });
 </script>
