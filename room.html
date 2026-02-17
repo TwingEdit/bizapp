@@ -29,7 +29,7 @@
 
 <h1>💞 Bizim Odamız</h1>
 
-<button onclick="kiss()">💋 Öpücük Gönder</button>
+<button id="btnKiss">💋 Öpücük Gönder</button>
 
 <div id="msg">Bağlanıyor...</div>
 
@@ -37,7 +37,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-document.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("load", () => {
 
   const firebaseConfig = {
     apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
@@ -64,25 +64,30 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("userId", userId);
   }
 
-  document.getElementById("msg").innerText = "Bağlandı 💞";
+  const msgEl = document.getElementById("msg");
+  const kissBtn = document.getElementById("btnKiss");
 
-  /* ÖPÜCÜK GÖNDER */
-  window.kiss = function () {
+  // Bağlandı
+  msgEl.innerText = "Bağlandı 💞";
+
+  // Gönder
+  kissBtn.onclick = () => {
     push(roomRef, {
       sender: userId,
       time: Date.now()
     });
   };
 
-  /* İlk mevcut veriyi okuduktan sonra yeni eklemeleri dinle */
+  // Eski veriyi atlayıp sadece yeni gelenleri dinle
   get(roomRef).then(() => {
-    onChildAdded(roomRef, (snapshot) => {
-      const data = snapshot.val();
+    onChildAdded(roomRef, (snap) => {
+      const data = snap.val();
       if (data.sender !== userId) {
-        document.getElementById("msg").innerText = "💋 Seni Öptü!";
+        msgEl.innerText = "💋 Seni Öptü!";
+
         setTimeout(() => {
           const nowSec = Math.floor((Date.now() - data.time) / 1000);
-          document.getElementById("msg").innerText = `💋 Öpülme ${nowSec} saniye önce`;
+          msgEl.innerText = `💋 Öpülme ${nowSec} saniye önce`;
         }, 3000);
       }
     });
