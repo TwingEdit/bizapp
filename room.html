@@ -5,7 +5,7 @@
   <title>Bizim Odamız</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: Arial;
       text-align: center;
       background: #f3e7ea;
       margin-top: 80px;
@@ -50,7 +50,6 @@ import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/fi
 
 window.addEventListener("load", () => {
 
-  // 🔑 Buraya Firebase config’inizi doğru koyun!
   const firebaseConfig = {
     apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
     authDomain: "sadece-biz.firebaseapp.com",
@@ -64,12 +63,14 @@ window.addEventListener("load", () => {
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  /* ODA */
+  // Oda kodu: trim + küçük harfe dönüştür
   let room = localStorage.getItem("room") || "genel";
   room = room.trim().toLowerCase();
+
+  // Burada “rooms/askim123” gibi path oluşur
   const roomRef = ref(db, "rooms/" + room);
 
-  /* Kullanıcı UUID */
+  // KULLANICI ID
   let userId = localStorage.getItem("userId");
   if (!userId) {
     userId = Math.random().toString(36).substring(2, 10);
@@ -79,10 +80,10 @@ window.addEventListener("load", () => {
   const msgsContainer = document.getElementById("msgList");
   const kissBtn = document.getElementById("kissButton");
 
-  // İlk içerik
+  // Süreç başı:
   msgsContainer.innerHTML = "<p>💞 Bağlandı!</p>";
 
-  // Gönderme
+  // Öpücük gönder
   kissBtn.onclick = () => {
     push(roomRef, {
       sender: userId,
@@ -90,12 +91,22 @@ window.addEventListener("load", () => {
     });
   };
 
-  // Dinleme
+  // Gerçek zamanlı dinleme
   onChildAdded(roomRef, (snapshot) => {
     const data = snapshot.val();
 
-    // Sadece karşı tarafınkini göster
+    // Eğer başka kişiden gelmişse göster
     if (data.sender !== userId) {
       const p = document.createElement("p");
       const t = new Date(data.time).toLocaleTimeString();
-      p.innerText = `💋 Se
+      p.innerText = `💋 Seni Öptü! (${t})`;
+      msgsContainer.appendChild(p);
+      msgsContainer.scrollTop = msgsContainer.scrollHeight;
+    }
+  });
+
+});
+</script>
+
+</body>
+</html>
