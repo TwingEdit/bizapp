@@ -51,7 +51,7 @@
       100% { background-color: white; }
     }
     .flash {
-      animation: flashBg 0.8s ease-out;
+      animation: flashBg 1s ease-out forwards;
     }
   </style>
 </head>
@@ -79,17 +79,13 @@ window.addEventListener("load", () => {
     appId: "1:868755199002:web:e8c18eb0cd11abb2292da3"
   };
 
-  // Firebase başlat
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // Oda kodu → trim + lowercase
   let room = localStorage.getItem("room") || "genel";
   room = room.trim().toLowerCase();
-
   const roomRef = ref(db, "rooms/" + room);
 
-  // Kullanıcı benzersiz ID
   let userId = localStorage.getItem("userId");
   if (!userId) {
     userId = Math.random().toString(36).substring(2, 10);
@@ -99,10 +95,8 @@ window.addEventListener("load", () => {
   const msgsContainer = document.getElementById("msgList");
   const kissBtn = document.getElementById("kissButton");
 
-  // Temizle
   msgsContainer.innerHTML = "";
 
-  // Öpücük gönder
   kissBtn.onclick = () => {
     push(roomRef, {
       sender: userId,
@@ -110,13 +104,37 @@ window.addEventListener("load", () => {
     });
   };
 
-  // Firebase live dinleme
   onValue(roomRef, (snapshot) => {
-    msgsContainer.innerHTML = ""; // önce temizle
+    msgsContainer.innerHTML = "";
 
     snapshot.forEach(childSnap => {
       const data = childSnap.val();
 
-      // Karşı tarafın öpücüğü
       if (data.sender !== userId) {
-        const p = document.createElement("p")
+        const p = document.createElement("p");
+        const t = new Date(data.time).toLocaleTimeString();
+        p.innerText = `💋 Seni Öptü! (${t})`;
+
+        // Yeni mesaja animasyon ver
+        msgsContainer.appendChild(p);
+
+        // CSS animasyon sınıfını ekle
+        requestAnimationFrame(() => {
+          p.classList.add("flash");
+        });
+      }
+    });
+
+    // Sadece 3 göster
+    while (msgsContainer.children.length > 3) {
+      msgsContainer.removeChild(msgsContainer.children[0]);
+    }
+    
+    msgsContainer.scrollTop = msgsContainer.scrollHeight;
+  });
+
+});
+</script>
+
+</body>
+</html>
