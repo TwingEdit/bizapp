@@ -5,14 +5,14 @@
   justify-content: center;
 }
 
-body{
+body {
   font-family: sans-serif;
   background:#fff0f3;
   text-align:center;
   padding:40px;
 }
 
-input{
+input {
   padding:12px;
   border-radius:12px;
   border:none;
@@ -20,7 +20,7 @@ input{
   margin:10px;
 }
 
-button{
+button {
   padding:14px 20px;
   border:none;
   border-radius:16px;
@@ -29,8 +29,7 @@ button{
   font-size:16px;
 }
 
-.kiss{
+.kiss {
   font-size:22px;
   margin-top:30px;
 }
-
