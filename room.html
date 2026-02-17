@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Bizim Odamız</title>
+<style>
+body{
+  font-family:sans-serif;
+  text-align:center;
+  background:#ffeef2;
+}
+button{
+  padding:15px 25px;
+  font-size:18px;
+  border:none;
+  border-radius:12px;
+  background:#ff4d6d;
+  color:white;
+  margin:10px;
+}
+#msg{
+  font-size:30px;
+  margin-top:40px;
+}
+</style>
+</head>
+<body>
+
+<h1>💞 Bizim Odamız</h1>
+
+<button onclick="kiss()">💋 Öpücük Gönder</button>
+
+<div id="msg"></div>
+
+<script>
+const room = localStorage.getItem("room");
+
+function kiss(){
+  localStorage.setItem("kiss_"+room, Date.now());
+}
+
+setInterval(()=>{
+  const k = localStorage.getItem("kiss_"+room);
+  if(!k) return;
+  document.getElementById("msg").innerText="💋 Öpücük Geldi!";
+},1000);
+</script>
+
+</body>
+</html>
