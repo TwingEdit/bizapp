@@ -4,24 +4,24 @@
 <meta charset="UTF-8">
 <title>Bizim Odamız</title>
 <style>
-body{
-  font-family: Arial;
-  text-align:center;
-  background:#f3e7ea;
-  margin-top:80px;
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #f3e7ea;
+  margin-top: 80px;
 }
-button{
-  background:#ff4d6d;
-  border:none;
-  padding:15px 30px;
-  color:white;
-  font-size:18px;
-  border-radius:15px;
-  cursor:pointer;
+button {
+  background: #ff4d6d;
+  border: none;
+  padding: 15px 30px;
+  color: white;
+  font-size: 18px;
+  border-radius: 15px;
+  cursor: pointer;
 }
-#msg{
-  margin-top:30px;
-  font-size:22px;
+#msg {
+  margin-top: 30px;
+  font-size: 22px;
 }
 </style>
 </head>
@@ -56,28 +56,51 @@ let room = localStorage.getItem("room") || "genel";
 room = room.trim().toLowerCase();
 const roomRef = ref(db, "rooms/" + room);
 
-/* USER */
+/* KULLANICI ID */
 let userId = localStorage.getItem("userId");
-if(!userId){
-  userId = Math.random().toString(36).substring(2,10);
+if (!userId) {
+  userId = Math.random().toString(36).substring(2, 10);
   localStorage.setItem("userId", userId);
 }
 
+/* BAĞLANDI MESAJI */
 document.getElementById("msg").innerText = "Bağlandı 💞";
 
-/* GÖNDER */
-window.kiss = function(){
+/* ÖPÜCÜK GÖNDER */
+window.kiss = function() {
   push(roomRef, {
     sender: userId,
     time: Date.now()
   });
 };
 
-/* DİNLE */
+/* YENİ ÖPÜCÜKLERİ DİNLE */
+let initialized = false;
+
 onChildAdded(roomRef, (snapshot) => {
   const data = snapshot.val();
-  if(data.sender !== userId){
-    document.getElementById("msg").innerText = "💋 Öpücük Geldi!";
+
+  if (!initialized) {
+    // Sayfa açılırken eski mesajları atla
+    return;
+  }
+
+  if (data.sender !== userId) {
+    // Yeni öpücük geldi
+    document.getElementById("msg").innerText = "💋 Seni Öptü!";
+
+    // Birkaç saniye sonra süre gösterecek
+    setTimeout(() => {
+      const nowSec = Math.floor((Date.now() - data.time) / 1000);
+      document.getElementById("msg").innerText = `💋 Öpülme ${nowSec} saniye önce`;
+    }, 3000);
   }
 });
+
+// Artık yeni mesajları dinle
+setTimeout(() => { initialized = true; }, 500);
+
 </script>
+
+</body>
+</html>
