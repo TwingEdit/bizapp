@@ -29,10 +29,9 @@
 
 <h1>💞 Bizim Odamız</h1>
 
-<!-- DÜZGÜN BUTTON -->
+<!-- Bu ID burada OLMAK ZORUNDA -->
 <button id="kissButton">💋 Öpücük Gönder</button>
 
-<!-- BURASI DA MUTLAKA OLMALI -->
 <div id="msg">Bağlanıyor...</div>
 
 <script type="module">
@@ -66,37 +65,13 @@ window.addEventListener("load", () => {
     localStorage.setItem("userId", userId);
   }
 
-  // DOM elementleri
   const msgEl = document.getElementById("msg");
   const kissBtn = document.getElementById("kissButton");
 
   // Bağlandı mesajı
   msgEl.innerText = "Bağlandı 💞";
 
-  // Gönder butonu
+  // Öpücük gönder
   kissBtn.onclick = () => {
     push(roomRef, {
-      sender: userId,
-      time: Date.now()
-    });
-  };
-
-  // Yeni gelen öpücükleri dinle
-  onChildAdded(roomRef, (snapshot) => {
-    const data = snapshot.val();
-
-    if (data.sender !== userId) {
-      msgEl.innerText = "💋 Seni Öptü!";
-
-      setTimeout(() => {
-        const nowSec = Math.floor((Date.now() - data.time) / 1000);
-        msgEl.innerText = `💋 Öpülme ${nowSec} saniye önce`;
-      }, 3000);
-    }
-  });
-
-});
-</script>
-
-</body>
-</html>
+      sen
