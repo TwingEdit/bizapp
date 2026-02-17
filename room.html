@@ -1,12 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Bizim Odamız</title>
+<style>
+body{
+  font-family: Arial;
+  text-align:center;
+  background:#f3e7ea;
+  margin-top:80px;
+}
+button{
+  background:#ff4d6d;
+  border:none;
+  padding:15px 30px;
+  color:white;
+  font-size:18px;
+  border-radius:15px;
+  cursor:pointer;
+}
+#msg{
+  margin-top:30px;
+  font-size:22px;
+}
+</style>
+</head>
 <body>
 
-<button onclick="test()">TEST YAZ</button>
+<h1>💞 Bizim Odamız</h1>
+
+<button onclick="kiss()">💋 Öpücük Gönder</button>
+
+<div id="msg">Bağlanıyor...</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
@@ -21,12 +50,33 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-window.test = function(){
-  push(ref(db, "deneme"), {
-    mesaj: "calisti",
+/* ODA */
+let room = localStorage.getItem("room") || "genel";
+room = room.trim().toLowerCase();
+const roomRef = ref(db, "rooms/" + room);
+
+/* KULLANICI ID */
+let userId = localStorage.getItem("userId");
+if(!userId){
+  userId = Math.random().toString(36).substring(2,10);
+  localStorage.setItem("userId", userId);
+}
+
+/* GÖNDER */
+window.kiss = function(){
+  push(roomRef, {
+    sender: userId,
     time: Date.now()
   });
 };
+
+/* DİNLE */
+onChildAdded(roomRef, (data) => {
+  const kiss = data.val();
+  if(kiss.sender !== userId){
+    document.getElementById("msg").innerText = "💋 Öpücük Geldi!";
+  }
+});
 </script>
 
 </body>
