@@ -33,3 +33,15 @@ button {
   font-size:22px;
   margin-top:30px;
 }
+
+/* Gelen mesaj highlight animasyonu */
+@keyframes flashBg {
+  0%   { background-color: #ffcccc; } /* kırmızımsı */
+  50%  { background-color: #ffe6e6; } /* açık pembe */
+  100% { background-color: white; }   /* normal */
+}
+
+.flash {
+  animation: flashBg 1s ease-out;
+}
+
