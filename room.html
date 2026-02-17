@@ -63,14 +63,10 @@ window.addEventListener("load", () => {
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // Oda kodu: trim + küçük harfe dönüştür
   let room = localStorage.getItem("room") || "genel";
   room = room.trim().toLowerCase();
-
-  // Burada “rooms/askim123” gibi path oluşur
   const roomRef = ref(db, "rooms/" + room);
 
-  // KULLANICI ID
   let userId = localStorage.getItem("userId");
   if (!userId) {
     userId = Math.random().toString(36).substring(2, 10);
@@ -79,11 +75,12 @@ window.addEventListener("load", () => {
 
   const msgsContainer = document.getElementById("msgList");
   const kissBtn = document.getElementById("kissButton");
+  
+  // Bu liste DOM içeriğini tutacak
+  let lastMessages = [];
 
-  // Süreç başı:
-  msgsContainer.innerHTML = "<p>💞 Bağlandı!</p>";
+  msgsContainer.innerHTML = ""; // Başlangıç temiz
 
-  // Öpücük gönder
   kissBtn.onclick = () => {
     push(roomRef, {
       sender: userId,
@@ -91,22 +88,37 @@ window.addEventListener("load", () => {
     });
   };
 
-  // Gerçek zamanlı dinleme
   onChildAdded(roomRef, (snapshot) => {
     const data = snapshot.val();
-
-    // Eğer başka kişiden gelmişse göster
+    
     if (data.sender !== userId) {
+      
+      const timeText = new Date(data.time).toLocaleTimeString();
+      const text = `💋 Seni Öptü! (${timeText})`;
+
+      // Yeni <p> oluştur
       const p = document.createElement("p");
-      const t = new Date(data.time).toLocaleTimeString();
-      p.innerText = `💋 Seni Öptü! (${t})`;
+      p.innerText = text;
+      p.style.textAlign = "center";
+
+      // Ekle DOM’a ve listeye
       msgsContainer.appendChild(p);
+      lastMessages.push(p);
+
+      // Eğer 3’ten fazla ise en eskiyi sil
+      if (lastMessages.length > 3) {
+        const oldest = lastMessages.shift(); 
+        msgsContainer.removeChild(oldest);
+      }
+
+      // Her zaman scroll ortala
       msgsContainer.scrollTop = msgsContainer.scrollHeight;
     }
   });
 
 });
 </script>
+
 
 </body>
 </html>
