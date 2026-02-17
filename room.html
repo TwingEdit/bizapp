@@ -1,3 +1,40 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Bizim Odamız</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f3e7ea;
+      margin-top: 80px;
+    }
+    button {
+      background: #ff4d6d;
+      border: none;
+      padding: 15px 30px;
+      color: white;
+      font-size: 18px;
+      border-radius: 15px;
+      cursor: pointer;
+    }
+    #msg {
+      margin-top: 30px;
+      font-size: 22px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>💞 Bizim Odamız</h1>
+
+<!-- DÜZGÜN BUTTON -->
+<button id="kissButton">💋 Öpücük Gönder</button>
+
+<!-- BURASI DA MUTLAKA OLMALI -->
+<div id="msg">Bağlanıyor...</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -25,15 +62,18 @@ window.addEventListener("load", () => {
   /* USER ID */
   let userId = localStorage.getItem("userId");
   if (!userId) {
-    userId = Math.random().toString(36).substring(2,10);
+    userId = Math.random().toString(36).substring(2, 10);
     localStorage.setItem("userId", userId);
   }
 
+  // DOM elementleri
   const msgEl = document.getElementById("msg");
-  const kissBtn = document.getElementById("btnKiss");
+  const kissBtn = document.getElementById("kissButton");
 
+  // Bağlandı mesajı
   msgEl.innerText = "Bağlandı 💞";
 
+  // Gönder butonu
   kissBtn.onclick = () => {
     push(roomRef, {
       sender: userId,
@@ -41,35 +81,22 @@ window.addEventListener("load", () => {
     });
   };
 
-  // Tutacağımız en son timestamp
-  let lastSeenTime = 0;
-
+  // Yeni gelen öpücükleri dinle
   onChildAdded(roomRef, (snapshot) => {
     const data = snapshot.val();
 
-    // Sadece yeni gelenleri alalım
-    if (data.sender !== userId && data.time > lastSeenTime) {
-
-      // Yeni öpücük geldi
+    if (data.sender !== userId) {
       msgEl.innerText = "💋 Seni Öptü!";
 
-      // Mevcut zamanı güncelle
-      lastSeenTime = data.time;
-
-      // Dinamik sayaç
-      let start = data.time;
-      msgEl.dataset.start = start;
-
-      // Timer güncelleme
-      function updateTimer() {
-        const now = Date.now();
-        const diff = Math.floor((now - start) / 1000);
-        msgEl.innerText = `💋 Öpülme ${diff} saniye önce`;
-      }
-
-      // 1 saniyede bir güncelle
-      setInterval(updateTimer, 1000);
+      setTimeout(() => {
+        const nowSec = Math.floor((Date.now() - data.time) / 1000);
+        msgEl.innerText = `💋 Öpülme ${nowSec} saniye önce`;
+      }, 3000);
     }
   });
+
 });
 </script>
+
+</body>
+</html>
