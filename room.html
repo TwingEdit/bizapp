@@ -50,6 +50,7 @@ import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/fi
 
 window.addEventListener("load", () => {
 
+  // 🔑 Buraya Firebase config’inizi doğru koyun!
   const firebaseConfig = {
     apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
     authDomain: "sadece-biz.firebaseapp.com",
@@ -63,7 +64,7 @@ window.addEventListener("load", () => {
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  /* Oda kodu */
+  /* ODA */
   let room = localStorage.getItem("room") || "genel";
   room = room.trim().toLowerCase();
   const roomRef = ref(db, "rooms/" + room);
@@ -78,10 +79,10 @@ window.addEventListener("load", () => {
   const msgsContainer = document.getElementById("msgList");
   const kissBtn = document.getElementById("kissButton");
 
-  // Bağlandı mesajı
+  // İlk içerik
   msgsContainer.innerHTML = "<p>💞 Bağlandı!</p>";
 
-  // Öpücük gönder
+  // Gönderme
   kissBtn.onclick = () => {
     push(roomRef, {
       sender: userId,
@@ -89,22 +90,12 @@ window.addEventListener("load", () => {
     });
   };
 
-  // Yeni öpücükleri dinler
+  // Dinleme
   onChildAdded(roomRef, (snapshot) => {
     const data = snapshot.val();
 
-    // Eğer başka kişiden geldiyse
+    // Sadece karşı tarafınkini göster
     if (data.sender !== userId) {
       const p = document.createElement("p");
       const t = new Date(data.time).toLocaleTimeString();
-      p.innerText = `💋 Seni Öptü! (${t})`;
-      msgsContainer.appendChild(p);
-      msgsContainer.scrollTop = msgsContainer.scrollHeight;
-    }
-  });
-
-});
-</script>
-
-</body>
-</html>
+      p.innerText = `💋 Se
