@@ -1,50 +1,30 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<title>Bizim Odamız</title>
-<style>
-body{
-  font-family:sans-serif;
-  text-align:center;
-  background:#ffeef2;
-}
-button{
-  padding:15px 25px;
-  font-size:18px;
-  border:none;
-  border-radius:12px;
-  background:#ff4d6d;
-  color:white;
-  margin:10px;
-}
-#msg{
-  font-size:30px;
-  margin-top:40px;
-}
-</style>
-</head>
-<body>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-<h1>💞 Bizim Odamız</h1>
+const firebaseConfig = {
+  apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
+  authDomain: "sadece-biz.firebaseapp.com",
+  databaseURL: "https://sadece-biz-default-rtdb.firebaseio.com/",
+  projectId: "sadece-biz",
+  storageBucket: "sadece-biz.firebasestorage.app",
+  messagingSenderId: "868755199002",
+  appId: "1:868755199002:web:e8c18eb0cd11abb2292da3"
+};
 
-<button onclick="kiss()">💋 Öpücük Gönder</button>
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-<div id="msg"></div>
-
-<script>
 const room = localStorage.getItem("room");
+const roomRef = ref(db, "rooms/" + room);
 
 function kiss(){
-  localStorage.setItem("kiss_"+room, Date.now());
+  push(roomRef, { time: Date.now() });
 }
 
-setInterval(()=>{
-  const k = localStorage.getItem("kiss_"+room);
-  if(!k) return;
-  document.getElementById("msg").innerText="💋 Öpücük Geldi!";
-},1000);
-</script>
+window.kiss = kiss;
 
-</body>
-</html>
+onChildAdded(roomRef, (data) => {
+  document.getElementById("msg").innerText = "💋 Öpücük Geldi!";
+});
+</script>
