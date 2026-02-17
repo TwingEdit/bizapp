@@ -45,7 +45,6 @@
       max-width: 90%;
     }
 
-    /* Gelen mesajda flash animasyonu */
     @keyframes flashBg {
       0%   { background-color: #ff4d6d; }
       40%  { background-color: #ff90a0; }
@@ -67,11 +66,10 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 window.addEventListener("load", () => {
 
-  // 🔐 Firebase ayarları
   const firebaseConfig = {
     apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
     authDomain: "sadece-biz.firebaseapp.com",
@@ -82,16 +80,14 @@ window.addEventListener("load", () => {
     appId: "1:868755199002:web:e8c18eb0cd11abb2292da3"
   };
 
-  // Firebase başlat
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // Oda kodu: trim + küçük harf
   let room = localStorage.getItem("room") || "genel";
   room = room.trim().toLowerCase();
+
   const roomRef = ref(db, "rooms/" + room);
 
-  // Kullanıcı benzersiz kimliği
   let userId = localStorage.getItem("userId");
   if (!userId) {
     userId = Math.random().toString(36).substring(2, 10);
@@ -101,10 +97,8 @@ window.addEventListener("load", () => {
   const msgsContainer = document.getElementById("msgList");
   const kissBtn = document.getElementById("kissButton");
 
-  // Mesaj listesi temiz
   msgsContainer.innerHTML = "";
 
-  // Öpücük gönder fonksiyonu
   kissBtn.onclick = () => {
     push(roomRef, {
       sender: userId,
@@ -112,33 +106,30 @@ window.addEventListener("load", () => {
     });
   };
 
-  // Yeni öpücükleri dinle
-  onChildAdded(roomRef, (snapshot) => {
-    const data = snapshot.val();
+  onValue(roomRef, (snapshot) => {
+    msgsContainer.innerHTML = ""; // Önce temizle
 
-    // Sadece karşı taraftansa göster
-    if (data.sender !== userId) {
-      const timeText = new Date(data.time).toLocaleTimeString();
-      const text = `💋 Seni Öptü! (${timeText})`;
+    snapshot.forEach(childSnap => {
+      const data = childSnap.val();
 
-      // Mesaj elemanı oluştur
-      const p = document.createElement("p");
-      p.innerText = text;
+      if (data.sender !== userId) {
+        const p = document.createElement("p");
+        const t = new Date(data.time).toLocaleTimeString();
+        p.innerText = `💋 Seni Öptü! (${t})`;
 
-      // Flash animasyon sınıfı
-      p.classList.add("flash");
+        // Animasyon
+        p.classList.add("flash");
 
-      // DOM'a ekle
-      msgsContainer.appendChild(p);
-
-      // 3’ten fazla ise en eskiyi kaldır
-      if (msgsContainer.children.length > 3) {
-        msgsContainer.removeChild(msgsContainer.children[0]);
+        msgsContainer.appendChild(p);
       }
+    });
 
-      // Scroll aşağıya
-      msgsContainer.scrollTop = msgsContainer.scrollHeight;
+    // En fazla 3 tane tut
+    while (msgsContainer.children.length > 3) {
+      msgsContainer.removeChild(msgsContainer.children[0]);
     }
+
+    msgsContainer.scrollTop = msgsContainer.scrollHeight;
   });
 
 });
