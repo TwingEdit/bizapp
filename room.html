@@ -1,41 +1,6 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <title>Bizim Odamız</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #f3e7ea;
-      margin-top: 80px;
-    }
-    button {
-      background: #ff4d6d;
-      border: none;
-      padding: 15px 30px;
-      color: white;
-      font-size: 18px;
-      border-radius: 15px;
-      cursor: pointer;
-    }
-    #msg {
-      margin-top: 30px;
-      font-size: 22px;
-    }
-  </style>
-</head>
-<body>
-
-<h1>💞 Bizim Odamız</h1>
-
-<button id="btnKiss">💋 Öpücük Gönder</button>
-
-<div id="msg">Bağlanıyor...</div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, push, onChildAdded, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 window.addEventListener("load", () => {
 
@@ -67,10 +32,8 @@ window.addEventListener("load", () => {
   const msgEl = document.getElementById("msg");
   const kissBtn = document.getElementById("btnKiss");
 
-  // Bağlandı
   msgEl.innerText = "Bağlandı 💞";
 
-  // Gönder
   kissBtn.onclick = () => {
     push(roomRef, {
       sender: userId,
@@ -78,23 +41,22 @@ window.addEventListener("load", () => {
     });
   };
 
-  // Eski veriyi atlayıp sadece yeni gelenleri dinle
-  get(roomRef).then(() => {
-    onChildAdded(roomRef, (snap) => {
-      const data = snap.val();
-      if (data.sender !== userId) {
-        msgEl.innerText = "💋 Seni Öptü!";
+  // Sadece en son gelen öpücüğü dinle
+  const q = query(roomRef, orderByChild("time"), limitToLast(1));
 
-        setTimeout(() => {
-          const nowSec = Math.floor((Date.now() - data.time) / 1000);
-          msgEl.innerText = `💋 Öpülme ${nowSec} saniye önce`;
-        }, 3000);
-      }
-    });
+  onChildAdded(q, (snapshot) => {
+    const data = snapshot.val();
+
+    // Eğer yeni gelen kişi siz değilseniz
+    if (data.sender !== userId) {
+      msgEl.innerText = "💋 Seni Öptü!";
+
+      setTimeout(() => {
+        const nowSec = Math.floor((Date.now() - data.time) / 1000);
+        msgEl.innerText = `💋 Öpülme ${nowSec} saniye önce`;
+      }, 3000);
+    }
   });
 
 });
 </script>
-
-</body>
-</html>
