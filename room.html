@@ -45,9 +45,10 @@
       max-width: 90%;
     }
 
-    /* Sadece en son gelen mesajın özel rengi */
+    /* Pembe (latest) stili */
     .latest {
-      background-color: #ffccd5 !important;
+      background-color: #ffccd5;
+      transition: background-color 0.5s ease;
     }
   </style>
 </head>
@@ -101,21 +102,17 @@ window.addEventListener("load", () => {
   };
 
   onValue(roomRef, (snapshot) => {
-    // Önce tüm mesajları sil
     msgsContainer.innerHTML = "";
 
-    // Liste tutucu
     const messages = [];
 
     snapshot.forEach(childSnap => {
       const data = childSnap.val();
-
       if (data.sender !== userId) {
         messages.push(data);
       }
     });
 
-    // Sadece son 3 mesajı al
     const lastMsgs = messages.slice(-3);
 
     lastMsgs.forEach((data, index) => {
@@ -123,16 +120,17 @@ window.addEventListener("load", () => {
       const t = new Date(data.time).toLocaleTimeString();
       p.innerText = `💋 Seni Öptü! (${t})`;
 
-      // Sadece sonuncuya özel renk
       if (index === lastMsgs.length - 1) {
         p.classList.add("latest");
+        setTimeout(() => {
+          p.classList.remove("latest");
+        }, 5000); // 5 saniye sonra renk yok olur
       }
 
       msgsContainer.appendChild(p);
     });
 
     msgsContainer.scrollTop = msgsContainer.scrollHeight;
-
   });
 
 });
