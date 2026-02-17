@@ -35,7 +35,7 @@ button{
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, push, onChildAdded, goOnline } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
@@ -49,8 +49,35 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+goOnline(db);
 
 /* ODA */
 let room = localStorage.getItem("room") || "genel";
 room = room.trim().toLowerCase();
-const
+const roomRef = ref(db, "rooms/" + room);
+
+/* USER */
+let userId = localStorage.getItem("userId");
+if(!userId){
+  userId = Math.random().toString(36).substring(2,10);
+  localStorage.setItem("userId", userId);
+}
+
+document.getElementById("msg").innerText = "Bağlandı 💞";
+
+/* GÖNDER */
+window.kiss = function(){
+  push(roomRef, {
+    sender: userId,
+    time: Date.now()
+  });
+};
+
+/* DİNLE */
+onChildAdded(roomRef, (snapshot) => {
+  const data = snapshot.val();
+  if(data.sender !== userId){
+    document.getElementById("msg").innerText = "💋 Öpücük Geldi!";
+  }
+});
+</script>
