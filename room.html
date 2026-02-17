@@ -53,12 +53,27 @@ const db = getDatabase(app);
 const room = localStorage.getItem("room") || "genel";
 const roomRef = ref(db, "rooms/" + room);
 
+/* TELEFON KİMLİĞİ */
+let userId = localStorage.getItem("userId");
+if(!userId){
+  userId = Math.random().toString(36).substring(2,10);
+  localStorage.setItem("userId", userId);
+}
+
 window.kiss = function(){
-  push(roomRef, { time: Date.now() });
+  push(roomRef, {
+    sender: userId,
+    time: Date.now()
+  });
 };
 
-onChildAdded(roomRef, () => {
-  document.getElementById("msg").innerText = "💋 Öpücük Geldi!";
+/* DİNLE */
+onChildAdded(roomRef, (data) => {
+  const kiss = data.val();
+
+  if(kiss.sender !== userId){
+    document.getElementById("msg").innerText = "💋 Öpücük Geldi!";
+  }
 });
 </script>
 
