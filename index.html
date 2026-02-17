@@ -1,51 +1,50 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<title>BizApp</title>
-<style>
-body{
-  font-family:Arial;
-  text-align:center;
-  margin-top:120px;
-  background:#ffe4ec;
-}
-input{
-  padding:12px;
-  font-size:18px;
-  border-radius:10px;
-  border:1px solid #ccc;
-}
-button{
-  padding:12px 25px;
-  font-size:18px;
-  border:none;
-  background:#ff4d6d;
-  color:white;
-  border-radius:12px;
-  cursor:pointer;
-  margin-left:10px;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>BizApp - Giriş</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #ffe4ec;
+      margin-top: 120px;
+    }
+    input {
+      padding: 12px;
+      font-size: 18px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      width: 240px;
+    }
+    button {
+      padding: 12px 25px;
+      font-size: 18px;
+      border: none;
+      background: #ff4d6d;
+      color: white;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+  </style>
 </head>
 <body>
 
 <h1>💞 BizApp</h1>
-<p>Bağlanma Kodu Gir</p>
+<p>Bağlanma Kodu</p>
 
-<input id="roomInput" placeholder="örnek: askim123">
+<input id="roomInput" placeholder="örn: askim123">
 <button onclick="joinRoom()">Gir</button>
 
 <script>
-function joinRoom(){
+function joinRoom() {
   const room = document.getElementById("roomInput").value.trim();
-
-  if(room.length < 2){
-    alert("Kod gir");
+  if (room.length < 2) {
+    alert("Geçerli oda kodu gir");
     return;
   }
-
-  localStorage.setItem("room", room);
+  localStorage.setItem("room", room.toLowerCase());
   window.location.href = "room.html";
 }
 </script>
