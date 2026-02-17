@@ -1,6 +1,6 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 window.addEventListener("load", () => {
 
@@ -25,7 +25,7 @@ window.addEventListener("load", () => {
   /* USER ID */
   let userId = localStorage.getItem("userId");
   if (!userId) {
-    userId = Math.random().toString(36).substring(2, 10);
+    userId = Math.random().toString(36).substring(2,10);
     localStorage.setItem("userId", userId);
   }
 
@@ -41,22 +41,35 @@ window.addEventListener("load", () => {
     });
   };
 
-  // Sadece en son gelen öpücüğü dinle
-  const q = query(roomRef, orderByChild("time"), limitToLast(1));
+  // Tutacağımız en son timestamp
+  let lastSeenTime = 0;
 
-  onChildAdded(q, (snapshot) => {
+  onChildAdded(roomRef, (snapshot) => {
     const data = snapshot.val();
 
-    // Eğer yeni gelen kişi siz değilseniz
-    if (data.sender !== userId) {
+    // Sadece yeni gelenleri alalım
+    if (data.sender !== userId && data.time > lastSeenTime) {
+
+      // Yeni öpücük geldi
       msgEl.innerText = "💋 Seni Öptü!";
 
-      setTimeout(() => {
-        const nowSec = Math.floor((Date.now() - data.time) / 1000);
-        msgEl.innerText = `💋 Öpülme ${nowSec} saniye önce`;
-      }, 3000);
+      // Mevcut zamanı güncelle
+      lastSeenTime = data.time;
+
+      // Dinamik sayaç
+      let start = data.time;
+      msgEl.dataset.start = start;
+
+      // Timer güncelleme
+      function updateTimer() {
+        const now = Date.now();
+        const diff = Math.floor((now - start) / 1000);
+        msgEl.innerText = `💋 Öpülme ${diff} saniye önce`;
+      }
+
+      // 1 saniyede bir güncelle
+      setInterval(updateTimer, 1000);
     }
   });
-
 });
 </script>
