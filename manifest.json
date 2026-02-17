@@ -1,0 +1,9 @@
+{
+  "name": "Sadece Biz",
+  "short_name": "Biz",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#fff0f3",
+  "theme_color": "#ff4d6d",
+  "icons": []
+}
