@@ -2,32 +2,53 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Biz</title>
-
-<link rel="stylesheet" href="style.css">
-<link rel="manifest" href="manifest.json">
-
-<meta name="theme-color" content="#ff4d6d">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="robots" content="noindex,nofollow">
+<title>BizApp</title>
+<style>
+body{
+  font-family:Arial;
+  text-align:center;
+  margin-top:120px;
+  background:#ffe4ec;
+}
+input{
+  padding:12px;
+  font-size:18px;
+  border-radius:10px;
+  border:1px solid #ccc;
+}
+button{
+  padding:12px 25px;
+  font-size:18px;
+  border:none;
+  background:#ff4d6d;
+  color:white;
+  border-radius:12px;
+  cursor:pointer;
+  margin-left:10px;
+}
+</style>
 </head>
-
 <body>
 
-<div id="login">
-  <h1>❤️ Sadece Biz</h1>
-  <input id="code" placeholder="Bağlanma kodu">
-  <button onclick="join()">Bağlan</button>
-</div>
+<h1>💞 BizApp</h1>
+<p>Bağlanma Kodu Gir</p>
 
-<div id="app" style="display:none;">
-  <h2 id="status">Bağlandınız</h2>
-  <button class="kiss" onclick="sendKiss()">💋 Öpücük Gönder</button>
-  <div id="feed"></div>
-</div>
+<input id="roomInput" placeholder="örnek: askim123">
+<button onclick="joinRoom()">Gir</button>
 
-<script src="app.js"></script>
+<script>
+function joinRoom(){
+  const room = document.getElementById("roomInput").value.trim();
+
+  if(room.length < 2){
+    alert("Kod gir");
+    return;
+  }
+
+  localStorage.setItem("room", room);
+  window.location.href = "room.html";
+}
+</script>
+
 </body>
 </html>
