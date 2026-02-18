@@ -1,7 +1,8 @@
 // Service worker register
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js')
-    .then(() => console.log('SW hazır'));
+  navigator.serviceWorker.register('/bizapp/sw.js')
+    .then(reg => console.log('SW hazır:', reg.scope))
+    .catch(err => console.error('SW hata:', err));
 }
 
 // Buton
