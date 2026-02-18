@@ -18,3 +18,33 @@ webpush.sendNotification(subscription, JSON.stringify({
 }))
 .then(() => console.log('Push gönderildi ✅'))
 .catch(err => console.error('Push gönderilemedi ❌', err));
+// sendPush.js
+const webpush = require('web-push');
+
+// Daha önce oluşturduğun VAPID anahtarları
+const vapidKeys = {
+  publicKey: 'BURAYA_PUBLIC_KEY',
+  privateKey: 'BURAYA_PRIVATE_KEY'
+};
+
+webpush.setVapidDetails(
+  'mailto:you@example.com', 
+  vapidKeys.publicKey, 
+  vapidKeys.privateKey
+);
+
+// Kullanıcının tarayıcıdan kaydettiğin subscription objesi
+const subscription = {
+  endpoint: "https://fcm.googleapis.com/fcm/send/...",
+  keys: {
+    p256dh: "...",
+    auth: "..."
+  }
+};
+
+webpush.sendNotification(subscription, JSON.stringify({
+  title: 'Seni Öptü!',
+  body: '💖 Yeni bir öpücük mesajı geldi'
+}))
+.then(() => console.log('Push gönderildi ✅'))
+.catch(err => console.error('Push gönderilemedi ❌', err));
