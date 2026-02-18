@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Bizim Odamız</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -19,6 +20,7 @@
       font-size: 18px;
       border-radius: 15px;
       cursor: pointer;
+      margin: 8px;
     }
 
     #msgList {
@@ -40,12 +42,10 @@
       background: white;
       border-radius: 8px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      width: auto;
       min-width: 180px;
       max-width: 90%;
     }
 
-    /* Pembe (latest) stili */
     .latest {
       background-color: #ffccd5;
       transition: background-color 0.5s ease;
@@ -57,84 +57,77 @@
 <h1>💞 Bizim Odamız</h1>
 
 <button id="kissButton">💋 Öpücük Gönder</button>
+<button id="enablePush">Bildirimleri Aç 💖</button>
 
 <div id="msgList"></div>
 
+<!-- Firebase + Oda sistemi -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-window.addEventListener("load", () => {
+const firebaseConfig = {
+  apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
+  authDomain: "sadece-biz.firebaseapp.com",
+  databaseURL: "https://sadece-biz-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "sadece-biz",
+  storageBucket: "sadece-biz.firebasestorage.app",
+  messagingSenderId: "868755199002",
+  appId: "1:868755199002:web=e8c18eb0cd11abb2292da3"
+};
 
-  const firebaseConfig = {
-    apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
-    authDomain: "sadece-biz.firebaseapp.com",
-    databaseURL: "https://sadece-biz-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "sadece-biz",
-    storageBucket: "sadece-biz.firebasestorage.app",
-    messagingSenderId: "868755199002",
-    appId: "1:868755199002:web=e8c18eb0cd11abb2292da3"
-  };
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+let room = localStorage.getItem("room") || "genel";
+room = room.trim().toLowerCase();
+const roomRef = ref(db, "rooms/" + room);
 
-  let room = localStorage.getItem("room") || "genel";
-  room = room.trim().toLowerCase();
-  const roomRef = ref(db, "rooms/" + room);
+let userId = localStorage.getItem("userId");
+if (!userId) {
+  userId = Math.random().toString(36).substring(2, 10);
+  localStorage.setItem("userId", userId);
+}
 
-  let userId = localStorage.getItem("userId");
-  if (!userId) {
-    userId = Math.random().toString(36).substring(2, 10);
-    localStorage.setItem("userId", userId);
-  }
+const msgsContainer = document.getElementById("msgList");
+const kissBtn = document.getElementById("kissButton");
 
-  const msgsContainer = document.getElementById("msgList");
-  const kissBtn = document.getElementById("kissButton");
+kissBtn.onclick = () => {
+  push(roomRef, {
+    sender: userId,
+    time: Date.now()
+  });
+};
 
+onValue(roomRef, (snapshot) => {
   msgsContainer.innerHTML = "";
 
-  kissBtn.onclick = () => {
-    push(roomRef, {
-      sender: userId,
-      time: Date.now()
-    });
-  };
+  const messages = [];
 
-  onValue(roomRef, (snapshot) => {
-    msgsContainer.innerHTML = "";
-
-    const messages = [];
-
-    snapshot.forEach(childSnap => {
-      const data = childSnap.val();
-      if (data.sender !== userId) {
-        messages.push(data);
-      }
-    });
-
-    const lastMsgs = messages.slice(-3);
-
-    lastMsgs.forEach((data, index) => {
-      const p = document.createElement("p");
-      const t = new Date(data.time).toLocaleTimeString();
-      p.innerText = `💋 Seni Öptü! (${t})`;
-
-      if (index === lastMsgs.length - 1) {
-        p.classList.add("latest");
-        setTimeout(() => {
-          p.classList.remove("latest");
-        }, 5000); // 5 saniye sonra renk yok olur
-      }
-
-      msgsContainer.appendChild(p);
-    });
-
-    msgsContainer.scrollTop = msgsContainer.scrollHeight;
+  snapshot.forEach(childSnap => {
+    const data = childSnap.val();
+    if (data.sender !== userId) messages.push(data);
   });
 
+  const lastMsgs = messages.slice(-3);
+
+  lastMsgs.forEach((data, index) => {
+    const p = document.createElement("p");
+    const t = new Date(data.time).toLocaleTimeString();
+    p.innerText = `💋 Seni Öptü! (${t})`;
+
+    if (index === lastMsgs.length - 1) {
+      p.classList.add("latest");
+      setTimeout(() => p.classList.remove("latest"), 5000);
+    }
+
+    msgsContainer.appendChild(p);
+  });
 });
 </script>
+
+<!-- PUSH sistemi -->
+<script src="app.js"></script>
 
 </body>
 </html>
