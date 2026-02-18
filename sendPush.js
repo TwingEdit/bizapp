@@ -1,50 +1,27 @@
-// sendPush.js
 const webpush = require('web-push');
 
-// VAPID anahtarlarını bir kez oluştur
-const vapidKeys = webpush.generateVAPIDKeys();
-webpush.setVapidDetails(
-  'mailto:you@example.com',
-  vapidKeys.publicKey,
-  vapidKeys.privateKey
-);
-
-// Kullanıcının subscription objesi (tarayıcıdan alıp kaydettiğin)
-const subscription = /* veritabanından al veya test için kaydet */;
-
-webpush.sendNotification(subscription, JSON.stringify({
-  title: 'Öpücük!',
-  body: 'Yeni mesaj geldi 💖'
-}))
-.then(() => console.log('Push gönderildi ✅'))
-.catch(err => console.error('Push gönderilemedi ❌', err));
-// sendPush.js
-const webpush = require('web-push');
-
-// Daha önce oluşturduğun VAPID anahtarları
 const vapidKeys = {
-  publicKey: 'BURAYA_PUBLIC_KEY',
-  privateKey: 'BURAYA_PRIVATE_KEY'
+    publicKey: 'BB1e5kOUhOQjUW-i3_olooiI1Orafb7rKY-ETyeQ3A7smnDpr6OGAyq8o0opRT0iHqVPoLzptgHTtagmhfdMjCw',
+    privateKey: 'UF6A-UDio7IpAuBrSiG3qJXpDToDUyvShQ5laR4TbAQ'
 };
 
 webpush.setVapidDetails(
-  'mailto:you@example.com', 
-  vapidKeys.publicKey, 
-  vapidKeys.privateKey
+    'mailto:you@example.com',
+    vapidKeys.publicKey,
+    vapidKeys.privateKey
 );
 
-// Kullanıcının tarayıcıdan kaydettiğin subscription objesi
 const subscription = {
-  endpoint: "https://fcm.googleapis.com/fcm/send/...",
-  keys: {
-    p256dh: "...",
-    auth: "..."
-  }
+    endpoint: "BURAYA_ENDPOINT_URL",
+    keys: {
+        p256dh: "BURAYA_P256DH_KEY",
+        auth: "BURAYA_AUTH_KEY"
+    }
 };
 
 webpush.sendNotification(subscription, JSON.stringify({
-  title: 'Seni Öptü!',
-  body: '💖 Yeni bir öpücük mesajı geldi'
+    title: 'Seni Öptü!',
+    body: '💖 Yeni bir öpücük mesajı geldi'
 }))
 .then(() => console.log('Push gönderildi ✅'))
 .catch(err => console.error('Push gönderilemedi ❌', err));
