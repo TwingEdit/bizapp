@@ -111,16 +111,20 @@ const db = getDatabase(app);
 const room = localStorage.getItem("room") || "genel";
 const userId = localStorage.getItem("userId");
 
-// --- ÖPÜCÜK YAKALAMA SİSTEMİ ---
+// --- ÖPÜCÜK YAKALAMA SİSTEMİ (FİLTRELİ) ---
 const pageLoadTime = Date.now();
 const kissRef = ref(db, "rooms/" + room);
+let isReady = false;
+
+// Sayfa ilk açıldığında veritabanındaki eski verileri pas geçmek için 1 saniye bekle
+setTimeout(() => { isReady = true; }, 1000);
 
 onChildAdded(kissRef, (snapshot) => {
     const data = snapshot.val();
     const sentTime = data.timestamp || data.time || 0;
 
-    // Filtre: Tip kiss olacak + Gönderen başkası olacak + SAYFA AÇILDIKTAN SONRA atılmış olacak
-    if (data.type === 'kiss' && data.sender !== userId && sentTime > pageLoadTime) {
+    // SADECE: 1 sn geçmişse, tip kiss ise, başkası atmışsa ve yeni atılmışsa göster
+    if (isReady && data.type === 'kiss' && data.sender !== userId && sentTime > pageLoadTime) {
         showKiss();
     }
 });
@@ -149,7 +153,6 @@ const targetWord = wordList[Math.floor(Math.random() * wordList.length)].toUpper
 let currentRow = 0;
 let currentGuess = "";
 
-// Grid Oluştur
 const gridDiv = document.getElementById("grid");
 for (let i = 0; i < 6; i++) {
     const row = document.createElement("div"); row.className = "row";
@@ -160,7 +163,6 @@ for (let i = 0; i < 6; i++) {
     gridDiv.appendChild(row);
 }
 
-// Klavye Oluştur
 const keys = [
     ["E", "R", "T", "Y", "U", "I", "O", "P", "Ğ", "Ü"],
     ["A", "S", "D", "F", "G", "H", "J", "K", "L", "Ş", "İ"],
