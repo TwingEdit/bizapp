@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parolla Kusursuz Sürüm</title>
+  <title>Parolla Final v7.0</title>
   <style>
     :root {
       --bg: #121213;
@@ -26,6 +26,31 @@
       padding: 10px;
       height: 100vh;
       overflow: hidden;
+    }
+
+    /* SOL ÜST ANA MENÜ BUTONU */
+    #top-bar {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 100;
+    }
+
+    .home-btn {
+      background: #3a3a3c;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      transition: 0.2s;
+      text-transform: uppercase;
+    }
+
+    .home-btn:hover {
+      background: #4a4a4c;
     }
 
     #wheel-container { position: relative; width: 310px; height: 310px; margin-bottom: 20px; flex-shrink: 0; }
@@ -67,11 +92,15 @@
     .results-overlay {
       position: fixed; top:0; left:0; width:100%; height:100%;
       background: var(--bg); display: none; flex-direction: column;
-      align-items: center; justify-content: center; z-index: 100;
+      align-items: center; justify-content: center; z-index: 1000;
     }
   </style>
 </head>
 <body>
+
+  <div id="top-bar">
+    <button class="home-btn" onclick="window.location.href='index.html'">← ANA MENÜ</button>
+  </div>
 
   <div id="wheel-container"></div>
 
@@ -88,12 +117,12 @@
     <h2 style="color: var(--active); font-size: 32px;">OYUN BİTTİ</h2>
     <div id="stats-summary" style="font-size: 24px; margin-bottom: 30px;"></div>
     <button onclick="location.reload()" style="padding:15px 40px; background:var(--correct); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">YENİDEN BAŞLA</button>
+    <button onclick="window.location.href='index.html'" style="margin-top:15px; background:transparent; color:white; border:1px solid #3a3a3c; padding:10px 20px; border-radius:8px; cursor:pointer;">ANA MENÜYE DÖN</button>
   </div>
 
 <script>
 const alphabet = ["A", "B", "C", "Ç", "D", "E", "F", "G", "Ğ", "H", "I", "İ", "J", "K", "L", "M", "N", "O", "Ö", "P", "R", "S", "Ş", "T", "U", "Ü", "V", "Y", "Z"];
 
-// TÜM HARFLER İÇİN GERÇEK SORULAR (BURADA ARTIK "X İLE BAŞLAYAN" YAZISI YOK)
 const questionBank = {
   "A": {q: "IŞIK SAÇACAK BEYAZLIĞA VARINCAYA KADAR ISITILMIŞ OLAN?", a: "AKKOR"},
   "B": {q: "DOĞANIN CANLANDIĞI VE SEVGİLİNİN İSMİ OLAN MEVSİM?", a: "BAHAR"},
@@ -103,7 +132,7 @@ const questionBank = {
   "E": {q: "FEN BİLİMLERİNDE İŞ YAPABİLME YETENEĞİ?", a: "ENERJİ"},
   "F": {q: "BİTKİLERİN GÜNEŞ IŞIĞI İLE BESİN ÜRETMESİ?", a: "FOTOSENTEZ"},
   "G": {q: "DÜNYAMIZIN ISI VE IŞIK KAYNAĞI OLAN YILDIZ?", a: "GÜNEŞ"},
-  "Ğ": {q: "DİĞER ADI 'GÖK' OLAN, MAVİ BOŞLUK?", a: "GÖKYÜZÜ"}, // Başıyla değil içinde geçmesiyle de olabilir ama genelde 'G' sayılır, burada sembolik.
+  "Ğ": {q: "DİĞER ADI 'GÖK' OLAN, MAVİ BOŞLUK?", a: "GÖKYÜZÜ"},
   "H": {q: "CANLILARIN YAŞAMSAL FAALİYETLERİNİ GÖSTEREN EN KÜÇÜK BİRİM?", a: "HÜCRE"},
   "I": {q: "ETRAFI AYDINLATAN GÖRÜNÜR ENERJİ TÜRÜ?", a: "IŞIK"},
   "İ": {q: "İNSAN VÜCUDUNUN KEMİKTEN OLUŞAN ÇATISI?", a: "İSKELET"},
@@ -112,7 +141,7 @@ const questionBank = {
   "L": {q: "BİLİMSEL ARAŞTIRMALARIN YAPILDIĞI ÇALIŞMA ALANI?", a: "LABORATUVAR"},
   "M": {q: "DEMİRİ VE ÇELİĞİ ÇEKME ÖZELLİĞİ OLAN MADDE?", a: "MIKNATIS"},
   "N": {q: "YAŞAMAK İÇİN AKCİĞERLERE ALINIP VERİLEN HAVA?", a: "NEFES"},
-  "O": {q: "SOLUNUM YAPARKEN İHTİYAÇ DUYDUĞUMUZ TEMEL GAZ?", a: "OKSİJEN"},
+  "O": {q: "SOLUNUM YAPARKEN İHTIYAÇ DUYDUĞUMUZ TEMEL GAZ?", a: "OKSİJEN"},
   "Ö": {q: "BİR CİSMİN KÜTLESİNİN HACMİNE BÖLÜNMESİYLE BULUNAN DEĞER?", a: "ÖZKÜTLE"},
   "P": {q: "YILDIZLARIN ETRAFINDA DÖNEN GÖK CİSİMLERİ, GEZEGEN?", a: "PLANET"},
   "R": {q: "HAVANIN YATAY YÖNDE HAREKET ETMESİYLE OLUŞAN DOĞA OLAYI?", a: "RÜZGAR"},
@@ -154,8 +183,7 @@ function updateUI() {
     document.getElementById(`l-${letter}`).classList.add("active");
 
     const qObj = questionBank[letter];
-    // Eğer harf için soru yoksa boş göstermemesi için ufak bir kontrol
-    document.getElementById("question-text").innerText = qObj ? qObj.q : "BU HARF İÇİN SORU HAZIRLANIYOR...";
+    document.getElementById("question-text").innerText = qObj ? qObj.q : "SORU TANIMLANMAMIŞ";
     document.getElementById("answer-input").value = "";
     document.getElementById("answer-input").focus();
 }
