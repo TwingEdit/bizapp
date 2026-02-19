@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BizApp - Günlük Wordle 7</title>
+  <title>Taha 💞 Bahar - Wordle 7</title>
   <style>
     :root {
       --correct: #6aaa64;
@@ -11,6 +11,7 @@
       --absent: #3a3a3c;
       --key-bg: #818384;
       --bg: #121213;
+      --primary: #ff4d6d;
     }
 
     body {
@@ -24,41 +25,62 @@
       padding: 10px;
       height: 100vh;
       justify-content: space-between;
+      overflow: hidden;
     }
 
-    .header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px; }
-    .back-link { color: #ff4d6d; text-decoration: none; font-weight: bold; }
+    .header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px; z-index: 100; }
+    .back-link { color: var(--primary); text-decoration: none; font-weight: bold; font-size: 18px; }
 
-    /* 7 SÜTUN AYARI */
-    #grid { display: grid; grid-template-rows: repeat(6, 1fr); gap: 4px; }
-    .row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-    
+    #grid { display: grid; grid-template-rows: repeat(6, 1fr); gap: 5px; margin-top: 10px; }
+    .row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; } /* 7 Sütun */
     .tile { 
-      width: 42px; height: 42px; border: 2px solid #3a3a3c;
+      width: 45px; height: 45px; border: 2px solid #3a3a3c;
       display: flex; align-items: center; justify-content: center;
-      font-size: 20px; font-weight: bold; text-transform: uppercase;
+      font-size: 22px; font-weight: bold; text-transform: uppercase;
+      background: transparent;
     }
 
-    .correct { background: var(--correct) !important; border-color: var(--correct) !important; color: white !important; }
-    .present { background: var(--present) !important; border-color: var(--present) !important; color: white !important; }
-    .absent { background: var(--absent) !important; border-color: var(--absent) !important; color: white !important; }
+    .correct { background: var(--correct) !important; border-color: var(--correct) !important; }
+    .present { background: var(--present) !important; border-color: var(--present) !important; }
+    .absent { background: var(--absent) !important; border-color: var(--absent) !important; }
 
-    #keyboard { width: 100%; max-width: 500px; padding-bottom: 20px; }
+    #keyboard { width: 100%; max-width: 550px; padding-bottom: 15px; z-index: 100; }
     .kbd-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 8px; }
     .key {
       background: var(--key-bg); border: none; color: white; border-radius: 4px;
       padding: 18px 0; cursor: pointer; font-weight: bold; font-size: 13px;
-      flex: 1; text-transform: uppercase; transition: all 0.2s;
+      flex: 1; text-transform: uppercase;
     }
     .key.wide { flex: 1.5; }
-    .message { color: #ff8fa3; font-weight: bold; height: 20px; margin-bottom: 5px; text-align: center; }
+    .message { color: var(--primary); font-weight: bold; height: 25px; margin-bottom: 5px; }
+
+    /* Öpücük Bildirim Stilleri */
+    .kiss-notify { 
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%); 
+      background: white; color: var(--primary); padding: 15px 25px; 
+      border-radius: 50px; font-weight: bold; z-index: 9999; 
+      box-shadow: 0 10px 25px rgba(255, 77, 109, 0.4);
+      display: flex; align-items: center; gap: 10px;
+      animation: slideDown 0.5s ease-out;
+    }
+    @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
+    
+    .floating-heart { 
+      position: fixed; color: var(--primary); pointer-events: none; 
+      animation: heartPop 1.5s forwards; z-index: 9998; font-size: 25px; 
+    }
+    @keyframes heartPop { 
+      0% { transform: scale(0); opacity: 0; } 
+      50% { opacity: 1; } 
+      100% { transform: translateY(-180px) rotate(20deg) scale(1.5); opacity: 0; } 
+    }
   </style>
 </head>
 <body>
 
   <div class="header">
     <a href="wordle-menu.html" class="back-link">⬅ Geri</a>
-    <h2 style="margin:0; color:#ff4d6d;">Günlük Wordle 7</h2>
+    <h2 style="margin:0; color:var(--primary);">Wordle 7</h2>
     <div style="width:40px;"></div>
   </div>
 
@@ -73,7 +95,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, onValue, update, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
@@ -81,56 +103,81 @@ const firebaseConfig = {
   databaseURL: "https://sadece-biz-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "sadece-biz",
   storageBucket: "sadece-biz.firebasestorage.app",
-  messagingSenderId: "868755199002",
   appId: "1:868755199002:web=e8c18eb0cd11abb2292da3"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const room = localStorage.getItem("room") || "genel";
+const userId = localStorage.getItem("userId");
 
-// 7 Harfli Kelime Listesi (Burayı dilediğin gibi 365'e tamamlayabilirsin)
-const wordList = [
-  "PAPATYA", "SEVDİĞİ", "SONSUZA", "ÖMRÜMCE", "BİRTANE", "DÜNYAMS", "YILDIZI", "GÖKYÜZÜ", "CENNETİ", "HAYALİM",
-  "GERÇEĞİ", "GÜNEŞİM", "DENİZİM", "YAĞMURİ", "RÜZGARİ", "IŞIĞIMS", "KALBİMS", "ÖZLEMİM", "SEVGİSİ", "MUTLULU"
-];
+// --- ÖPÜCÜK YAKALAMA SİSTEMİ (ÇİFT KİLİTLİ) ---
+const pageLoadTime = Date.now();
+const kissRef = ref(db, "rooms/" + room);
+let initialDataLoaded = false;
 
-function getDailyWord() {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 0);
-    const diff = now - start;
-    const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
-    return wordList[dayOfYear % wordList.length].toUpperCase();
+onValue(kissRef, () => {
+    initialDataLoaded = true;
+}, { onlyOnce: true });
+
+onChildAdded(kissRef, (snapshot) => {
+    if (!initialDataLoaded) return;
+    const data = snapshot.val();
+    const sentTime = data.timestamp || data.time || 0;
+    if (data.type === 'kiss' && data.sender !== userId && sentTime > pageLoadTime) {
+        showKiss();
+    }
+});
+
+function showKiss() {
+    const notify = document.createElement("div");
+    notify.className = "kiss-notify";
+    notify.innerHTML = `<span>💋</span> Balım seni öptü!`;
+    document.body.appendChild(notify);
+    
+    for(let i=0; i<15; i++) {
+        const h = document.createElement("div");
+        h.className = "floating-heart"; h.innerText = "💖";
+        h.style.left = Math.random() * 100 + "%";
+        h.style.top = (70 + Math.random() * 10) + "%";
+        document.body.appendChild(h);
+        setTimeout(() => h.remove(), 1500);
+    }
+    setTimeout(() => notify.remove(), 3000);
 }
 
-const targetWord = getDailyWord();
+// --- WORDLE OYUN MANTIĞI (7 HARFLİ) ---
+const wordList = ["ÖMRÜMCE", "HERŞEYİM", "GÖKYÜZÜ", "SEVDALI", "MUTLULUK", "UMUDUMZ", "BİRİCİK"];
+const targetWord = wordList[Math.floor(Math.random() * wordList.length)].toUpperCase();
+
 let currentRow = 0;
 let currentGuess = "";
-const room = localStorage.getItem("room") || "genel";
 
-// Izgara Oluştur (6 satır x 7 sütun)
+// Grid Oluştur (6 satır x 7 sütun)
 const gridDiv = document.getElementById("grid");
 for (let i = 0; i < 6; i++) {
     const row = document.createElement("div"); row.className = "row";
-    for (let j = 0; j < 7; j++) { // 7 sütun
+    for (let j = 0; j < 7; j++) {
         const tile = document.createElement("div"); tile.className = "tile";
         row.appendChild(tile);
     }
     gridDiv.appendChild(row);
 }
 
+// Klavye Oluştur
 const keys = [
     ["E", "R", "T", "Y", "U", "I", "O", "P", "Ğ", "Ü"],
     ["A", "S", "D", "F", "G", "H", "J", "K", "L", "Ş", "İ"],
     ["ENTER", "Z", "C", "V", "B", "N", "M", "Ö", "Ç", "⌫"]
 ];
 
-keys.forEach((row, rowIndex) => {
-    const container = document.getElementById(`kbd-row${rowIndex + 1}`);
+keys.forEach((row, rIdx) => {
+    const container = document.getElementById(`kbd-row${rIdx + 1}`);
     row.forEach(key => {
         const btn = document.createElement("button");
         btn.innerText = key;
         btn.className = "key" + (key.length > 1 ? " wide" : "");
-        btn.id = "key-" + key.toUpperCase();
+        btn.id = "key-" + key;
         btn.onclick = () => handleInput(key);
         container.appendChild(btn);
     });
@@ -138,20 +185,14 @@ keys.forEach((row, rowIndex) => {
 
 function handleInput(key) {
     if (key === "ENTER") {
-        if (currentGuess.length === 7) submitGuess(); // 7 harf kontrolü
+        if (currentGuess.length === 7) submitGuess();
     } else if (key === "⌫" || key === "BACKSPACE") {
         currentGuess = currentGuess.slice(0, -1);
-    } else if (currentGuess.length < 7 && key.length === 1) { // 7 harf sınırı
+    } else if (currentGuess.length < 7 && /^[A-ZĞÜŞİÖÇ]$/i.test(key)) {
         currentGuess += key.toUpperCase();
     }
     updateUI();
 }
-
-document.addEventListener("keydown", (e) => {
-    let k = e.key.toUpperCase();
-    if (k === "BACKSPACE") k = "⌫";
-    handleInput(k);
-});
 
 function updateUI() {
     const rows = document.querySelectorAll(".row");
@@ -165,46 +206,38 @@ function submitGuess() {
     let targetArr = targetWord.split("");
     let guessArr = currentGuess.split("");
 
-    // Yeşil ve Klavye Yeşil İşleme
     guessArr.forEach((char, i) => {
-        const keyBtn = document.getElementById("key-" + char);
         if (char === targetArr[i]) {
             tiles[i].classList.add("correct");
-            if (keyBtn) { keyBtn.classList.remove("present", "absent"); keyBtn.classList.add("correct"); }
             targetArr[i] = null;
-            guessArr[i] = null;
         }
     });
 
-    // Sarı ve Gri İşleme
     guessArr.forEach((char, i) => {
-        if (char) {
-            const keyBtn = document.getElementById("key-" + char);
-            const index = targetArr.indexOf(char);
-            if (index !== -1) {
-                tiles[i].classList.add("present");
-                if (keyBtn && !keyBtn.classList.contains("correct")) keyBtn.classList.add("present");
-                targetArr[index] = null;
-            } else {
-                tiles[i].classList.add("absent");
-                if (keyBtn && !keyBtn.classList.contains("correct") && !keyBtn.classList.contains("present")) keyBtn.classList.add("absent");
-            }
+        if (tiles[i].classList.contains("correct")) return;
+        const idx = targetArr.indexOf(char);
+        if (idx > -1) {
+            tiles[i].classList.add("present");
+            targetArr[idx] = null;
+        } else {
+            tiles[i].classList.add("absent");
         }
     });
 
     if (currentGuess === targetWord) {
-        document.getElementById("message").innerText = "7 Harf Şampiyonu! 🏆 +30 Bağ Puanı";
-        const petRef = ref(db, `rooms/${room}/pet`);
-        onValue(petRef, (s) => {
-            const d = s.val() || {bond: 0};
-            update(petRef, { bond: d.bond + 30 });
-        }, { onlyOnce: true });
+        document.getElementById("message").innerText = "Tebrikler Balım! 💖";
     } else {
         currentRow++;
         currentGuess = "";
-        if (currentRow === 6) document.getElementById("message").innerText = "Cevap: " + targetWord;
+        if (currentRow === 6) document.getElementById("message").innerText = "Kelime: " + targetWord;
     }
 }
+
+document.addEventListener("keydown", (e) => {
+    let k = e.key.toUpperCase();
+    if (k === "BACKSPACE") k = "⌫";
+    handleInput(k);
+});
 </script>
 </body>
 </html>
