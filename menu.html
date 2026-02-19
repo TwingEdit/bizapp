@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BizApp - Ana Menü</title>
+  <style>
+    :root {
+      --primary: #ff4d6d;
+      --secondary: #ff8fa3;
+      --bg: #f3e7ea;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    h1 {
+      color: var(--primary);
+      margin-bottom: 5px;
+      font-size: 28px;
+    }
+
+    .room-info {
+      color: #888;
+      margin-bottom: 30px;
+      font-size: 14px;
+      background: rgba(255,255,255,0.5);
+      padding: 5px 15px;
+      border-radius: 20px;
+    }
+
+    .menu-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 90%;
+      max-width: 350px;
+    }
+
+    .menu-card {
+      background: white;
+      text-decoration: none;
+      padding: 20px;
+      border-radius: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .menu-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--primary);
+    }
+
+    .card-content {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .icon-box {
+      font-size: 35px;
+      background: var(--bg);
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 15px;
+    }
+
+    .text-box {
+      text-align: left;
+    }
+
+    .text-box h2 {
+      margin: 0;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .text-box p {
+      margin: 0;
+      font-size: 12px;
+      color: #999;
+    }
+
+    .arrow {
+      color: var(--primary);
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .logout-btn {
+      margin-top: 40px;
+      color: #aaa;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>💞 BizApp Dünyası</h1>
+  <div class="room-info">Oda: <span id="roomName">...</span></div>
+
+  <div class="menu-grid">
+    <a href="kiss.html" class="menu-card">
+      <div class="card-content">
+        <div class="icon-box">💋</div>
+        <div class="text-box">
+          <h2>Öpücük At</h2>
+          <p>Ona olan sevgini göster</p>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+    </a>
+
+    <a href="pet.html" class="menu-card">
+      <div class="card-content">
+        <div class="icon-box">🧸</div>
+        <div class="text-box">
+          <h2>Ayıcık Bakımı</h2>
+          <p>Birlikte büyütün</p>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+    </a>
+
+    <a href="wordle-menu.html" class="menu-card">
+      <div class="card-content">
+        <div class="icon-box">🧩</div>
+        <div class="text-box">
+          <h2>Wordle Türkçe</h2>
+          <p>Kelimeleri tahmin et</p>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+    </a>
+  </div>
+
+  <div class="logout-btn" onclick="logout()">Odayı Değiştir / Çıkış Yap</div>
+
+  <script>
+    // Giriş yapılan oda adını göster
+    const currentRoom = localStorage.getItem("room") || "Bilinmiyor";
+    document.getElementById("roomName").innerText = currentRoom.toUpperCase();
+
+    function logout() {
+      if(confirm("Odadan çıkmak istediğine emin misin?")) {
+        localStorage.removeItem("room");
+        window.location.href = "index.html";
+      }
+    }
+  </script>
+
+</body>
+</html>
