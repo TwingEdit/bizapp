@@ -110,27 +110,33 @@ if (!userId) {
 const msgsContainer = document.getElementById("msgList");
 const kissBtn = document.getElementById("kissButton");
 
-// Kalp oluşturma fonksiyonu (rastgele x)
-function createHeart() {
-  const heart = document.createElement("div");
-  heart.classList.add("heart");
-  heart.innerText = "💖";
+// Kalp oluşturma fonksiyonu (çoklu ve rastgele)
+function createHearts(count = 10) {
+  for (let i = 0; i < count; i++) {
+    const heart = document.createElement("div");
+    heart.classList.add("heart");
+    heart.innerText = "💖";
 
-  // Rastgele pozisyon: ekran ortası ±100px
-  const centerX = window.innerWidth / 2;
-  const centerY = window.innerHeight / 2;
-  const offsetX = Math.random() * 200 - 100; // -100 -> +100
-  const offsetY = Math.random() * 50 - 25;   // biraz yukarı-aşağı
-  heart.style.left = centerX + offsetX + "px";
-  heart.style.top = centerY + offsetY + "px";
+    // Rastgele pozisyon: ekran ortası ±150px
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const offsetX = Math.random() * 300 - 150; // -150 -> +150
+    const offsetY = Math.random() * 100 - 50;   // -50 -> +50
+    heart.style.left = centerX + offsetX + "px";
+    heart.style.top = centerY + offsetY + "px";
 
-  document.body.appendChild(heart);
-  setTimeout(() => heart.remove(), 1000);
+    // Rastgele boyut
+    const scale = Math.random() * 0.5 + 1;
+    heart.style.fontSize = `${30 * scale}px`;
+
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 1000 + Math.random() * 500);
+  }
 }
 
 // Öpücük butonu
 kissBtn.onclick = () => {
-  createHeart();               // Patlayan kalp
+  createHearts(10); // 10 kalp rastgele
   push(roomRef, { sender: userId, time: Date.now() }); // Firebase'e kaydet
 };
 
