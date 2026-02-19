@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parolla Final v7.2</title>
+  <title>Parolla Final v7.5</title>
   <style>
     :root {
       --bg: #121213;
@@ -12,6 +12,7 @@
       --wrong: #ff4d6d;
       --active: #4cc9f0;
       --passed: #f9c74f;
+      --bizapp-pink: #ff4d6d;
     }
 
     body {
@@ -28,7 +29,7 @@
       overflow: hidden;
     }
 
-    /* SOL ÜST ANA MENÜ BUTONU - BİZAPP DÜNYASINA DÖNÜŞ */
+    /* ÜST BAR VE MENÜ BUTONU */
     #nav-bar {
       position: fixed;
       top: 0;
@@ -50,11 +51,13 @@
       pointer-events: auto;
       transition: 0.3s;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      text-decoration: none;
+      display: inline-block;
     }
 
     .home-btn:hover {
-      background: #ff4d6d; /* BizApp pembesine yakın bir renk */
-      border-color: #ff4d6d;
+      background: var(--bizapp-pink);
+      border-color: var(--bizapp-pink);
       transform: translateY(-2px);
     }
 
@@ -98,7 +101,7 @@
 <body>
 
   <div id="nav-bar">
-    <button class="home-btn" onclick="window.location.href='index.html'">← BİZAPP DÜNYASI</button>
+    <button class="home-btn" onclick="window.location.href='menu.html'">← BİZAPP DÜNYASI</button>
   </div>
 
   <div id="wheel-container"></div>
@@ -115,12 +118,12 @@
   <div id="results-screen" class="results-overlay">
     <h2 style="color: var(--active); font-size: 32px;">OYUN BİTTİ</h2>
     <div id="stats-summary" style="font-size: 24px; margin-bottom: 30px;"></div>
-    <button class="action-btn btn-check" style="max-width: 200px;" onclick="location.reload()">YENİDEN BAŞLA</button>
-    <button class="home-btn" style="margin-top: 20px; pointer-events: auto;" onclick="window.location.href='index.html'">MENÜYE DÖN</button>
+    <button class="action-btn btn-check" style="max-width: 250px; margin-bottom: 10px;" onclick="location.reload()">YENİDEN BAŞLA</button>
+    <button class="home-btn" style="pointer-events: auto;" onclick="window.location.href='menu.html'">MENÜYE DÖN</button>
   </div>
 
 <script>
-// Soru bankası ve mantık (v7.1 ile aynı, tertemiz sorular)
+// Soru bankası v7.1'deki o çok sevdiğin sade ve düzgün haliyle duruyor
 const alphabet = ["A", "B", "C", "Ç", "D", "E", "F", "G", "Ğ", "H", "I", "İ", "J", "K", "L", "M", "N", "O", "Ö", "P", "R", "S", "Ş", "T", "U", "Ü", "V", "Y", "Z"];
 const questionBank = {
   "A": {q: "IŞIK SAÇACAK BEYAZLIĞA VARINCAYA KADAR ISITILMIŞ OLAN?", a: "AKKOR"},
@@ -140,7 +143,7 @@ const questionBank = {
   "L": {q: "BİLİMSEL ARAŞTIRMALARIN YAPILDIĞI ÇALIŞMA ALANI?", a: "LABORATUVAR"},
   "M": {q: "DEMİRİ VE ÇELİĞİ ÇEKME ÖZELLİĞİ OLAN MADDE?", a: "MIKNATIS"},
   "N": {q: "YAŞAMAK İÇİN AKCİĞERLERE ALINIP VERİLEN HAVA?", a: "NEFES"},
-  "O": {q: "SOLUNUM YAPARKEN İHTİYAÇ DUYDUĞUMUZ TEMEL GAZ?", a: "OKSİJEN"},
+  "O": {q: "SOLUNUM YAPARKEN İHTIYAÇ DUYDUĞUMUZ TEMEL GAZ?", a: "OKSİJEN"},
   "Ö": {q: "BİR CİSMİN KÜTLESİNİN HACMİNE BÖLÜNMESİYLE BULUNAN DEĞER?", a: "ÖZKÜTLE"},
   "P": {q: "YILDIZLARIN ETRAFINDA DÖNEN GÖK CİSİMLERİ, GEZEGEN?", a: "PLANET"},
   "R": {q: "HAVANIN YATAY YÖNDE HAREKET ETMESİYLE OLUŞAN DOĞA OLAYI?", a: "RÜZGAR"},
