@@ -9,6 +9,7 @@
       --primary: #ff4d6d;
       --secondary: #ff8fa3;
       --bg: #f3e7ea;
+      --parola-color: #4cc9f0; /* Parola için özel renk */
     }
 
     body {
@@ -64,6 +65,11 @@
       border-color: var(--primary);
     }
 
+    /* Parola kartına özel hover rengi */
+    .menu-card.parola:hover {
+      border-color: var(--parola-color);
+    }
+
     .card-content {
       display: flex;
       align-items: center;
@@ -101,6 +107,10 @@
       color: var(--primary);
       font-weight: bold;
       font-size: 20px;
+    }
+
+    .parola .arrow {
+      color: var(--parola-color);
     }
 
     .logout-btn {
@@ -150,12 +160,22 @@
       </div>
       <div class="arrow">→</div>
     </a>
+
+    <a href="parola.html" class="menu-card parola">
+      <div class="card-content">
+        <div class="icon-box">🎡</div>
+        <div class="text-box">
+          <h2>Parola</h2>
+          <p>Harf çemberini tamamla</p>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+    </a>
   </div>
 
   <div class="logout-btn" onclick="logout()">Odayı Değiştir / Çıkış Yap</div>
 
   <script>
-    // Giriş yapılan oda adını göster
     const currentRoom = localStorage.getItem("room") || "Bilinmiyor";
     document.getElementById("roomName").innerText = currentRoom.toUpperCase();
 
