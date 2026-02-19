@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>BizApp - Wordle 5</title>
+  <style>
+    :root { --correct: #6aaa64; --present: #c9b458; --absent: #787c7e; --bg: #121213; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; display: flex; flex-direction: column; align-items: center; margin: 0; padding-top: 50px; }
+    .back-btn { position: fixed; top: 20px; left: 20px; color: white; text-decoration: none; font-weight: bold; }
+    
+    #grid { display: grid; grid-template-rows: repeat(6, 1fr); gap: 5px; margin-bottom: 20px; }
+    .row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+    .tile { width: 50px; height: 50px; border: 2px solid #3a3a3c; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
+    
+    .correct { background: var(--correct); border-color: var(--correct); }
+    .present { background: var(--present); border-color: var(--present); }
+    .absent { background: var(--absent); border-color: var(--absent); }
+
+    input#guessInput { position: absolute; opacity: 0; pointer-events: none; }
+    .message { margin-top: 20px; font-weight: bold; color: #ff4d6d; }
+  </style>
+</head>
+<body>
+
+<a href="wordle-menu.html" class="back-btn">⬅ Geri</a>
+<h1>Wordle 5</h1>
+<div id="grid"></div>
+<input type="text" id="guessInput" maxlength="5" autofocus>
+<div id="message" class="message"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
+  authDomain: "sadece-biz.firebaseapp.com",
+  databaseURL: "https://sadece-biz-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "sadece-biz",
+  storageBucket: "sadece-biz.firebasestorage.app",
+  messagingSenderId: "868755199002",
+  appId: "1:868755199002:web=e8c18eb0cd11abb2292da3"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const targetWord = "GÜNEŞ"; // Günün kelimesini buradan veya Firebase'den çekebilirsin
+let currentRow = 0;
+let currentGuess = "";
+const room = localStorage.getItem("room") || "genel";
+
+// Izgarayı oluştur
+const grid = document.getElementById("grid");
+for (let i = 0; i < 6; i++) {
+    const row = document.createElement("div");
+    row.className = "row";
+    for (let j = 0; j < 5; j++) {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        row.appendChild(tile);
+    }
+    grid.appendChild(row);
+}
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        if (currentGuess.length === 5) submitGuess();
+    } else if (e.key === "Backspace") {
+        currentGuess = currentGuess.slice(0, -1);
+    } else if (/^[a-zA-ZğüşıiöçĞÜŞİÖÇ]$/.test(e.key) && currentGuess.length < 5) {
+        currentGuess += e.key.toUpperCase();
+    }
+    updateGrid();
+});
+
+function updateGrid() {
+    const rows = document.querySelectorAll(".row");
+    const tiles = rows[currentRow].querySelectorAll(".tile");
+    tiles.forEach((tile, i) => {
+        tile.innerText = currentGuess[i] || "";
+    });
+}
+
+function submitGuess() {
+    const rows = document.querySelectorAll(".row");
+    const tiles = rows[currentRow].querySelectorAll(".tile");
+    let checkWord = targetWord;
+
+    tiles.forEach((tile, i) => {
+        const char = currentGuess[i];
+        if (char === targetWord[i]) {
+            tile.classList.add("correct");
+        } else if (targetWord.includes(char)) {
+            tile.classList.add("present");
+        } else {
+            tile.classList.add("absent");
+        }
+    });
+
+    if (currentGuess === targetWord) {
+        document.getElementById("message").innerText = "Tebrikler! Bağ puanınız arttı! 🎉";
+        const petRef = ref(db, `rooms/${room}/pet`);
+        // Kazanınca bağ puanını artır
+        onValue(petRef, (s) => {
+            const d = s.val();
+            update(petRef, { bond: (d.bond || 0) + 20 });
+        }, { onlyOnce: true });
+    } else {
+        currentRow++;
+        currentGuess = "";
+        if (currentRow === 6) document.getElementById("message").innerText = "Kelime: " + targetWord;
+    }
+}
+</script>
+</body>
+</html>
