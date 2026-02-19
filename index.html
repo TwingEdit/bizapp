@@ -8,7 +8,7 @@
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       text-align: center;
-      background: #ffe4ec; /* Açık pembe arka plan */
+      background: #ffe4ec; 
       margin: 0;
       display: flex;
       flex-direction: column;
@@ -20,7 +20,7 @@
     .login-card {
       background: white;
       padding: 40px;
-      border-radius: 40px; /* Daha oval köşeler */
+      border-radius: 40px; 
       box-shadow: 0 15px 35px rgba(255, 77, 109, 0.15);
       width: 90%;
       max-width: 350px;
@@ -28,11 +28,6 @@
 
     .logo-area {
       margin-bottom: 20px;
-    }
-
-    .heart-icon {
-      width: 60px;
-      margin-bottom: 10px;
     }
 
     h1 { 
@@ -64,7 +59,6 @@
 
     input:focus { 
       border-color: #ff4d6d;
-      background: white;
     }
 
     button {
@@ -85,11 +79,6 @@
     button:hover { 
       background: #ff3355; 
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(255, 77, 109, 0.4);
-    }
-
-    button:active {
-      transform: translateY(0);
     }
   </style>
 </head>
@@ -97,13 +86,13 @@
 
   <div class="login-card">
     <div class="logo-area">
-      <div style="font-size: 45px; margin-bottom: 10px;">💞</div>
+      <div style="font-size: 50px; margin-bottom: 10px;">💞</div>
       <h1>Taha 💞 Bahar</h1>
     </div>
     
     <p>Oda kodunuzu girerek bağlanın</p>
 
-    <input id="roomInput" placeholder="örn: askim123" onkeypress="handleKeyPress(event)">
+    <input id="roomInput" placeholder="örn: balım" onkeypress="handleKeyPress(event)">
     
     <button onclick="joinRoom()">Dünyamıza Gir ✨</button>
   </div>
@@ -115,13 +104,10 @@
         alert("Lütfen en az 2 karakterli bir oda kodu girin 🌸");
         return;
       }
-      // Oda ismini kaydet
       localStorage.setItem("room", room.toLowerCase());
-      // Ana menüye yönlendir
       window.location.href = "menu.html";
     }
 
-    // Enter tuşuna basınca girmesini sağlar
     function handleKeyPress(e) {
       if (e.key === "Enter") {
         joinRoom();
