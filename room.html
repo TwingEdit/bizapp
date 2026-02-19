@@ -11,6 +11,7 @@
       margin: 0;
       padding-top: 80px;
       overflow-x: hidden;
+      position: relative;
     }
 
     button {
@@ -52,15 +53,16 @@
       transition: background-color 0.5s ease;
     }
 
+    /* Kalp animasyonu */
     @keyframes heartPop {
       0% { transform: scale(0); opacity: 0; }
       50% { transform: scale(1.5); opacity: 1; }
       100% { transform: scale(1); opacity: 0; }
     }
-
     .heart {
       position: absolute;
       color: #ff4d6d;
+      font-size: 30px;
       pointer-events: none;
       animation: heartPop 0.8s ease forwards;
     }
@@ -75,7 +77,6 @@
 
 <div id="msgList"></div>
 
-<!-- Firebase + Oda sistemi -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -94,6 +95,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// Oda ve kullanıcı ID
 let room = localStorage.getItem("room") || "genel";
 room = room.trim().toLowerCase();
 const roomRef = ref(db, "rooms/" + room);
@@ -107,43 +109,44 @@ if (!userId) {
 const msgsContainer = document.getElementById("msgList");
 const kissBtn = document.getElementById("kissButton");
 
-// Random kalp efekti, daha dağınık ve fazla sayı
-function createHearts(num = 15) {
+// Kalp efekti oluştur
+function createHearts(num = 20) {
   for (let i = 0; i < num; i++) {
     const heart = document.createElement("div");
     heart.className = "heart";
     heart.innerText = "💖";
 
-    const xOffset = (Math.random() - 0.5) * 600; // -300px ila +300px
-    const yOffset = (Math.random() - 0.5) * 400; // -200px ila +200px
-    heart.style.left = (window.innerWidth / 2 + xOffset) + "px";
-    heart.style.top = (window.innerHeight / 2 + yOffset) + "px";
-
-    heart.style.fontSize = (20 + Math.random() * 30) + "px";
+    const xOffset = (Math.random() - 0.5) * window.innerWidth;
+    const yOffset = (Math.random() - 0.5) * window.innerHeight;
+    heart.style.left = (window.innerWidth/2 + xOffset) + "px";
+    heart.style.top = (window.innerHeight/2 + yOffset) + "px";
+    heart.style.fontSize = (20 + Math.random() * 40) + "px";
 
     document.body.appendChild(heart);
     setTimeout(() => heart.remove(), 800);
   }
 }
 
-// Öpücük gönder
+// Öpücük gönderme (yalnızca Firebase)
 kissBtn.onclick = () => {
-  createHearts(); // 15 kalp patlasın
   push(roomRef, { sender: userId, time: Date.now() });
 };
 
-// Mesajları göster
+// Mesajları dinleme (alıcı taraf için kalp)
 onValue(roomRef, (snapshot) => {
   msgsContainer.innerHTML = "";
-
   const messages = [];
   snapshot.forEach(childSnap => {
     const data = childSnap.val();
-    if (data.sender !== userId) messages.push(data);
+    messages.push(data);
   });
 
   const lastMsgs = messages.slice(-3);
+
   lastMsgs.forEach((data, index) => {
+    // Eğer mesajın göndereni sen değilsen, kalpler patlasın
+    if (data.sender !== userId) createHearts(20);
+
     const p = document.createElement("p");
     const t = new Date(data.time).toLocaleTimeString();
     p.innerText = `💋 Seni Öptü! (${t})`;
@@ -155,12 +158,9 @@ onValue(roomRef, (snapshot) => {
 
     msgsContainer.appendChild(p);
   });
-
 });
 </script>
 
-<!-- PUSH sistemi -->
 <script src="app.js"></script>
-
 </body>
 </html>
