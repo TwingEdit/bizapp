@@ -11,6 +11,7 @@
       --absent: #3a3a3c;
       --key-bg: #818384;
       --bg: #121213;
+      --primary: #ff4d6d;
     }
 
     body {
@@ -24,10 +25,11 @@
       padding: 10px;
       height: 100vh;
       justify-content: space-between;
+      overflow: hidden;
     }
 
-    .header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px; }
-    .back-link { color: #ff4d6d; text-decoration: none; font-weight: bold; }
+    .header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px; z-index: 10; }
+    .back-link { color: var(--primary); text-decoration: none; font-weight: bold; }
 
     #grid { display: grid; grid-template-rows: repeat(6, 1fr); gap: 5px; }
     .row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
@@ -35,13 +37,14 @@
       width: 50px; height: 50px; border: 2px solid #3a3a3c;
       display: flex; align-items: center; justify-content: center;
       font-size: 25px; font-weight: bold; text-transform: uppercase;
+      background: transparent;
     }
 
     .correct { background: var(--correct) !important; border-color: var(--correct) !important; color: white !important; }
     .present { background: var(--present) !important; border-color: var(--present) !important; color: white !important; }
     .absent { background: var(--absent) !important; border-color: var(--absent) !important; color: white !important; }
 
-    #keyboard { width: 100%; max-width: 500px; padding-bottom: 20px; }
+    #keyboard { width: 100%; max-width: 500px; padding-bottom: 20px; z-index: 10; }
     .kbd-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 8px; }
     .key {
       background: var(--key-bg); border: none; color: white; border-radius: 4px;
@@ -50,13 +53,19 @@
     }
     .key.wide { flex: 1.5; }
     .message { color: #ff8fa3; font-weight: bold; height: 20px; margin-bottom: 5px; text-align: center; }
+
+    /* Öpücük Bildirim Stilleri */
+    .kiss-notify { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: white; color: var(--primary); padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 10px 25px rgba(255, 77, 109, 0.3); z-index: 9999; display: flex; align-items: center; gap: 10px; animation: slideDown 0.5s ease-out; }
+    @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
+    .floating-heart { position: fixed; color: var(--primary); pointer-events: none; animation: heartPop 1.5s forwards; z-index: 10000; font-size: 25px; }
+    @keyframes heartPop { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-150px) rotate(20deg) scale(1.5); opacity: 0; } }
   </style>
 </head>
 <body>
 
   <div class="header">
     <a href="wordle-menu.html" class="back-link">⬅ Geri</a>
-    <h2 style="margin:0; color:#ff4d6d;">Günlük Wordle</h2>
+    <h2 style="margin:0; color:var(--primary);">Günlük Wordle</h2>
     <div style="width:40px;"></div>
   </div>
 
@@ -71,7 +80,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, onValue, update, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
@@ -85,32 +94,56 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const room = localStorage.getItem("room") || "genel";
+const userId = localStorage.getItem("userId");
 
-// --- 365 Kelimelik Havuz (Örnek başlangıç, burayı dilediğin kelimelerle doldurabilirsin) ---
+// --- ÖPÜCÜK DİNLEME SİSTEMİ ---
+const pageLoadTime = Date.now();
+const kissRef = ref(db, "rooms/" + room);
+
+onChildAdded(kissRef, (snapshot) => {
+  const data = snapshot.val();
+  const sentTime = data.timestamp || data.time || 0;
+  if (data.type === 'kiss' && data.sender !== userId && sentTime > pageLoadTime) {
+    showKissNotification();
+  }
+});
+
+function showKissNotification() {
+  const notify = document.createElement("div");
+  notify.className = "kiss-notify";
+  notify.innerHTML = `<span>💋</span> Balım sana bir öpücük gönderdi!`;
+  document.body.appendChild(notify);
+  
+  for(let i=0; i<15; i++) {
+    const h = document.createElement("div");
+    h.className="floating-heart"; h.innerText="💖";
+    h.style.left = Math.random()*100+"%"; h.style.top = "70%";
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(), 1500);
+  }
+  setTimeout(() => notify.remove(), 3000);
+}
+
+// --- WORDLE OYUN MANTIĞI ---
 const wordList = [
-  "GÜNEŞ", "SEVGİ", "BİRLİK", "DENİZ", "MELEK", "RÜZGA", "DÜNYA", "ÇİÇEK", "BAHAR", "HAYAT",
-  "NEFES", "BULUT", "IŞIKL", "GECEY", "HUZUR", "BEYAZ", "PEMBE", "GÖNÜL", "KALPİ", "ÖMÜRÜ",
-  "SABAH", "YILDI", "MASAL", "RÜYAŞ", "ŞEKER", "BALIM", "CANIM", "AŞKIM", "BİTAN", "YOLCU",
-  "DENİZ", "ORMAN", "TOPRA", "ATEŞİ", "İNCİM", "GÜLÜM", "ZEYTİ", "KİRAZ", "ELMAY", "GÜMÜŞ"
-  // ... Bu listeyi 365'e tamamlayabilirsin. Sistem otomatik sıradakini seçer.
+  "GÜNEŞ", "SEVGİ", "DENİZ", "MELEK", "RÜZGA", "DÜNYA", "ÇİÇEK", "BAHAR", "HAYAT",
+  "NEFES", "BULUT", "IŞIKL", "HUZUR", "BEYAZ", "PEMBE", "GÖNÜL", "SABAH", "MASAL", 
+  "ŞEKER", "BALIM", "CANIM", "AŞKIM", "YOLCU", "ORMAN", "TOPRA", "İNCİM", "GÜLÜM"
 ];
 
-// Kelimeyi tarihe göre seçen fonksiyon
 function getDailyWord() {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);
     const diff = now - start;
-    const oneDay = 1000 * 60 * 60 * 24;
-    const dayOfYear = Math.floor(diff / oneDay);
+    const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
     return wordList[dayOfYear % wordList.length].toUpperCase();
 }
 
 const targetWord = getDailyWord();
 let currentRow = 0;
 let currentGuess = "";
-const room = localStorage.getItem("room") || "genel";
 
-// Izgara ve Klavye Oluşturma (Önceki kodun aynısı)
 const gridDiv = document.getElementById("grid");
 for (let i = 0; i < 6; i++) {
     const row = document.createElement("div"); row.className = "row";
@@ -153,6 +186,7 @@ function handleInput(key) {
 document.addEventListener("keydown", (e) => {
     let k = e.key.toUpperCase();
     if (k === "BACKSPACE") k = "⌫";
+    if (k === "I") k = "İ"; // Türkçe klavye düzeltmesi
     handleInput(k);
 });
 
@@ -168,7 +202,6 @@ function submitGuess() {
     let targetArr = targetWord.split("");
     let guessArr = currentGuess.split("");
 
-    // Renklendirme ve Klavye Güncelleme
     guessArr.forEach((char, i) => {
         const keyBtn = document.getElementById("key-" + char);
         if (char === targetArr[i]) {
