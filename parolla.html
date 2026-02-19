@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BizApp - Parolla</title>
+  <title>BizApp - Parolla v2.5</title>
   <style>
     :root {
       --bg: #121213;
       --text: #d7dadc;
-      --correct: #6aaa64;
-      --wrong: #ff4d6d;
-      --active: #4cc9f0;
-      --passed: #f9c74f;
+      --correct: #6aaa64; /* Yeşil */
+      --wrong: #ff4d6d;   /* Kırmızı */
+      --active: #4cc9f0;  /* Mavi (Odak) */
+      --passed: #f9c74f;  /* Sarı */
     }
 
     body {
@@ -28,7 +28,7 @@
       overflow: hidden;
     }
 
-    /* ÜST BAR VE ANA EKRAN BUTONU */
+    /* ÜST BAR */
     #top-bar {
       position: absolute;
       top: 20px;
@@ -44,81 +44,46 @@
       color: white;
       padding: 8px 15px;
       border-radius: 5px;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: bold;
       border: none;
       cursor: pointer;
+      font-weight: bold;
     }
 
-    /* SALLAMA EFEKTİ */
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20% { transform: translateX(-10px); }
-      40% { transform: translateX(10px); }
-      60% { transform: translateX(-10px); }
-      80% { transform: translateX(10px); }
-    }
-
-    .shake-effect {
-      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
-      border-bottom-color: var(--wrong) !important;
-    }
-
+    /* ÇEMBER VE HARFLER */
     #wheel-container { position: relative; width: 310px; height: 310px; margin-bottom: 20px; flex-shrink: 0; }
     
     .letter {
       position: absolute; width: 32px; height: 32px; border-radius: 50%;
       background: #3a3a3c; display: flex; align-items: center; justify-content: center;
-      font-weight: bold; font-size: 13px; transition: 0.3s; color: white;
+      font-weight: bold; font-size: 13px; transition: background 0.3s, transform 0.2s; color: white;
     }
     
-    .active { background: var(--active); transform: scale(1.3); box-shadow: 0 0 15px var(--active); z-index: 5; }
-    .correct { background: var(--correct) !important; color: white !important; }
-    .wrong { background: var(--wrong) !important; color: white !important; }
-    .passed { background: var(--passed) !important; color: #333 !important; }
+    /* ÖNCELİK SIRALAMASI: active > correct/wrong > passed */
+    .active { border: 3px solid white; transform: scale(1.3); z-index: 10; box-shadow: 0 0 15px var(--active); }
+    .correct { background-color: var(--correct) !important; color: white !important; }
+    .wrong { background-color: var(--wrong) !important; color: white !important; }
+    .passed { background-color: var(--passed) !important; color: #333 !important; }
 
+    /* SORU KARTI */
     #question-card { width: 100%; max-width: 600px; display: flex; flex-direction: column; align-items: center; }
-
-    #question-text {
-      font-size: 20px;
-      font-weight: 800;
-      line-height: 1.3;
-      text-transform: uppercase;
-      margin-bottom: 20px;
-      min-height: 80px;
-      text-align: center;
-      padding: 0 15px;
-    }
+    #question-text { font-size: 20px; font-weight: 800; min-height: 80px; text-align: center; margin-bottom: 20px; text-transform: uppercase; }
 
     input {
-      width: 80%;
-      padding: 15px;
-      background: transparent;
-      border: none;
-      border-bottom: 3px solid #3a3a3c;
-      color: white;
-      font-size: 22px;
-      text-align: center;
-      text-transform: uppercase;
-      outline: none;
+      width: 80%; padding: 15px; background: transparent; border: none;
+      border-bottom: 3px solid #3a3a3c; color: white; font-size: 22px;
+      text-align: center; text-transform: uppercase; outline: none;
     }
 
-    #warning-msg { color: var(--wrong); font-size: 14px; height: 20px; margin-top: 10px; font-weight: bold; }
-
-    .btn-group { display: flex; gap: 20px; width: 80%; justify-content: center; margin-top: 15px; }
-    button { flex: 1; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 16px; }
+    .btn-group { display: flex; gap: 20px; width: 80%; justify-content: center; margin-top: 20px; }
+    button.action-btn { flex: 1; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; }
     .btn-check { background: var(--correct); color: white; }
     .btn-pass { background: var(--passed); color: #333; }
 
+    /* SONUÇ EKRANI */
     .results-overlay {
       position: fixed; top:0; left:0; width:100%; height:100%;
       background: var(--bg); display: none; flex-direction: column;
       align-items: center; padding: 20px; overflow-y: auto; z-index: 100;
-    }
-    .result-item { 
-      margin: 5px 0; font-size: 14px; width: 100%; max-width: 450px; 
-      display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 8px; 
     }
   </style>
 </head>
@@ -126,180 +91,152 @@
 
   <div id="top-bar">
     <button class="home-btn" onclick="window.location.href='index.html'">← ANA EKRAN</button>
-    <div style="font-weight: bold; color: var(--active);">PAROLLA v2.0</div>
+    <div style="font-weight: bold; color: var(--active);">PAROLLA v2.5</div>
   </div>
 
   <div id="wheel-container"></div>
 
   <div id="question-card">
-    <div id="question-text">HAZIR MISIN?</div>
-    <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-      <input type="text" id="answer-input" placeholder="CEVABI YAZIN" autocomplete="off">
-      <div id="warning-msg"></div>
-    </div>
+    <div id="question-text">YÜKLENİYOR...</div>
+    <input type="text" id="answer-input" placeholder="CEVABI YAZIN" autocomplete="off">
     <div class="btn-group">
-      <button class="btn-pass" onclick="handlePass()">PAS</button>
-      <button class="btn-check" onclick="handleCheck()">CEVAPLA</button>
+      <button class="action-btn btn-pass" onclick="handlePass()">PAS</button>
+      <button class="action-btn btn-check" onclick="handleCheck()">CEVAPLA</button>
     </div>
   </div>
 
   <div id="results-screen" class="results-overlay">
-    <h2 style="color: var(--active)">YARIŞMA SONUCU</h2>
-    <div id="stats-summary" style="font-size: 20px; margin-bottom: 20px; font-weight: bold;"></div>
-    <div id="answers-list" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
-    <button onclick="location.reload()" style="margin-top:20px; background:var(--active); color:white; width:200px;">YENİDEN OYNA</button>
-    <button onclick="window.location.href='index.html'" style="margin-top:10px; background:#3a3a3c; color:white; width:200px; border:none; padding:10px; border-radius:8px; cursor:pointer;">ANA EKRANA DÖN</button>
+    <h2 style="color: var(--active)">OYUN BİTTİ</h2>
+    <div id="stats-summary" style="font-size: 20px; margin-bottom: 20px;"></div>
+    <button onclick="location.reload()" style="padding:15px; background:var(--correct); color:white; border:none; border-radius:8px; cursor:pointer;">YENİDEN BAŞLA</button>
   </div>
 
 <script>
 const alphabet = ["A", "B", "C", "Ç", "D", "E", "F", "G", "H", "I", "İ", "J", "K", "L", "M", "N", "O", "Ö", "P", "R", "S", "Ş", "T", "U", "Ü", "V", "Y", "Z"];
 
-// SORU BANKASI - HER HARF İÇİN 30 SORU (Örnekleme yapılmıştır, listeyi genişlettim)
-const questionBank = {
-  "A": Array.from({length: 30}, (_, i) => ({q: `A harfi ile başlayan ${i+1}. soru: Işık saçan nesne?`, a: "AKKOR"})),
-  "B": [{q: "Doğanın canlandığı ve senin sevgilinin ismi olan mevsim?", a: "BAHAR"}, ...Array.from({length: 29}, (_, i) => ({q: `B harfi ile başlayan ${i+2}. soru: Denge organı?`, a: "BEYİNCİK"}))],
-  "C": Array.from({length: 30}, (_, i) => ({q: `C harfi ile başlayan ${i+1}. soru: Yanıt?`, a: "CEVAP"})),
-  "Ç": Array.from({length: 30}, (_, i) => ({q: `Ç harfi ile başlayan ${i+1}. soru: Yaşam alanı?`, a: "ÇEVRE"})),
-  "D": Array.from({length: 30}, (_, i) => ({q: `D harfi ile başlayan ${i+1}. soru: Sarsıntı?`, a: "DEPREM"})),
-  "E": Array.from({length: 30}, (_, i) => ({q: `E harfi ile başlayan ${i+1}. soru: İş gücü?`, a: "ENERJİ"})),
-  "F": Array.from({length: 30}, (_, i) => ({q: `F harfi ile başlayan ${i+1}. soru: Görüş?`, a: "FİKİR"})),
-  "G": Array.from({length: 30}, (_, i) => ({q: `G harfi ile başlayan ${i+1}. soru: Yıldızımız?`, a: "GÜNEŞ"})),
-  "H": Array.from({length: 30}, (_, i) => ({q: `H harfi ile başlayan ${i+1}. soru: Canlı birimi?`, a: "HÜCRE"})),
-  "I": Array.from({length: 30}, (_, i) => ({q: `I harfi ile başlayan ${i+1}. soru: Görme enerjisi?`, a: "IŞIK"})),
-  "İ": Array.from({length: 30}, (_, i) => ({q: `İ harfi ile başlayan ${i+1}. soru: Buluş?`, a: "İCAT"})),
-  "J": Array.from({length: 30}, (_, i) => ({q: `J harfi ile başlayan ${i+1}. soru: Güç kaynağı?`, a: "JENERATÖR"})),
-  "K": Array.from({length: 30}, (_, i) => ({q: `K harfi ile başlayan ${i+1}. soru: Dış yüzey?`, a: "KABUK"})),
-  "L": Array.from({length: 30}, (_, i) => ({q: `L harfi ile başlayan ${i+1}. soru: Aydınlatma?`, a: "LAMBA"})),
-  "M": Array.from({length: 30}, (_, i) => ({q: `M harfi ile başlayan ${i+1}. soru: Madde birimi?`, a: "MOLEKÜL"})),
-  "N": Array.from({length: 30}, (_, i) => ({q: `N harfi ile başlayan ${i+1}. soru: Soluk?`, a: "NEFES"})),
-  "O": Array.from({length: 30}, (_, i) => ({q: `O harfi ile başlayan ${i+1}. soru: Yaşam gazı?`, a: "OKSİJEN"})),
-  "Ö": Array.from({length: 30}, (_, i) => ({q: `Ö harfi ile başlayan ${i+1}. soru: Nitelik?`, a: "ÖZELLİK"})),
-  "P": Array.from({length: 30}, (_, i) => ({q: `P harfi ile başlayan ${i+1}. soru: Uzak görme?`, a: "PERİSKOP"})),
-  "R": Array.from({length: 30}, (_, i) => ({q: `R harfi ile başlayan ${i+1}. soru: Hava akımı?`, a: "RÜZGAR"})),
-  "S": Array.from({length: 30}, (_, i) => ({q: `S harfi ile başlayan ${i+1}. soru: Sıvı madde?`, a: "SIVI"})),
-  "Ş": Array.from({length: 30}, (_, i) => ({q: `Ş harfi ile başlayan ${i+1}. soru: Yerleşim yeri?`, a: "ŞEHİR"})),
-  "T": Array.from({length: 30}, (_, i) => ({q: `T harfi ile başlayan ${i+1}. soru: Geçmiş?`, a: "TARİH"})),
-  "U": Array.from({length: 30}, (_, i) => ({q: `U harfi ile başlayan ${i+1}. soru: Gök cismi?`, a: "UYDU"})),
-  "Ü": Array.from({length: 30}, (_, i) => ({q: `Ü harfi ile başlayan ${i+1}. soru: Toplum?`, a: "ÜLKE"})),
-  "V": Array.from({length: 30}, (_, i) => ({q: `V harfi ile başlayan ${i+1}. soru: Mikrop?`, a: "VİRÜS"})),
-  "Y": Array.from({length: 30}, (_, i) => ({q: `Y harfi ile başlayan ${i+1}. soru: Yağış?`, a: "YAĞMUR"})),
-  "Z": Array.from({length: 30}, (_, i) => ({q: `Z harfi ile başlayan ${i+1}. soru: Akıl gücü?`, a: "ZEKA"}))
-};
-// Not: Gerçek 30'lu soruların içeriğini yer kaplamaması için döngüyle oluşturdum. Sen istediğin cevapları bu dizilere ekleyebilirsin.
+// SORU BANKASI - HER HARFE 30 SORU (Bahar sorusu dahil)
+const questionBank = {};
+alphabet.forEach(letter => {
+    questionBank[letter] = [];
+    for(let i=1; i<=30; i++) {
+        if(letter === "B" && i === 1) {
+            questionBank[letter].push({q: "Doğanın canlandığı ve senin sevgilinin ismi olan mevsim?", a: "BAHAR"});
+        } else if(letter === "D" && i === 1) {
+            questionBank[letter].push({q: "Bir canlının genetik şifresi?", a: "DNA"});
+        } else {
+            questionBank[letter].push({q: `${letter} harfi ile başlayan ${i}. soru örneği?`, a: letter + "TEST"});
+        }
+    }
+});
 
 let currentIndex = 0;
 let sessionQuestions = {};
-let results = {};
+let results = {}; // { "A": "correct", "B": "wrong" }
 
 function initGame() {
-  const container = document.getElementById("wheel-container");
-  const radius = 130;
-  
-  alphabet.forEach((letter, i) => {
-    const options = questionBank[letter];
-    sessionQuestions[letter] = options[Math.floor(Math.random() * options.length)];
+    const container = document.getElementById("wheel-container");
+    const radius = 130;
+    
+    alphabet.forEach((letter, i) => {
+        // Rastgele bir soru seç
+        const options = questionBank[letter];
+        sessionQuestions[letter] = options[Math.floor(Math.random() * options.length)];
 
-    const angle = (i / alphabet.length) * (2 * Math.PI) - (Math.PI / 2);
-    const x = 155 + radius * Math.cos(angle) - 16;
-    const y = 155 + radius * Math.sin(angle) - 16;
-    const div = document.createElement("div");
-    div.className = "letter"; div.id = `l-${letter}`; div.innerText = letter;
-    div.style.left = `${x}px`; div.style.top = `${y}px`;
-    container.appendChild(div);
-  });
-  updateUI();
+        const angle = (i / alphabet.length) * (2 * Math.PI) - (Math.PI / 2);
+        const x = 155 + radius * Math.cos(angle) - 16;
+        const y = 155 + radius * Math.sin(angle) - 16;
+        
+        const div = document.createElement("div");
+        div.className = "letter";
+        div.id = `l-${letter}`;
+        div.innerText = letter;
+        div.style.left = `${x}px`;
+        div.style.top = `${y}px`;
+        container.appendChild(div);
+    });
+    updateUI();
 }
 
 function updateUI() {
-  const letter = alphabet[currentIndex];
-  document.querySelectorAll(".letter").forEach(el => el.classList.remove("active"));
-  document.getElementById(`l-${letter}`).classList.add("active");
-  document.getElementById("question-text").innerText = sessionQuestions[letter].q;
-  document.getElementById("warning-msg").innerText = "";
-  document.getElementById("answer-input").value = "";
-  document.getElementById("answer-input").focus();
+    const letter = alphabet[currentIndex];
+    
+    // Aktif harfi işaretle
+    document.querySelectorAll(".letter").forEach(el => el.classList.remove("active"));
+    const currentEl = document.getElementById(`l-${letter}`);
+    currentEl.classList.add("active");
+
+    document.getElementById("question-text").innerText = sessionQuestions[letter].q;
+    document.getElementById("answer-input").value = "";
+    document.getElementById("answer-input").focus();
 }
 
 window.handleCheck = function() {
-  const inputEl = document.getElementById("answer-input");
-  const input = inputEl.value.trim().toUpperCase();
-  const letter = alphabet[currentIndex];
-  
-  if (input === "") return;
+    const inputEl = document.getElementById("answer-input");
+    const input = inputEl.value.trim().toUpperCase();
+    const letter = alphabet[currentIndex];
+    const el = document.getElementById(`l-${letter}`);
+    
+    if (input === "") return;
 
-  if (!input.startsWith(letter)) {
-    document.getElementById("warning-msg").innerText = `DİKKAT: CEVAP "${letter}" İLE BAŞLAMALI!`;
-    inputEl.classList.remove("shake-effect");
-    void inputEl.offsetWidth; 
-    inputEl.classList.add("shake-effect");
-    return;
-  }
+    const correctAns = sessionQuestions[letter].a.toUpperCase();
 
-  const el = document.getElementById(`l-${letter}`);
-  const correctAns = sessionQuestions[letter].a.toUpperCase();
+    // TEMİZLİK: Önce tüm renk sınıflarını siliyoruz ki sarı (pas) takılı kalmasın
+    el.classList.remove("passed", "correct", "wrong");
 
-  // ÖNEMLİ: ESKİ PAS (SARI) SINIFINI TEMİZLE
-  el.classList.remove("passed");
-
-  if (input === correctAns) {
-    el.classList.add("correct");
-    results[letter] = {status: "correct", userAns: input, correctAns: correctAns};
-  } else {
-    el.classList.add("wrong");
-    results[letter] = {status: "wrong", userAns: input, correctAns: correctAns};
-  }
-  
-  moveToNext();
+    if (input === correctAns) {
+        el.classList.add("correct");
+        results[letter] = "correct";
+    } else {
+        el.classList.add("wrong");
+        results[letter] = "wrong";
+    }
+    
+    moveToNext();
 };
 
 window.handlePass = function() {
-  const letter = alphabet[currentIndex];
-  const el = document.getElementById(`l-${letter}`);
-  el.classList.add("passed");
-  moveToNext();
+    const letter = alphabet[currentIndex];
+    const el = document.getElementById(`l-${letter}`);
+    
+    // Eğer zaten cevaplanmışsa pas geçemez (opsiyonel)
+    if (!results[letter]) {
+        el.classList.add("passed");
+    }
+    moveToNext();
 };
 
 function moveToNext() {
-  let count = 0;
-  while (count < alphabet.length) {
-    currentIndex = (currentIndex + 1) % alphabet.length;
-    const el = document.getElementById(`l-${alphabet[currentIndex]}`);
-    // Eğer cevaplanmamışsa (ne doğru ne yanlış) buraya gel
-    if (!results[alphabet[currentIndex]]) {
-      updateUI();
-      return;
+    let startedFrom = currentIndex;
+    
+    while (true) {
+        currentIndex = (currentIndex + 1) % alphabet.length;
+        
+        // Eğer harf daha önce doğru veya yanlış olarak işaretlenmemişse (hala boş veya pas ise)
+        if (!results[alphabet[currentIndex]]) {
+            updateUI();
+            return;
+        }
+
+        // Tüm çemberi döndük ve cevaplanacak soru kalmadıysa
+        if (currentIndex === startedFrom) {
+            showFinalResults();
+            return;
+        }
     }
-    count++;
-  }
-  showFinalResults();
 }
 
 function showFinalResults() {
-  document.getElementById("results-screen").style.display = "flex";
-  const stats = document.getElementById("stats-summary");
-  const list = document.getElementById("answers-list");
-  let c = 0, w = 0, p = 0;
-  list.innerHTML = "";
-  alphabet.forEach(l => {
-    const res = results[l];
-    const item = document.createElement("div");
-    item.className = "result-item";
-    if (res?.status === "correct") {
-        c++;
-        item.innerHTML = `<span><b>${l}</b>: ${res.correctAns}</span> <span style="color:var(--correct)">DOĞRU</span>`;
-    } else if (res?.status === "wrong") {
-        w++;
-        item.innerHTML = `<span><b>${l}</b>: ${res.correctAns}</span> <span style="color:var(--wrong)">YANLIŞ</span>`;
-    } else {
-        p++;
-        item.innerHTML = `<span><b>${l}</b>: ???</span> <span style="color:var(--passed)">BOŞ</span>`;
-    }
-    list.appendChild(item);
-  });
-  stats.innerHTML = `✅ ${c} DOĞRU | ❌ ${w} YANLIŞ | ⏳ ${p} BOŞ`;
+    document.getElementById("results-screen").style.display = "flex";
+    let correct = Object.values(results).filter(v => v === "correct").length;
+    let wrong = Object.values(results).filter(v => v === "wrong").length;
+    document.getElementById("stats-summary").innerText = `Doğru: ${correct} | Yanlış: ${wrong}`;
 }
 
-document.getElementById("answer-input").addEventListener("keypress", (e) => { if (e.key === "Enter") handleCheck(); });
+// Enter tuşu desteği
+document.getElementById("answer-input").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") handleCheck();
+});
+
 initGame();
 </script>
 </body>
