@@ -21,11 +21,24 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center; /* Ekranı tam dikey ortalar */
+      justify-content: center;
       margin: 0;
       padding: 10px;
       height: 100vh;
       overflow: hidden;
+    }
+
+    /* SARSINTI ANİMASYONU */
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      50% { transform: translateX(8px); }
+      75% { transform: translateX(-8px); }
+      100% { transform: translateX(0); }
+    }
+
+    .shake-effect {
+      animation: shake 0.3s ease-in-out;
     }
 
     #wheel-container { position: relative; width: 310px; height: 310px; margin-bottom: 20px; flex-shrink: 0; }
@@ -53,8 +66,6 @@
       text-align: center;
     }
 
-    .input-area { width: 100%; display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
-
     input {
       width: 80%;
       padding: 15px;
@@ -66,16 +77,16 @@
       text-align: center;
       text-transform: uppercase;
       outline: none;
+      transition: border-color 0.3s;
     }
 
     #warning-msg { color: var(--wrong); font-size: 14px; height: 20px; margin-top: 5px; font-weight: bold; }
 
-    .btn-group { display: flex; gap: 20px; width: 80%; justify-content: center; }
+    .btn-group { display: flex; gap: 20px; width: 80%; justify-content: center; margin-top: 10px; }
     button { flex: 1; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 16px; }
     .btn-check { background: var(--correct); color: white; }
     .btn-pass { background: var(--passed); color: #333; }
 
-    /* Sonuç Ekranı */
     .results-overlay {
       position: fixed; top:0; left:0; width:100%; height:100%;
       background: var(--bg); display: none; flex-direction: column;
@@ -93,7 +104,7 @@
 
   <div id="question-card">
     <div id="question-text">YÜKLENİYOR...</div>
-    <div class="input-area">
+    <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
       <input type="text" id="answer-input" placeholder="CEVABI YAZIN" autocomplete="off">
       <div id="warning-msg"></div>
     </div>
@@ -115,10 +126,10 @@ const alphabet = ["A", "B", "C", "Ç", "D", "E", "F", "G", "H", "I", "İ", "J", 
 
 const questionBank = {
   "A": [{q: "Işık saçacak beyazlığa varıncaya kadar ısıtılmış olan?", a: "AKKOR"}],
-  "B": [{q: "Bir düşüncenin, bir olayın belirtisi olan nesne veya işaret?", a: "BELGE"}],
-  "C": [{q: "Topluluk içinde uyulması gereken nezaket kuralları?", a: "CEVAP"}], // Örnek
-  "Ç": [{q: "Toprağı kazmak için kullanılan demir uçlu araç?", a: "ÇAPA"}],
-  "D": [{q: "Hava olaylarını inceleyen bilim dalı?", a: "DOĞA"}],
+  "B": [{q: "Geleceği önceden bildirdiğine inanılan işaret?", a: "BELİRTİ"}],
+  "C": [{q: "Topluluk içinde uyulması gereken nezaket?", a: "CANLILIK"}], 
+  "Ç": [{q: "Toprağı kazmak için kullanılan tarım aracı?", a: "ÇAPA"}],
+  "D": [{q: "Doğa olaylarını inceleyen bilim dalı?", a: "DOĞA"}],
   "E": [{q: "Bir işi yapmak için gereken güç?", a: "ENERJİ"}],
   "F": [{q: "Düşünce, görüş, kanı?", a: "FİKİR"}],
   "G": [{q: "Isı ve ışık kaynağı olan yıldızımız?", a: "GÜNEŞ"}],
@@ -141,21 +152,19 @@ const questionBank = {
   "Ü": [{q: "İnsan topluluğu?", a: "ÜLKE"}],
   "V": [{q: "Hastalık yapan mikrop?", a: "VİRÜS"}],
   "Y": [{q: "Gökten düşen su?", a: "YAĞMUR"}],
-  "Z": [{q: "Süreç?", a: "ZAMAN"}]
+  "Z": [{q: "Olayların aktığı süreç?", a: "ZAMAN"}]
 };
 
 let currentIndex = 0;
 let sessionQuestions = {};
-let results = {}; // Harf: {status, userAns, correctAns}
+let results = {};
 
 function initGame() {
   const container = document.getElementById("wheel-container");
   const radius = 130;
-  
   alphabet.forEach((letter, i) => {
-    const options = questionBank[letter] || [{q: "Soru bulunamadı", a: "HATA"}];
+    const options = questionBank[letter] || [{q: "Soru yok", a: "HATA"}];
     sessionQuestions[letter] = options[Math.floor(Math.random() * options.length)];
-
     const angle = (i / alphabet.length) * (2 * Math.PI) - (Math.PI / 2);
     const x = 155 + radius * Math.cos(angle) - 16;
     const y = 155 + radius * Math.sin(angle) - 16;
@@ -173,18 +182,31 @@ function updateUI() {
   document.getElementById(`l-${letter}`).classList.add("active");
   document.getElementById("question-text").innerText = sessionQuestions[letter].q;
   document.getElementById("warning-msg").innerText = "";
-  document.getElementById("answer-input").focus();
+  const input = document.getElementById("answer-input");
+  input.focus();
 }
 
 window.handleCheck = function() {
-  const input = document.getElementById("answer-input").value.trim().toUpperCase();
+  const inputEl = document.getElementById("answer-input");
+  const input = inputEl.value.trim().toUpperCase();
   const letter = alphabet[currentIndex];
   
   if (input === "") return;
 
-  // SERT KONTROL: İlk harf eşleşmeli!
+  // HARF KONTROLÜ VE TİTREME EFEKTİ
   if (!input.startsWith(letter)) {
-    document.getElementById("warning-msg").innerText = `HATA: Cevap "${letter}" harfi ile başlamalı!`;
+    document.getElementById("warning-msg").innerText = `CEVAP "${letter}" İLE BAŞLAMALI!`;
+    
+    // Titreme efektini tetikle
+    inputEl.classList.add("shake-effect");
+    inputEl.style.borderColor = "var(--wrong)";
+    
+    // 300ms sonra efekti kaldır ki tekrar çalışabilsin
+    setTimeout(() => {
+      inputEl.classList.remove("shake-effect");
+      inputEl.style.borderColor = "#3a3a3c";
+    }, 300);
+    
     return;
   }
 
@@ -199,7 +221,7 @@ window.handleCheck = function() {
     results[letter] = {status: "wrong", userAns: input, correctAns: correctAns};
   }
   
-  document.getElementById("answer-input").value = "";
+  inputEl.value = "";
   moveToNext();
 };
 
@@ -222,7 +244,6 @@ function moveToNext() {
     count++;
   }
   
-  // Pas geçilenleri tekrar sor
   count = 0;
   while (count < alphabet.length) {
     if (!results[alphabet[currentIndex]]) {
@@ -232,23 +253,19 @@ function moveToNext() {
     currentIndex = (currentIndex + 1) % alphabet.length;
     count++;
   }
-  
   showFinalResults();
 }
 
 function showFinalResults() {
-  const screen = document.getElementById("results-screen");
+  document.getElementById("results-screen").style.display = "flex";
   const stats = document.getElementById("stats-summary");
   const list = document.getElementById("answers-list");
-  
   let c = 0, w = 0, p = 0;
   list.innerHTML = "";
-
   alphabet.forEach(l => {
     const res = results[l];
     const item = document.createElement("div");
     item.className = "result-item";
-    
     if (res?.status === "correct") {
         c++;
         item.innerHTML = `<span><b>${l}</b>: ${res.correctAns}</span> <span style="color:var(--correct)">DOĞRU (${res.userAns})</span>`;
@@ -261,9 +278,7 @@ function showFinalResults() {
     }
     list.appendChild(item);
   });
-
   stats.innerHTML = `✅ ${c} DOĞRU | ❌ ${w} YANLIŞ | ⏳ ${p} PAS`;
-  screen.style.display = "flex";
 }
 
 document.getElementById("answer-input").addEventListener("keypress", (e) => { if (e.key === "Enter") handleCheck(); });
