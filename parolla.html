@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BizApp - Parolla v5.0</title>
+  <title>BizApp - Parolla Final</title>
   <style>
     :root {
       --bg: #121213;
       --text: #d7dadc;
-      --correct: #6aaa64; /* Yeşil */
-      --wrong: #ff4d6d;   /* Kırmızı */
-      --active: #4cc9f0;  /* Mavi */
-      --passed: #f9c74f;  /* Sarı */
+      --correct: #6aaa64;
+      --wrong: #ff4d6d;
+      --active: #4cc9f0;
+      --passed: #f9c74f;
     }
 
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
       display: flex;
@@ -28,7 +28,6 @@
       overflow: hidden;
     }
 
-    /* ÜST BAR */
     #top-bar {
       position: absolute;
       top: 20px;
@@ -47,10 +46,8 @@
       border: none;
       cursor: pointer;
       font-weight: bold;
-      text-decoration: none;
     }
 
-    /* HARF ÇEMBERİ */
     #wheel-container { position: relative; width: 310px; height: 310px; margin-bottom: 20px; flex-shrink: 0; }
     
     .letter {
@@ -64,22 +61,29 @@
     .wrong { background-color: var(--wrong) !important; color: white !important; }
     .passed { background-color: var(--passed) !important; color: #333 !important; }
 
-    /* SORU ALANI */
     #question-card { width: 100%; max-width: 600px; display: flex; flex-direction: column; align-items: center; }
-    #question-text { font-size: 20px; font-weight: 800; min-height: 80px; text-align: center; margin-bottom: 20px; text-transform: uppercase; line-height: 1.4; }
+    #question-text { 
+      font-size: 22px; 
+      font-weight: 800; 
+      min-height: 80px; 
+      text-align: center; 
+      margin-bottom: 20px; 
+      text-transform: uppercase; 
+      color: #fff;
+      padding: 0 10px;
+    }
 
     input {
       width: 80%; padding: 15px; background: transparent; border: none;
-      border-bottom: 3px solid #3a3a3c; color: white; font-size: 22px;
+      border-bottom: 3px solid #3a3a3c; color: white; font-size: 24px;
       text-align: center; text-transform: uppercase; outline: none;
     }
 
     .btn-group { display: flex; gap: 20px; width: 80%; justify-content: center; margin-top: 25px; }
-    button.action-btn { flex: 1; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 16px; }
+    button.action-btn { flex: 1; padding: 18px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 16px; }
     .btn-check { background: var(--correct); color: white; }
     .btn-pass { background: var(--passed); color: #333; }
 
-    /* SONUÇ EKRANI */
     .results-overlay {
       position: fixed; top:0; left:0; width:100%; height:100%;
       background: var(--bg); display: none; flex-direction: column;
@@ -91,13 +95,13 @@
 
   <div id="top-bar">
     <button class="home-btn" onclick="window.location.href='index.html'">← ANA EKRAN</button>
-    <div style="font-weight: bold; color: var(--active);">PAROLLA v5.0</div>
+    <div style="font-weight: bold; color: var(--active);">PAROLLA</div>
   </div>
 
   <div id="wheel-container"></div>
 
   <div id="question-card">
-    <div id="question-text">YÜKLENİYOR...</div>
+    <div id="question-text">BAŞLIYOR...</div>
     <input type="text" id="answer-input" placeholder="CEVABI YAZIN" autocomplete="off">
     <div class="btn-group">
       <button class="action-btn btn-pass" onclick="handlePass()">PAS</button>
@@ -107,43 +111,41 @@
 
   <div id="results-screen" class="results-overlay">
     <h2 style="color: var(--active); font-size: 32px;">OYUN BİTTİ</h2>
-    <div id="stats-summary" style="font-size: 24px; margin-bottom: 30px; font-weight: bold;"></div>
-    <button onclick="location.reload()" style="padding:15px 40px; background:var(--correct); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size: 18px;">YENİDEN BAŞLA</button>
+    <div id="stats-summary" style="font-size: 24px; margin-bottom: 30px;"></div>
+    <button onclick="location.reload()" style="padding:15px 40px; background:var(--correct); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">YENİDEN BAŞLA</button>
   </div>
 
 <script>
 const alphabet = ["A", "B", "C", "Ç", "D", "E", "F", "G", "H", "I", "İ", "J", "K", "L", "M", "N", "O", "Ö", "P", "R", "S", "Ş", "T", "U", "Ü", "V", "Y", "Z"];
 
-// SORU BANKASI - HER HARF İÇİN 30 SORU KAPASİTESİ
 const questionBank = {};
 alphabet.forEach(l => {
     questionBank[l] = [];
-    // Her harf için 30 adet soru ekleme alanı
     for(let i=0; i<30; i++) {
-        if(l === "A" && i === 0) questionBank[l].push({q: "IŞIK SAÇACAK BEYAZLIĞA VARINCAYA KADAR ISITILMIŞ OLAN?", a: "AKKOR"});
-        else if(l === "B" && i === 0) questionBank[l].push({q: "DOĞANIN CANLANDIĞI VE SEVGİLİNİN İSMİ OLAN MEVSİM?", a: "BAHAR"});
-        else if(l === "D" && i === 0) questionBank[l].push({q: "BİR CANLININ GENETİK ŞİFRESİ?", a: "DNA"});
-        else if(l === "G" && i === 0) questionBank[l].push({q: "ISI VE IŞIK KAYNAĞI OLAN YILDIZIMIZ?", a: "GÜNEŞ"});
+        // Özel soruları tanımla
+        if(l === "B" && i === 0) questionBank[l].push({q: "Doğanın canlandığı ve sevgilinin ismi olan mevsim?", a: "BAHAR"});
+        else if(l === "D" && i === 0) questionBank[l].push({q: "Bir canlının genetik şifresi?", a: "DNA"});
+        else if(l === "A" && i === 0) questionBank[l].push({q: "Işık saçacak beyazlığa varıncaya kadar ısıtılmış olan?", a: "AKKOR"});
+        else if(l === "Ç" && i === 0) questionBank[l].push({q: "Hücrenin yönetim merkezi?", a: "ÇEKİRDEK"});
         else {
-            questionBank[l].push({q: `${l} harfi ile başlayan ${i+1}. genel kültür sorusu?`, a: l + "TEST"});
+            // Buradaki "X harfi ile başlayan..." kısmını tamamen kaldırdım, doğrudan soru metni gelecek
+            questionBank[l].push({q: `Bu harf için tanımlanmış ${i+1}. genel kültür sorusu burada yer alacak.`, a: l + "TEST"});
         }
     }
 });
 
 let currentIndex = 0;
-let results = {}; // "correct", "wrong", "empty"
-let visitCount = {}; // Harflerin kaçıncı kez sorulduğunu takip eder
+let results = {};
+let visitCount = {};
 
 function initGame() {
     const container = document.getElementById("wheel-container");
     const radius = 130;
-    
     alphabet.forEach((letter, i) => {
         visitCount[letter] = 0;
         const angle = (i / alphabet.length) * (2 * Math.PI) - (Math.PI / 2);
         const x = 155 + radius * Math.cos(angle) - 16;
         const y = 155 + radius * Math.sin(angle) - 16;
-        
         const div = document.createElement("div");
         div.className = "letter"; div.id = `l-${letter}`; div.innerText = letter;
         div.style.left = `${x}px`; div.style.top = `${y}px`;
@@ -154,12 +156,12 @@ function initGame() {
 
 function updateUI() {
     const letter = alphabet[currentIndex];
-    visitCount[letter]++; // Harfe her gelindiğinde sayacı artır
+    visitCount[letter]++;
 
     document.querySelectorAll(".letter").forEach(el => el.classList.remove("active"));
     document.getElementById(`l-${letter}`).classList.add("active");
 
-    // Her zaman bankadaki ilk soruyu sorar (Geliştirmek istersen rastgele seçtirebilirsin)
+    // Soru metnini temiz şekilde ekrana bas
     document.getElementById("question-text").innerText = questionBank[letter][0].q;
     document.getElementById("answer-input").value = "";
     document.getElementById("answer-input").focus();
@@ -169,11 +171,9 @@ window.handleCheck = function() {
     const input = document.getElementById("answer-input").value.trim().toUpperCase();
     const letter = alphabet[currentIndex];
     const el = document.getElementById(`l-${letter}`);
-    
     if (input === "") return;
 
-    el.classList.remove("passed"); // Sarı rengi temizle
-
+    el.classList.remove("passed");
     if (input === questionBank[letter][0].a.toUpperCase()) {
         el.classList.add("correct");
         results[letter] = "correct";
@@ -188,7 +188,7 @@ window.handlePass = function() {
     const letter = alphabet[currentIndex];
     const el = document.getElementById(`l-${letter}`);
 
-    // KURAL: Eğer bu harfe 2. kez gelindiyse ve yine PAS denirse harf BOŞ olarak kapanır
+    // 2. Tur Kuralı: Harfe 2. kez gelindiyse ve pas denirse BOŞ olarak kapat
     if (visitCount[letter] >= 2) {
         results[letter] = "empty";
         el.classList.add("passed");
@@ -201,17 +201,12 @@ window.handlePass = function() {
 
 function findNext() {
     let startedFrom = currentIndex;
-    
     while (true) {
         currentIndex = (currentIndex + 1) % alphabet.length;
-        
-        // Eğer harf daha önce sonuçlanmamışsa oraya git
         if (!results[alphabet[currentIndex]]) {
             updateUI();
             return;
         }
-
-        // Eğer tüm çemberi döndüysek ve boş harf kalmadıysa bitir
         if (currentIndex === startedFrom) {
             showFinalResults();
             return;
@@ -224,7 +219,7 @@ function showFinalResults() {
     const c = Object.values(results).filter(v => v === "correct").length;
     const w = Object.values(results).filter(v => v === "wrong").length;
     const e = Object.values(results).filter(v => v === "empty").length;
-    document.getElementById("stats-summary").innerText = `✅ ${c} DOĞRU | ❌ ${w} YANLIŞ | ⏳ ${e} BOŞ`;
+    document.getElementById("stats-summary").innerText = `DOĞRU: ${c} | YANLIŞ: ${w} | BOŞ: ${e}`;
 }
 
 document.getElementById("answer-input").addEventListener("keypress", (e) => {
