@@ -95,6 +95,7 @@
         animation: slideDown 0.5s ease-out;
     }
     @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
+    
     .floating-heart { position: fixed; color: var(--main-pink); pointer-events: none; animation: heartPop 1.5s forwards; z-index: 10002; font-size: 25px; }
     @keyframes heartPop { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-150px) rotate(20deg) scale(1.5); opacity: 0; } }
   </style>
@@ -141,19 +142,26 @@ let room = localStorage.getItem("room") || "genel";
 let userId = localStorage.getItem("userId");
 const kissRef = ref(db, "rooms/" + room);
 
-// ÖPÜCÜK DİNLEYİCİ
+// ÖPÜCÜK DİNLEYİCİ - FİLTRELENMİŞ
 onChildAdded(kissRef, (snapshot) => {
   const data = snapshot.val();
-  if (data.type === 'kiss' && data.sender !== userId) {
+  // SADECE type: 'kiss' olanlar ve başkası tarafından gönderilenler
+  if (data && data.type === 'kiss' && data.sender !== userId) {
+    // Eski bildirimi temizle
+    const existingNotify = document.querySelector(".kiss-notify");
+    if(existingNotify) existingNotify.remove();
+
     const notify = document.createElement("div");
     notify.className = "kiss-notify";
     notify.innerHTML = `<span>💋</span> Balım sana bir öpücük gönderdi!`;
     document.body.appendChild(notify);
     
+    // Kalpleri uçur
     for(let i=0; i<15; i++) {
         const h = document.createElement("div");
         h.className="floating-heart"; h.innerText="💖";
-        h.style.left = Math.random()*100+"%"; h.style.top = "70%";
+        h.style.left = Math.random()*100+"%"; 
+        h.style.top = "70%";
         document.body.appendChild(h);
         setTimeout(()=>h.remove(), 1500);
     }
@@ -247,14 +255,8 @@ window.handleCheck = function() {
 window.handlePass = function() {
     const letter = alphabet[currentIndex];
     const el = document.getElementById(`l-${letter}`);
-    if (visitCount[letter] >= 2) {
-        results[letter] = "empty";
-        el.classList.add("passed");
-        findNext();
-    } else {
-        el.classList.add("passed");
-        findNext();
-    }
+    el.classList.add("passed");
+    findNext();
 };
 
 function findNext() {
@@ -277,7 +279,7 @@ function showFinalResults() {
     const c = Object.values(results).filter(v => v === "correct").length;
     const w = Object.values(results).filter(v => v === "wrong").length;
     const e = Object.values(results).filter(v => v === "empty").length;
-    document.getElementById("stats-summary").innerText = `✅ DOĞRU: ${c} | ❌ YANLIŞ: ${w} | ⏳ BOŞ: ${e}`;
+    document.getElementById("stats-summary").innerText = `✅ DOĞRU: ${c} | ❌ YANLIŞ: ${w}`;
 }
 
 document.getElementById("answer-input").addEventListener("keypress", (e) => {
