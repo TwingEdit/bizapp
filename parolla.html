@@ -21,14 +21,14 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center; /* Dikeyde ortala */
+      justify-content: center; /* Ekranı tam dikey ortalar */
       margin: 0;
       padding: 10px;
       height: 100vh;
-      text-align: center; /* Yatayda ortala */
+      overflow: hidden;
     }
 
-    #wheel-container { position: relative; width: 310px; height: 310px; margin-bottom: 30px; flex-shrink: 0; }
+    #wheel-container { position: relative; width: 310px; height: 310px; margin-bottom: 20px; flex-shrink: 0; }
     
     .letter {
       position: absolute; width: 32px; height: 32px; border-radius: 50%;
@@ -41,44 +41,37 @@
     .wrong { background: var(--wrong) !important; }
     .passed { background: var(--passed) !important; color: #333; }
 
-    #question-card { width: 100%; max-width: 600px; }
+    #question-card { width: 100%; max-width: 600px; display: flex; flex-direction: column; align-items: center; }
 
     #question-text {
       font-size: 24px;
       font-weight: 800;
-      line-height: 1.4;
+      line-height: 1.3;
       text-transform: uppercase;
-      margin-bottom: 30px;
-      min-height: 100px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      margin-bottom: 20px;
+      min-height: 80px;
+      text-align: center;
     }
 
-    .input-wrapper { margin-bottom: 20px; }
-    
+    .input-area { width: 100%; display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
+
     input {
       width: 80%;
       padding: 15px;
       background: transparent;
       border: none;
-      border-bottom: 3px solid #3a3a3c;
+      border-bottom: 2px solid #3a3a3c;
       color: white;
-      font-size: 22px;
+      font-size: 20px;
       text-align: center;
       text-transform: uppercase;
       outline: none;
     }
-    
-    input:focus { border-bottom-color: var(--active); }
 
-    #warning-text { color: var(--wrong); height: 20px; font-size: 14px; margin-bottom: 10px; font-weight: bold; }
+    #warning-msg { color: var(--wrong); font-size: 14px; height: 20px; margin-top: 5px; font-weight: bold; }
 
-    .btn-group { display: flex; justify-content: center; gap: 15px; width: 100%; }
-    button { 
-      padding: 15px 30px; border-radius: 8px; border: none; font-weight: bold; 
-      cursor: pointer; text-transform: uppercase; font-size: 16px; min-width: 140px;
-    }
+    .btn-group { display: flex; gap: 20px; width: 80%; justify-content: center; }
+    button { flex: 1; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 16px; }
     .btn-check { background: var(--correct); color: white; }
     .btn-pass { background: var(--passed); color: #333; }
 
@@ -89,7 +82,7 @@
       align-items: center; padding: 20px; overflow-y: auto; z-index: 100;
     }
     .result-item { 
-      margin: 8px 0; font-size: 15px; width: 100%; max-width: 450px; 
+      margin: 5px 0; font-size: 14px; width: 100%; max-width: 400px; 
       display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 8px; 
     }
   </style>
@@ -100,9 +93,9 @@
 
   <div id="question-card">
     <div id="question-text">YÜKLENİYOR...</div>
-    <div class="input-wrapper">
-        <div id="warning-text"></div>
-        <input type="text" id="answer-input" placeholder="CEVABI BURAYA YAZIN" autocomplete="off">
+    <div class="input-area">
+      <input type="text" id="answer-input" placeholder="CEVABI YAZIN" autocomplete="off">
+      <div id="warning-msg"></div>
     </div>
     <div class="btn-group">
       <button class="btn-pass" onclick="handlePass()">PAS</button>
@@ -111,56 +104,56 @@
   </div>
 
   <div id="results-screen" class="results-overlay">
-    <h2 style="color: var(--active); font-size: 32px;">OYUN BİTTİ</h2>
-    <div id="stats-summary" style="font-size: 20px; margin: 20px 0; font-weight: bold;"></div>
+    <h2 style="color: var(--active)">YARIŞMA SONUCU</h2>
+    <div id="stats-summary" style="font-size: 20px; margin-bottom: 20px; font-weight: bold;"></div>
     <div id="answers-list" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
-    <button onclick="location.reload()" style="margin: 30px; background: var(--active); color: white;">YENİDEN OYNA</button>
+    <button onclick="location.reload()" style="margin-top:20px; background:var(--active); color:white; width:200px;">YENİDEN OYNA</button>
   </div>
 
 <script>
 const alphabet = ["A", "B", "C", "Ç", "D", "E", "F", "G", "H", "I", "İ", "J", "K", "L", "M", "N", "O", "Ö", "P", "R", "S", "Ş", "T", "U", "Ü", "V", "Y", "Z"];
 
 const questionBank = {
-  "A": [{q: "Işık saçacak beyazlığa varıncaya kadar ısıtılmış olan?", a: "AKKOR"}, {q: "Dünyanın çevresini saran hava tabakası?", a: "ATMOSFER"}],
-  "B": [{q: "İnceleme, araştırma ve deney yapılan yer?", a: "BAKIMEVİ"}, {q: "Çizgi film kahramanı olan devasa tavşan?", a: "BUGSBUNNY"}],
-  "C": [{q: "Topluluk önünde konuşma sanatı?", a: "CARET"}, {q: "Vücudun dış yüzeyini kaplayan örtü?", a: "CİLT"}],
-  "Ç": [{q: "Yazın güneşten korunmak için başa takılan nesne?", a: "ÇAPKA"}, {q: "Toprağı kazmak için kullanılan demir uçlu araç?", a: "ÇAPA"}],
-  "D": [{q: "Gözle görülemeyecek kadar küçük canlıları inceleyen bilim?", a: "DENEYSEL"}, {q: "Hava olaylarını inceleyen bilim dalı?", a: "DOĞA"}],
-  "E": [{q: "Bir işi yapabilme gücü?", a: "ENERJİ"}, {q: "Yeryüzündeki tüm canlıların uyumu?", a: "EKOSİSTEM"}],
-  "F": [{q: "Bilimsel bir gerçeğin henüz kanıtlanmamış hali?", a: "FİKİR"}, {q: "Işığı kıran cam alet?", a: "FRESNEL"}],
-  "G": [{q: "Isı ve ışık kaynağı olan en yakın yıldız?", a: "GÜNEŞ"}, {q: "Bulutların arasından süzülen ışık?", a: "GÜNIŞIĞI"}],
-  "H": [{q: "Maddenin en küçük yapı taşı?", a: "HİDROJEN"}, {q: "Canlıların yaşam alanı?", a: "HABİTAT"}],
-  "I": [{q: "Cisimleri görmemizi sağlayan fiziksel enerji?", a: "IŞIK"}, {q: "Isıyı ölçen alet?", a: "ISINMA"}],
-  "İ": [{q: "Duygu ve düşüncelerin aktarılması?", a: "İLETİŞİM"}, {q: "Gözün ortasındaki siyah delik?", a: "İRS"}],
-  "J": [{q: "Otomobil tekerleğinin içindeki metal?", a: "JANT"}, {q: "Çok hızlı uçan uçak türü?", a: "JET"}],
-  "K": [{q: "Canlıların temel yapı birimi?", a: "KLOROPLAST"}, {q: "Havayı oluşturan gaz tabakası?", a: "KATMAN"}],
-  "L": [{q: "Gemilerin sığındığı kıyı alanı?", a: "LİMAN"}, {q: "Bir dili konuşan toplumun bütünü?", a: "LİSAN"}],
-  "M": [{q: "Mikroskobik canlıları görme aracı?", a: "MİKROSKOP"}, {q: "Sayılarla yapılan bilim?", a: "MATEMATİK"}],
-  "N": [{q: "Canlıların aldığı temel soluk?", a: "NEFES"}, {q: "Sayılarda sıfırın altındaki değer?", a: "NEGATİF"}],
-  "O": [{q: "Devasa tuzlu su kütlesi?", a: "OKYANUS"}, {q: "Vücudun belli bir işini yapan bölümü?", a: "ORGAN"}],
-  "Ö": [{q: "Birini diğerlerinden ayıran nitelik?", a: "ÖZELLİK"}, {q: "Kütlesi olan ve boşlukta yer kaplayan her şey?", a: "ÖZDEK"}],
-  "P": [{q: "Işığı yansıtan cam nesne?", a: "PARLAK"}, {q: "Elementlerin dizildiği tablo?", a: "PERİYODİK"}],
-  "R": [{q: "Havadaki basınç farkından doğan akım?", a: "RÜZGAR"}, {q: "Bilgisayarlı insansı makine?", a: "ROBOT"}],
-  "S": [{q: "Yere düşen su damlaları?", a: "SAĞANAK"}, {q: "Sıvıların içindeki tortu?", a: "SÜZME"}],
-  "Ş": [{q: "Bir ülkenin yönetim merkezi?", a: "ŞEHİR"}, {q: "Yüksek sesli gürültü?", a: "ŞAMATA"}],
-  "T": [{q: "Geçmişten kalan izlerin bütünü?", a: "TARİH"}, {q: "Isı ile ilgili olan?", a: "TERMAL"}],
-  "U": [{q: "Sonsuz boşluk?", a: "UZAY"}, {q: "Gök cismi?", a: "UYDU"}],
-  "Ü": [{q: "İnsan topluluğu?", a: "ÜLKE"}, {q: "Mıknatısın ucu?", a: "ÜRETİM"}],
-  "V": [{q: "Hastalık yayan en küçük yapı?", a: "VİRÜS"}, {q: "Damarlarda dolaşan yaşam sıvısı?", a: "VİTAMİN"}],
-  "Y": [{q: "Yeryüzüne düşen yağış?", a: "YAĞMUR"}, {q: "Yerin aniden sarsılması?", a: "YERALTI"}],
-  "Z": [{q: "Süreçlerin geçtiği boyut?", a: "ZAMAN"}, {q: "Akıl yürütme gücü?", a: "ZEKA"}]
+  "A": [{q: "Işık saçacak beyazlığa varıncaya kadar ısıtılmış olan?", a: "AKKOR"}],
+  "B": [{q: "Bir düşüncenin, bir olayın belirtisi olan nesne veya işaret?", a: "BELGE"}],
+  "C": [{q: "Topluluk içinde uyulması gereken nezaket kuralları?", a: "CEVAP"}], // Örnek
+  "Ç": [{q: "Toprağı kazmak için kullanılan demir uçlu araç?", a: "ÇAPA"}],
+  "D": [{q: "Hava olaylarını inceleyen bilim dalı?", a: "DOĞA"}],
+  "E": [{q: "Bir işi yapmak için gereken güç?", a: "ENERJİ"}],
+  "F": [{q: "Düşünce, görüş, kanı?", a: "FİKİR"}],
+  "G": [{q: "Isı ve ışık kaynağı olan yıldızımız?", a: "GÜNEŞ"}],
+  "H": [{q: "Canlıların yaşamını sürdürdüğü doğal ortam?", a: "HABİTAT"}],
+  "I": [{q: "Cisimleri görmemizi sağlayan fiziksel enerji?", a: "IŞIK"}],
+  "İ": [{q: "Duygu ve düşüncelerin aktarılması süreci?", a: "İLETİŞİM"}],
+  "J": [{q: "Otomobil tekerleğinin metal kısmı?", a: "JANT"}],
+  "K": [{q: "Dünyayı çevreleyen gaz tabakası?", a: "KATMAN"}],
+  "L": [{q: "Gemilerin yanaştığı, yük alıp boşalttığı yer?", a: "LİMAN"}],
+  "M": [{q: "Küçük varlıkları görmeyi sağlayan araç?", a: "MİKROSKOP"}],
+  "N": [{q: "Yaşam için gerekli temel gaz?", a: "NEFES"}],
+  "O": [{q: "Kıtaları birbirinden ayıran devasa su kütlesi?", a: "OKYANUS"}],
+  "Ö": [{q: "Bir nesneyi başkalarından ayıran hal?", a: "ÖZELLİK"}],
+  "P": [{q: "Arka yüzü gümüşlenmiş cam?", a: "PARLAK"}],
+  "R": [{q: "Basınç farkından doğan hava akımı?", a: "RÜZGAR"}],
+  "S": [{q: "Yere düşen su damlaları?", a: "SAĞANAK"}],
+  "Ş": [{q: "Yönetim merkezi?", a: "ŞEHİR"}],
+  "T": [{q: "Geçmişten kalan kalıntı?", a: "TARİH"}],
+  "U": [{q: "Dünya dışındaki boşluk?", a: "UZAY"}],
+  "Ü": [{q: "İnsan topluluğu?", a: "ÜLKE"}],
+  "V": [{q: "Hastalık yapan mikrop?", a: "VİRÜS"}],
+  "Y": [{q: "Gökten düşen su?", a: "YAĞMUR"}],
+  "Z": [{q: "Süreç?", a: "ZAMAN"}]
 };
 
 let currentIndex = 0;
 let sessionQuestions = {};
-let results = {};
+let results = {}; // Harf: {status, userAns, correctAns}
 
 function initGame() {
   const container = document.getElementById("wheel-container");
   const radius = 130;
   
   alphabet.forEach((letter, i) => {
-    const options = questionBank[letter];
+    const options = questionBank[letter] || [{q: "Soru bulunamadı", a: "HATA"}];
     sessionQuestions[letter] = options[Math.floor(Math.random() * options.length)];
 
     const angle = (i / alphabet.length) * (2 * Math.PI) - (Math.PI / 2);
@@ -179,20 +172,19 @@ function updateUI() {
   document.querySelectorAll(".letter").forEach(el => el.classList.remove("active"));
   document.getElementById(`l-${letter}`).classList.add("active");
   document.getElementById("question-text").innerText = sessionQuestions[letter].q;
-  document.getElementById("warning-text").innerText = "";
+  document.getElementById("warning-msg").innerText = "";
   document.getElementById("answer-input").focus();
 }
 
 window.handleCheck = function() {
-  const inputEl = document.getElementById("answer-input");
-  const input = inputEl.value.trim().toUpperCase();
+  const input = document.getElementById("answer-input").value.trim().toUpperCase();
   const letter = alphabet[currentIndex];
-
+  
   if (input === "") return;
 
-  // Harf Kontrolü: Cevap o anki harf ile mi başlıyor?
+  // SERT KONTROL: İlk harf eşleşmeli!
   if (!input.startsWith(letter)) {
-    document.getElementById("warning-text").innerText = `DİKKAT! CEVAP "${letter}" HARFİ İLE BAŞLAMALI.`;
+    document.getElementById("warning-msg").innerText = `HATA: Cevap "${letter}" harfi ile başlamalı!`;
     return;
   }
 
@@ -207,7 +199,7 @@ window.handleCheck = function() {
     results[letter] = {status: "wrong", userAns: input, correctAns: correctAns};
   }
   
-  inputEl.value = "";
+  document.getElementById("answer-input").value = "";
   moveToNext();
 };
 
@@ -222,14 +214,15 @@ function moveToNext() {
   let count = 0;
   while (count < alphabet.length) {
     currentIndex = (currentIndex + 1) % alphabet.length;
-    if (!results[alphabet[currentIndex]] && !document.getElementById(`l-${alphabet[currentIndex]}`).classList.contains("passed")) {
+    const el = document.getElementById(`l-${alphabet[currentIndex]}`);
+    if (!results[alphabet[currentIndex]] && !el.classList.contains("passed")) {
       updateUI();
       return;
     }
     count++;
   }
   
-  // Pasları tekrar dön (Pasaparola kuralı)
+  // Pas geçilenleri tekrar sor
   count = 0;
   while (count < alphabet.length) {
     if (!results[alphabet[currentIndex]]) {
@@ -244,7 +237,7 @@ function moveToNext() {
 }
 
 function showFinalResults() {
-  document.getElementById("results-screen").style.display = "flex";
+  const screen = document.getElementById("results-screen");
   const stats = document.getElementById("stats-summary");
   const list = document.getElementById("answers-list");
   
@@ -264,12 +257,13 @@ function showFinalResults() {
         item.innerHTML = `<span><b>${l}</b>: ${res.correctAns}</span> <span style="color:var(--wrong)">YANLIŞ (Sen: ${res.userAns})</span>`;
     } else {
         p++;
-        item.innerHTML = `<span><b>${l}</b>: ${sessionQuestions[l].a}</span> <span style="color:var(--passed)">BOŞ</span>`;
+        item.innerHTML = `<span><b>${l}</b>: ${sessionQuestions[l].a}</span> <span style="color:var(--passed)">PAS</span>`;
     }
     list.appendChild(item);
   });
 
-  stats.innerHTML = `✅ ${c} DOĞRU | ❌ ${w} YANLIŞ | ⚪ ${p} BOŞ`;
+  stats.innerHTML = `✅ ${c} DOĞRU | ❌ ${w} YANLIŞ | ⏳ ${p} PAS`;
+  screen.style.display = "flex";
 }
 
 document.getElementById("answer-input").addEventListener("keypress", (e) => { if (e.key === "Enter") handleCheck(); });
