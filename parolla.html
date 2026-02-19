@@ -44,10 +44,6 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       z-index: 9999;
       font-size: 14px;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     #wheel-container { position: relative; width: 310px; height: 310px; margin-bottom: 20px; flex-shrink: 0; }
@@ -142,12 +138,17 @@ let room = localStorage.getItem("room") || "genel";
 let userId = localStorage.getItem("userId");
 const kissRef = ref(db, "rooms/" + room);
 
-// ÖPÜCÜK DİNLEYİCİ - FİLTRELENMİŞ
+// ÖPÜCÜK DİNLEYİCİ - ÇELİK GİBİ FİLTRELEME
 onChildAdded(kissRef, (snapshot) => {
   const data = snapshot.val();
-  // SADECE type: 'kiss' olanlar ve başkası tarafından gönderilenler
-  if (data && data.type === 'kiss' && data.sender !== userId) {
-    // Eski bildirimi temizle
+  const simdi = Date.now();
+
+  // ŞARTLAR: 
+  // 1. Veri 'kiss' tipinde olacak
+  // 2. Gönderen ben olmayacağım
+  // 3. Veri son 5 saniye içinde gönderilmiş olacak (Eski oyun verilerini eler)
+  if (data && data.type === 'kiss' && data.sender !== userId && (simdi - data.time < 5000)) {
+    
     const existingNotify = document.querySelector(".kiss-notify");
     if(existingNotify) existingNotify.remove();
 
@@ -156,7 +157,6 @@ onChildAdded(kissRef, (snapshot) => {
     notify.innerHTML = `<span>💋</span> Balım sana bir öpücük gönderdi!`;
     document.body.appendChild(notify);
     
-    // Kalpleri uçur
     for(let i=0; i<15; i++) {
         const h = document.createElement("div");
         h.className="floating-heart"; h.innerText="💖";
@@ -165,12 +165,13 @@ onChildAdded(kissRef, (snapshot) => {
         document.body.appendChild(h);
         setTimeout(()=>h.remove(), 1500);
     }
-    setTimeout(() => notify.remove(), 3000);
+    setTimeout(() => { if(notify) notify.remove(); }, 3000);
   }
 });
 </script>
 
 <script>
+// OYUN MANTIĞI AYNI KALIYOR
 const alphabet = ["A", "B", "C", "Ç", "D", "E", "F", "G", "Ğ", "H", "I", "İ", "J", "K", "L", "M", "N", "O", "Ö", "P", "R", "S", "Ş", "T", "U", "Ü", "V", "Y", "Z"];
 
 const questionBank = {
@@ -241,7 +242,6 @@ window.handleCheck = function() {
     const letter = alphabet[currentIndex];
     if (input === "" || !questionBank[letter]) return;
     const el = document.getElementById(`l-${letter}`);
-    el.classList.remove("passed");
     if (input === questionBank[letter].a.toUpperCase()) {
         el.classList.add("correct");
         results[letter] = "correct";
@@ -278,7 +278,6 @@ function showFinalResults() {
     document.getElementById("results-screen").style.display = "flex";
     const c = Object.values(results).filter(v => v === "correct").length;
     const w = Object.values(results).filter(v => v === "wrong").length;
-    const e = Object.values(results).filter(v => v === "empty").length;
     document.getElementById("stats-summary").innerText = `✅ DOĞRU: ${c} | ❌ YANLIŞ: ${w}`;
 }
 
