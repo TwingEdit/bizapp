@@ -3,95 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BizApp - Wordle Seçimi</title>
+  <title>Taha 💞 Bahar - Wordle Menü</title>
   <style>
-    :root {
-      --wordle-green: #6aaa64;
-      --main-pink: #ff4d6d;
-    }
+    :root { --primary: #ff4d6d; --bg: #f3e7ea; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; }
+    
+    .back-btn { position: fixed; top: 20px; left: 20px; background: white; border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; color: var(--primary); font-weight: bold; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #ff8fa3; /* İstediğin pembe tonu */
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-    }
+    .menu-card { background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 85%; max-width: 320px; }
+    .icon { font-size: 60px; margin-bottom: 20px; }
+    h2 { color: #333; margin-bottom: 10px; }
+    p { color: #888; font-size: 14px; margin-bottom: 30px; }
 
-    .back-btn {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 12px;
-      cursor: pointer;
-      color: var(--main-pink);
-      font-weight: bold;
-      text-decoration: none;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
+    .play-btn { background: var(--primary); color: white; padding: 15px 40px; border-radius: 15px; text-decoration: none; font-weight: bold; display: inline-block; transition: 0.3s; }
+    .play-btn:hover { transform: scale(1.05); background: #ff3355; }
 
-    h2 {
-      color: white;
-      font-size: 28px;
-      margin-bottom: 30px;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
-    .menu-container {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      width: 90%;
-      max-width: 300px;
-    }
-
-    .word-btn {
-      background: white;
-      border: none;
-      padding: 22px;
-      border-radius: 20px;
-      font-size: 20px;
-      font-weight: bold;
-      color: #333;
-      text-decoration: none;
-      text-align: center;
-      transition: all 0.3s ease;
-      box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-    }
-
-    .word-btn:hover {
-      background: var(--wordle-green);
-      color: white;
-      transform: translateY(-3px);
-    }
-
-    .footer-text {
-      margin-top: 30px;
-      color: rgba(255,255,255,0.8);
-      font-size: 14px;
-    }
+    /* Öpücük Bildirim Stilleri */
+    .kiss-notify { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: white; color: var(--primary); padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 10px 25px rgba(255, 77, 109, 0.3); z-index: 9999; display: flex; align-items: center; gap: 10px; animation: slideDown 0.5s ease-out; }
+    @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
+    .floating-heart { position: fixed; color: var(--primary); pointer-events: none; animation: heartPop 1.5s forwards; z-index: 10000; font-size: 25px; }
+    @keyframes heartPop { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-150px) rotate(20deg) scale(1.5); opacity: 0; } }
   </style>
 </head>
 <body>
 
   <a href="menu.html" class="back-btn">⬅ Geri</a>
 
-  <h2>Wordle Türkçe 🧩</h2>
-  
-  <div class="menu-container">
-    <a href="wordle5.html" class="word-btn">5 HARFLİ</a>
-    <a href="wordle6.html" class="word-btn">6 HARFLİ</a>
-    <a href="wordle7.html" class="word-btn">7 HARFLİ</a>
+  <div class="menu-card">
+    <div class="icon">🧩</div>
+    <h2>Wordle Türkçe</h2>
+    <p>5 harfli gizli kelimeyi bulabilecek misin?</p>
+    <a href="wordle-game.html" class="play-btn">Oyuna Başla</a>
   </div>
 
-  <p class="footer-text">Kelimeleri bul, puanları topla! ✨</p>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
+    const firebaseConfig = {
+      apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
+      authDomain: "sadece-biz.firebaseapp.com",
+      databaseURL: "https://sadece-biz-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "sadece-biz",
+      storageBucket: "sadece-biz.firebasestorage.app",
+      appId: "1:868755199002:web=e8c18eb0cd11abb2292da3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    let room = localStorage.getItem("room") || "genel";
+    let userId = localStorage.getItem("userId");
+    const kissRef = ref(db, "rooms/" + room);
+
+    // ÖPÜCÜK DİNLEYİCİ
+    onChildAdded(kissRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data.type === 'kiss' && data.sender !== userId) {
+        const notify = document.createElement("div");
+        notify.className = "kiss-notify";
+        notify.innerHTML = `<span>💋</span> Balım sana bir öpücük gönderdi!`;
+        document.body.appendChild(notify);
+        
+        // Kalp yağmuru
+        for(let i=0; i<15; i++) {
+            const h = document.createElement("div");
+            h.className="floating-heart";
+            h.innerText="💖";
+            h.style.left = Math.random()*100+"%";
+            h.style.top = "70%";
+            document.body.appendChild(h);
+            setTimeout(()=>h.remove(), 1500);
+        }
+        setTimeout(() => notify.remove(), 3000);
+      }
+    });
+  </script>
 </body>
 </html>
