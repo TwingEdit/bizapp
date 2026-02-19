@@ -1,73 +1,70 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Bizim Odamız</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #f3e7ea;
-      margin: 0;
-      padding: 50px 0;
-      overflow-x: hidden;
-      position: relative;
-      height: 100vh;
-    }
+<meta charset="UTF-8">
+<title>Bizim Odamız</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: #f3e7ea;
+    margin-top: 50px;
+    overflow-x: hidden;
+  }
 
-    button {
-      background: #ff4d6d;
-      border: none;
-      padding: 15px 30px;
-      color: white;
-      font-size: 18px;
-      border-radius: 15px;
-      cursor: pointer;
-      margin: 8px;
-    }
+  button {
+    background: #ff4d6d;
+    border: none;
+    padding: 15px 30px;
+    color: white;
+    font-size: 18px;
+    border-radius: 15px;
+    cursor: pointer;
+    margin: 8px;
+  }
 
-    #msgList {
-      margin-top: 30px;
-      font-size: 20px;
-      text-align: center;
-      padding: 0 20px;
-      max-height: 400px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
+  #msgList {
+    margin-top: 30px;
+    font-size: 20px;
+    text-align: center;
+    padding: 0 20px;
+    max-height: 500px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
 
-    #msgList p {
-      margin: 6px 0;
-      padding: 10px 14px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      min-width: 180px;
-      max-width: 90%;
-    }
+  #msgList p {
+    margin: 6px 0;
+    padding: 10px 14px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    min-width: 180px;
+    max-width: 90%;
+  }
 
-    .latest {
-      background-color: #ffccd5;
-      transition: background-color 0.5s ease;
-    }
+  .latest {
+    background-color: #ffccd5;
+    transition: background-color 0.5s ease;
+  }
 
-    @keyframes heartPop {
-      0% { transform: scale(0); opacity: 0; }
-      50% { transform: scale(1.5); opacity: 1; }
-      100% { transform: scale(1) translateY(-150px); opacity: 0; }
-    }
-
-    .heart {
-      position: absolute;
-      color: #ff4d6d;
-      font-size: 30px;
-      pointer-events: none;
-      animation: heartPop 1s ease forwards;
-    }
-  </style>
+  /* Kalp animasyonu */
+  @keyframes heartPop {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.5); opacity: 1; }
+    100% { transform: scale(1); opacity: 0; }
+  }
+  .heart {
+    position: absolute;
+    color: #ff4d6d;
+    font-size: 30px;
+    pointer-events: none;
+    animation: heartPop 0.8s ease forwards;
+  }
+</style>
 </head>
 <body>
 
@@ -82,7 +79,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// Firebase config
 const firebaseConfig = {
   apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
   authDomain: "sadece-biz.firebaseapp.com",
@@ -96,7 +92,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Room ve userId
 let room = localStorage.getItem("room") || "genel";
 room = room.trim().toLowerCase();
 const roomRef = ref(db, "rooms/" + room);
@@ -110,41 +105,28 @@ if (!userId) {
 const msgsContainer = document.getElementById("msgList");
 const kissBtn = document.getElementById("kissButton");
 
-// Kalp oluşturma fonksiyonu (çoklu ve rastgele)
-function createHearts(count = 10) {
-  for (let i = 0; i < count; i++) {
-    const heart = document.createElement("div");
-    heart.classList.add("heart");
-    heart.innerText = "💖";
-
-    // Rastgele pozisyon: ekran ortası ±150px
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-    const offsetX = Math.random() * 300 - 150; // -150 -> +150
-    const offsetY = Math.random() * 100 - 50;   // -50 -> +50
-    heart.style.left = centerX + offsetX + "px";
-    heart.style.top = centerY + offsetY + "px";
-
-    // Rastgele boyut
-    const scale = Math.random() * 0.5 + 1;
-    heart.style.fontSize = `${30 * scale}px`;
-
-    document.body.appendChild(heart);
-    setTimeout(() => heart.remove(), 1000 + Math.random() * 500);
-  }
+// Kalp patlatma fonksiyonu
+function createHeart(x, y) {
+  const heart = document.createElement("div");
+  heart.className = "heart";
+  heart.innerText = "💖";
+  heart.style.left = (x - 15 + Math.random()*30 -15) + "px";
+  heart.style.top = (y - 15 + Math.random()*30 -15) + "px";
+  document.body.appendChild(heart);
+  setTimeout(() => heart.remove(), 800);
 }
 
-// Öpücük butonu
-kissBtn.onclick = () => {
-  createHearts(10); // 10 kalp rastgele
-  push(roomRef, { sender: userId, time: Date.now() }); // Firebase'e kaydet
+// Öpücük gönderme
+kissBtn.onclick = (e) => {
+  createHeart(window.innerWidth/2, window.innerHeight/2); // Ortada
+  push(roomRef, { sender: userId, time: Date.now() });
 };
 
-// Mesajları dinle ve göster
+// Realtime DB ile mesajları dinle
 onValue(roomRef, (snapshot) => {
   msgsContainer.innerHTML = "";
-  const messages = [];
 
+  const messages = [];
   snapshot.forEach(childSnap => {
     const data = childSnap.val();
     if (data.sender !== userId) messages.push(data);
@@ -163,11 +145,25 @@ onValue(roomRef, (snapshot) => {
     }
 
     msgsContainer.appendChild(p);
+
+    // Bildirim (uygulama açıkken)
+    if (Notification.permission === "granted") {
+      new Notification("💋 Seni Öptü!", {
+        body: "Yeni bir öpücük mesajı geldi 💖",
+        icon: "/icon.png"
+      });
+    }
   });
 });
-</script>
 
-<script src="app.js"></script>
+// Push izin butonu (sadece uygulama açıkken)
+document.getElementById("enablePush").onclick = async () => {
+  if (!("Notification" in window)) return alert("Tarayıcınız bildirimleri desteklemiyor.");
+  const permission = await Notification.requestPermission();
+  if (permission === "granted") alert("Bildirimler aktif 💖");
+  else alert("İzin verilmedi ❌");
+};
+</script>
 
 </body>
 </html>
