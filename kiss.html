@@ -6,56 +6,17 @@
   <title>BizApp - Öpücük Odası</title>
   <style>
     :root { --main-pink: #ff4d6d; --bg-color: #f3e7ea; }
-    body { 
-        font-family: 'Segoe UI', sans-serif; 
-        text-align: center; 
-        background: var(--bg-color); 
-        margin: 0; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        height: 100vh; 
-        overflow: hidden; 
-    }
-    
-    .back-btn { 
-        position: fixed; 
-        top: 20px; 
-        left: 20px; 
-        background: white; 
-        border: none; 
-        padding: 10px 15px; 
-        border-radius: 12px; 
-        cursor: pointer; 
-        color: var(--main-pink); 
-        font-weight: bold; 
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
-        text-decoration: none; 
-        z-index: 1000; 
-    }
-
-    .kiss-card { 
-        background: white; 
-        padding: 40px; 
-        border-radius: 40px; 
-        box-shadow: 0 15px 35px rgba(255, 77, 109, 0.15); 
-        width: 85%; 
-        max-width: 380px; 
-        position: relative;
-    }
-    
+    body { font-family: 'Segoe UI', sans-serif; text-align: center; background: var(--bg-color); margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+    .back-btn { position: fixed; top: 20px; left: 20px; background: white; border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; color: var(--main-pink); font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-decoration: none; z-index: 1000; }
+    .kiss-card { background: white; padding: 40px; border-radius: 40px; box-shadow: 0 15px 35px rgba(255, 77, 109, 0.15); width: 85%; max-width: 380px; position: relative; }
     .kiss-icon { font-size: 80px; margin-bottom: 20px; display: block; animation: pulse 2s infinite; }
     @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-
     .btn-kiss { background: var(--main-pink); border: none; padding: 18px; color: white; font-size: 18px; border-radius: 20px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; margin-bottom: 12px; }
     .btn-kiss:active { transform: scale(0.95); }
-    
     .btn-push { background: #adb5bd; border: none; padding: 8px 15px; color: white; font-size: 12px; border-radius: 10px; cursor: pointer; }
-    
     #msgList { margin-top: 25px; max-height: 120px; overflow-y: auto; width: 100%; border-top: 1px solid #eee; padding-top: 15px; }
     .msg-item { background: #fff5f7; padding: 10px; border-radius: 12px; margin: 8px 0; font-size: 13px; color: #555; border-left: 4px solid var(--main-pink); text-align: left; animation: slideIn 0.3s ease-out; }
     @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
     .heart { position: absolute; color: var(--main-pink); pointer-events: none; animation: heartPop 1s forwards; z-index: 100; }
     @keyframes heartPop { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-150px) rotate(20deg) scale(1.5); opacity: 0; } }
   </style>
@@ -68,10 +29,7 @@
     <span class="kiss-icon">💋</span>
     <button class="btn-kiss" id="kissBtn">Öpücük Gönder</button>
     <button class="btn-push" id="enablePush">Bildirimleri Aktif Et 🔔</button>
-    
-    <div id="msgList">
-        <p id="emptyMsg" style="font-size: 12px; color: #bbb;">Gelen öpücükler burada görünecek...</p>
-    </div>
+    <div id="msgList"><p id="emptyMsg" style="font-size: 12px; color: #bbb;">Gelen öpücükler burada görünecek...</p></div>
 </div>
 
 <script type="module">
@@ -91,34 +49,47 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// Oda ve Kullanıcı Ayarları
 let room = localStorage.getItem("room") || "genel";
 const roomRef = ref(db, "rooms/" + room);
-let userId = localStorage.getItem("userId") || "user-" + Math.random().toString(16).slice(2);
-localStorage.setItem("userId", userId);
+
+// Her cihaz için eşsiz bir ID (Eğer yoksa oluştur ve kaydet)
+let userId = localStorage.getItem("userId");
+if (!userId) {
+    userId = "user-" + Math.random().toString(36).substring(2, 9);
+    localStorage.setItem("userId", userId);
+}
 
 const list = document.getElementById("msgList");
 
 // ÖPÜCÜK GÖNDERME
 document.getElementById("kissBtn").onclick = () => {
-    // Sadece veriyi gönderiyoruz, kalp efektini çağırmıyoruz
-    push(roomRef, { sender: userId, type: 'kiss', time: Date.now() });
+    push(roomRef, { 
+        sender: userId, 
+        type: 'kiss', 
+        time: Date.now() 
+    });
 };
 
-// ÖPÜCÜK ALMA
+// ÖPÜCÜK ALMA VE DİNLEME
 onChildAdded(roomRef, (snapshot) => {
     const data = snapshot.val();
+    
     if (data.type === 'kiss') {
         const emptyMsg = document.getElementById("emptyMsg");
         if(emptyMsg) emptyMsg.remove();
 
         const p = document.createElement("div");
         p.className = "msg-item";
-        p.innerText = `💋 ${new Date(data.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - Öpüldün!`;
+        
+        // Eğer öpücüğü sen gönderdiysen listede "Gönderildi" yazsın, karşıdan geldiyse "Öpüldün" yazsın.
+        const msgText = (data.sender === userId) ? "✅ Öpücük Gönderildi" : "💋 Öpüldün!";
+        p.innerText = `${msgText} - ${new Date(data.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
         list.prepend(p);
         
-        // EĞER ÖPÜCÜK BAŞKASINDAN GELDİYSE KALP ÇIKAR
+        // SADECE KARŞI TARAF GÖNDERDİYSE KALP PATLAT
         if (data.sender !== userId) {
-            createHearts(25);
+            createHearts(30);
         }
     }
 });
@@ -129,8 +100,8 @@ function createHearts(count) {
         heart.className = "heart";
         heart.innerText = i % 2 === 0 ? "💖" : "💋";
         heart.style.left = (Math.random() * 80 + 10) + "%";
-        heart.style.top = (Math.random() * 50 + 20) + "%";
-        heart.style.fontSize = (Math.random() * 20 + 20) + "px";
+        heart.style.top = (Math.random() * 60 + 20) + "%";
+        heart.style.fontSize = (Math.random() * 15 + 20) + "px";
         document.body.appendChild(heart);
         setTimeout(() => heart.remove(), 1000);
     }
