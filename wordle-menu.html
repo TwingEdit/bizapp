@@ -10,13 +10,27 @@
     
     .back-btn { position: fixed; top: 20px; left: 20px; background: white; border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; color: var(--primary); font-weight: bold; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
-    .menu-card { background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 85%; max-width: 320px; }
-    .icon { font-size: 60px; margin-bottom: 20px; }
-    h2 { color: #333; margin-bottom: 10px; }
-    p { color: #888; font-size: 14px; margin-bottom: 30px; }
+    .menu-card { background: white; padding: 30px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 85%; max-width: 350px; }
+    .icon { font-size: 50px; margin-bottom: 10px; }
+    h2 { color: #333; margin-bottom: 5px; }
+    p { color: #888; font-size: 14px; margin-bottom: 25px; }
 
-    .play-btn { background: var(--primary); color: white; padding: 15px 40px; border-radius: 15px; text-decoration: none; font-weight: bold; display: inline-block; transition: 0.3s; }
-    .play-btn:hover { transform: scale(1.05); background: #ff3355; }
+    .option-list { display: flex; flex-direction: column; gap: 12px; }
+    .play-btn { 
+      background: white; 
+      color: #333; 
+      padding: 15px; 
+      border-radius: 15px; 
+      text-decoration: none; 
+      font-weight: bold; 
+      border: 2px solid #f0f0f0;
+      transition: 0.3s; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .play-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
 
     /* Öpücük Bildirim Stilleri */
     .kiss-notify { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: white; color: var(--primary); padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 10px 25px rgba(255, 77, 109, 0.3); z-index: 9999; display: flex; align-items: center; gap: 10px; animation: slideDown 0.5s ease-out; }
@@ -32,8 +46,13 @@
   <div class="menu-card">
     <div class="icon">🧩</div>
     <h2>Wordle Türkçe</h2>
-    <p>5 harfli gizli kelimeyi bulabilecek misin?</p>
-    <a href="wordle-game.html" class="play-btn">Oyuna Başla</a>
+    <p>Kaç harfli kelime ile yarışmak istersiniz?</p>
+    
+    <div class="option-list">
+        <a href="wordle-game.html?len=5" class="play-btn"><span>5</span> Harfli Kelimeler</a>
+        <a href="wordle-game.html?len=6" class="play-btn"><span>6</span> Harfli Kelimeler</a>
+        <a href="wordle-game.html?len=7" class="play-btn"><span>7</span> Harfli Kelimeler</a>
+    </div>
   </div>
 
   <script type="module">
@@ -55,7 +74,6 @@
     let userId = localStorage.getItem("userId");
     const kissRef = ref(db, "rooms/" + room);
 
-    // ÖPÜCÜK DİNLEYİCİ
     onChildAdded(kissRef, (snapshot) => {
       const data = snapshot.val();
       if (data.type === 'kiss' && data.sender !== userId) {
@@ -64,13 +82,10 @@
         notify.innerHTML = `<span>💋</span> Balım sana bir öpücük gönderdi!`;
         document.body.appendChild(notify);
         
-        // Kalp yağmuru
         for(let i=0; i<15; i++) {
             const h = document.createElement("div");
-            h.className="floating-heart";
-            h.innerText="💖";
-            h.style.left = Math.random()*100+"%";
-            h.style.top = "70%";
+            h.className="floating-heart"; h.innerText="💖";
+            h.style.left = Math.random()*100+"%"; h.style.top = "70%";
             document.body.appendChild(h);
             setTimeout(()=>h.remove(), 1500);
         }
