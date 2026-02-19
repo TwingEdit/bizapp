@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BizApp - Ayıcık Bakımı</title>
+  <title>Taha 💞 Bahar - Ayıcık Bakımı</title>
   <style>
     :root { --main-pink: #ff4d6d; --bg-color: #f3e7ea; }
     body { font-family: 'Segoe UI', sans-serif; text-align: center; background: var(--bg-color); margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; transition: background 1s; }
     
-    .back-btn { position: fixed; top: 20px; left: 20px; background: white; border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; color: var(--main-pink); font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10; }
+    .back-btn { position: fixed; top: 20px; left: 20px; background: white; border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; color: var(--main-pink); font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 100; text-decoration: none; }
 
     #petCard {
       background: white; padding: 25px; border-radius: 40px;
       display: inline-block; box-shadow: 0 15px 35px rgba(255, 77, 109, 0.2);
-      width: 85%; max-width: 350px; position: relative;
+      width: 85%; max-width: 350px; position: relative; z-index: 10;
     }
 
     #petVisual { font-size: 100px; display: block; margin: 10px 0; transition: 0.3s; }
@@ -36,13 +36,28 @@
     .btn-feed { background: #ff9f43; }
     .btn-wash { background: #54a0ff; }
     
-    .heart { position: absolute; color: var(--main-pink); pointer-events: none; animation: heartPop 1s forwards; }
-    @keyframes heartPop { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-100px) scale(1.5); opacity: 0; } }
+    /* Öpücük Bildirim Stilleri */
+    .kiss-notify {
+        position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+        background: white; color: var(--main-pink); padding: 15px 25px;
+        border-radius: 50px; font-weight: bold; box-shadow: 0 10px 25px rgba(255, 77, 109, 0.3);
+        z-index: 9999; display: flex; align-items: center; gap: 10px;
+        animation: slideDown 0.5s ease-out;
+    }
+    @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
+    @keyframes slideUp { from { top: 20px; } to { top: -100px; } }
+
+    .heart { position: absolute; color: var(--main-pink); pointer-events: none; animation: heartPop 1.5s forwards; z-index: 1000; }
+    @keyframes heartPop { 
+        0% { transform: scale(0); opacity: 0; } 
+        50% { opacity: 1; } 
+        100% { transform: translateY(-150px) rotate(20deg) scale(1.5); opacity: 0; } 
+    }
   </style>
 </head>
 <body>
 
-<button class="back-btn" onclick="location.href='menu.html'">⬅ Geri</button>
+<a href="menu.html" class="back-btn">⬅ Geri</a>
 
 <div id="petCard">
     <div id="petVisual" class="floating">🧸</div>
@@ -70,7 +85,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, update, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, onValue, update, set, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
@@ -86,8 +101,13 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 let room = localStorage.getItem("room") || "genel";
-const petRef = ref(db, "rooms/" + room + "/pet");
+let userId = localStorage.getItem("userId") || Math.random().toString(36).substring(2, 10);
+localStorage.setItem("userId", userId);
 
+const petRef = ref(db, "rooms/" + room + "/pet");
+const kissRef = ref(db, "rooms/" + room); // Öpücükleri dinlemek için ana oda referansı
+
+// --- AYICIK VERİLERİNİ DİNLE ---
 onValue(petRef, (snapshot) => {
     const data = snapshot.val();
     if (!data) {
@@ -108,6 +128,7 @@ onValue(petRef, (snapshot) => {
     else { visual.innerText = "🧸"; document.body.style.background = "#f3e7ea"; }
 });
 
+// --- BUTON İŞLEMLERİ ---
 document.getElementById("feedBtn").onclick = () => {
     onValue(petRef, (s) => {
         const d = s.val();
@@ -123,15 +144,39 @@ document.getElementById("washBtn").onclick = () => {
     }, { onlyOnce: true });
 };
 
+// --- ÖPÜCÜK BİLDİRİM SİSTEMİ ---
+onChildAdded(kissRef, (snapshot) => {
+    const data = snapshot.val();
+    // Eğer gelen veri bir öpücükse ve gönderen sevgilinse
+    if (data.type === 'kiss' && data.sender !== userId) {
+        showKissNotification();
+    }
+});
+
+function showKissNotification() {
+    const notify = document.createElement("div");
+    notify.className = "kiss-notify";
+    notify.innerHTML = `<span>💋</span> Balım sana bir öpücük gönderdi!`;
+    document.body.appendChild(notify);
+
+    createHearts(20); // Öpücük gelince bolca kalp uçur
+
+    setTimeout(() => {
+        notify.style.animation = "slideUp 0.5s ease-in";
+        setTimeout(() => notify.remove(), 500);
+    }, 3000);
+}
+
 function createHearts(count) {
     for (let i = 0; i < count; i++) {
         const heart = document.createElement("div");
         heart.className = "heart";
         heart.innerText = "💖";
         heart.style.left = Math.random() * 100 + "%";
-        heart.style.top = Math.random() * 100 + "%";
+        heart.style.top = (Math.random() * 50 + 50) + "%";
+        heart.style.fontSize = (Math.random() * 20 + 20) + "px";
         document.body.appendChild(heart);
-        setTimeout(() => heart.remove(), 1000);
+        setTimeout(() => heart.remove(), 1500);
     }
 }
 </script>
