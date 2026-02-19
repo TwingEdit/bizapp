@@ -3,56 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BizApp - Online XOX</title>
+  <title>Taha 💞 Bahar - Online XOX</title>
   <style>
     :root { --bg: #121213; --cell-bg: #1e1e1e; --text: #ffffff; --x-color: #ff4d6d; --o-color: #4cc9f0; --win-bg: #6aaa64; }
     body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
-    
-    .back-btn { position: fixed; top: 20px; left: 20px; background: white; border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; color: #ff4d6d; font-weight: bold; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; }
-
+    .back-btn { position: fixed; top: 20px; left: 20px; background: white; border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; color: #ff4d6d; font-weight: bold; text-decoration: none; z-index: 1000; }
     .scoreboard { display: flex; gap: 30px; margin-bottom: 20px; background: #2a2a2a; padding: 15px 25px; border-radius: 20px; font-weight: bold; }
     #score-x { color: var(--x-color); font-size: 24px; }
     #score-o { color: var(--o-color); font-size: 24px; }
-
     #status { margin-bottom: 15px; font-size: 20px; font-weight: bold; height: 30px; color: #ff4d6d; }
-
-    .board { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(3, 100px); gap: 10px; }
-    .cell { width: 100px; height: 100px; background: var(--cell-bg); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .board { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; }
+    .cell { width: 100px; height: 100px; background: var(--cell-bg); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: bold; cursor: pointer; }
     .cell.x { color: var(--x-color); }
     .cell.o { color: var(--o-color); }
-    .cell.winner { background: var(--win-bg); color: white; }
-
-    .btn-reset { margin-top: 30px; padding: 12px 25px; background: transparent; border: 2px solid white; color: white; border-radius: 10px; cursor: pointer; font-weight: bold; }
+    .btn-reset { margin-top: 30px; padding: 12px 25px; background: transparent; border: 2px solid white; color: white; border-radius: 10px; cursor: pointer; }
+    /* Öpücük Bildirim Stili */
+    @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
+    .kiss-notify { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: white; color: #ff4d6d; padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 10px 25px rgba(255, 77, 109, 0.3); z-index: 9999; display: flex; align-items: center; gap: 10px; animation: slideDown 0.5s ease-out; }
+    .floating-heart { position: fixed; color: #ff4d6d; pointer-events: none; animation: heartPop 1.5s forwards; z-index: 10000; font-size: 25px; }
+    @keyframes heartPop { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-150px) rotate(20deg) scale(1.5); opacity: 0; } }
   </style>
 </head>
 <body>
-
   <a href="menu.html" class="back-btn">⬅ Geri</a>
-
   <div class="scoreboard">
-    <div style="text-align:center">SEN (X)<br><span id="score-x">0</span></div>
-    <div style="text-align:center">O (SKOR)<br><span id="score-o">0</span></div>
+    <div>X: <span id="score-x">0</span></div>
+    <div>O: <span id="score-o">0</span></div>
   </div>
-
   <div id="status">Bağlantı Kuruluyor...</div>
-
-  <div class="board" id="board">
-    <div class="cell" data-index="0"></div>
-    <div class="cell" data-index="1"></div>
-    <div class="cell" data-index="2"></div>
-    <div class="cell" data-index="3"></div>
-    <div class="cell" data-index="4"></div>
-    <div class="cell" data-index="5"></div>
-    <div class="cell" data-index="6"></div>
-    <div class="cell" data-index="7"></div>
-    <div class="cell" data-index="8"></div>
+  <div class="board">
+    <div class="cell" data-index="0"></div><div class="cell" data-index="1"></div><div class="cell" data-index="2"></div>
+    <div class="cell" data-index="3"></div><div class="cell" data-index="4"></div><div class="cell" data-index="5"></div>
+    <div class="cell" data-index="6"></div><div class="cell" data-index="7"></div><div class="cell" data-index="8"></div>
   </div>
-
   <button class="btn-reset" id="resetBtn">Tahtayı Temizle</button>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, update, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
@@ -66,52 +54,36 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-
     let room = localStorage.getItem("room") || "genel";
-    const xoxRef = ref(db, "rooms/" + room + "/xox_v2"); // Yol ismini güncelledim temiz başlangıç için
+    let userId = localStorage.getItem("userId") || Math.random().toString(36).substring(2, 10);
+    const xoxRef = ref(db, "rooms/" + room + "/xox_v2");
+    const kissRef = ref(db, "rooms/" + room);
 
+    // XOX MANTIĞI
     const cells = document.querySelectorAll('.cell');
-    const statusEl = document.getElementById('status');
-    
     let board = Array(9).fill("");
     let turn = "X";
     let gameActive = true;
-    let scores = { X: 0, O: 0 };
 
-    // VERİLERİ DİNLE
     onValue(xoxRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         board = data.board || Array(9).fill("");
         turn = data.turn || "X";
         gameActive = data.gameActive !== false;
-        scores = data.scores || { X: 0, O: 0 };
-
-        document.getElementById('score-x').innerText = scores.X;
-        document.getElementById('score-o').innerText = scores.O;
-        
-        statusEl.innerText = gameActive ? `Sıra: ${turn}` : "Oyun Bitti!";
-        
-        board.forEach((val, i) => {
-          cells[i].innerText = val;
-          cells[i].className = "cell " + (val ? val.toLowerCase() : "");
-        });
-      } else {
-        // Eğer veritabanında hiç oyun yoksa oluştur
-        resetGame();
-      }
+        document.getElementById('score-x').innerText = data.scores?.X || 0;
+        document.getElementById('score-o').innerText = data.scores?.O || 0;
+        document.getElementById('status').innerText = gameActive ? `Sıra: ${turn}` : "Oyun Bitti!";
+        board.forEach((val, i) => { cells[i].innerText = val; cells[i].className = "cell " + (val ? val.toLowerCase() : ""); });
+      } else { resetGame(); }
     });
 
-    // TIKLAMA
     cells.forEach(cell => {
       cell.addEventListener('click', () => {
         const idx = cell.getAttribute('data-index');
         if (board[idx] !== "" || !gameActive) return;
-
         board[idx] = turn;
-        const nextTurn = turn === "X" ? "O" : "X";
-        
-        update(xoxRef, { board: board, turn: nextTurn });
+        update(xoxRef, { board: board, turn: turn === "X" ? "O" : "X" });
         checkWin();
       });
     });
@@ -120,30 +92,39 @@
       const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
       for (let [a,b,c] of wins) {
         if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-          const winner = board[a];
-          const newScores = {...scores};
-          newScores[winner]++;
-          update(xoxRef, { gameActive: false, scores: newScores });
-          alert(winner + " Kazandı!");
-          return;
+          update(xoxRef, { gameActive: false });
+          alert(board[a] + " Kazandı!"); return;
         }
       }
-      if (!board.includes("")) {
-        update(xoxRef, { gameActive: false });
-        alert("Berabere!");
+    }
+
+    function resetGame() { set(xoxRef, { board: Array(9).fill(""), turn: "X", gameActive: true, scores: {X:0, O:0} }); }
+    document.getElementById('resetBtn').onclick = resetGame;
+
+    // ÖPÜCÜK BİLDİRİMİ (XOX İçinde)
+    onChildAdded(kissRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data.type === 'kiss' && data.sender !== userId) {
+        const notify = document.createElement("div");
+        notify.className = "kiss-notify";
+        notify.innerHTML = `<span>💋</span> Balım sana bir öpücük gönderdi!`;
+        document.body.appendChild(notify);
+        createHearts(15);
+        setTimeout(() => notify.remove(), 3000);
+      }
+    });
+
+    function createHearts(count) {
+      for (let i = 0; i < count; i++) {
+        const heart = document.createElement("div");
+        heart.className = "floating-heart";
+        heart.innerText = "💖";
+        heart.style.left = Math.random() * 100 + "%";
+        heart.style.top = (Math.random() * 50 + 50) + "%";
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 1500);
       }
     }
-
-    function resetGame() {
-      set(xoxRef, {
-        board: Array(9).fill(""),
-        turn: "X",
-        gameActive: true,
-        scores: scores
-      });
-    }
-
-    document.getElementById('resetBtn').onclick = resetGame;
   </script>
 </body>
 </html>
