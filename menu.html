@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BizApp - Ana Menü</title>
+  <title>Taha 💞 Bahar Dünyası</title>
   <style>
     :root {
       --primary: #ff4d6d;
       --secondary: #ff8fa3;
       --bg: #f3e7ea;
       --parola-color: #4cc9f0;
-      --xox-color: #6aaa64; /* XOX için yeşil tonu */
+      --xox-color: #6aaa64;
     }
 
     body {
@@ -26,19 +26,29 @@
       padding: 20px 0;
     }
 
+    /* BURASI GÜNCELLENDİ */
+    .header-area {
+      margin-bottom: 10px;
+    }
+
     h1 {
       color: var(--primary);
       margin-bottom: 5px;
       font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
 
     .room-info {
       color: #888;
       margin-bottom: 30px;
       font-size: 14px;
-      background: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.6);
       padding: 5px 15px;
       border-radius: 20px;
+      display: inline-block;
     }
 
     .menu-grid {
@@ -52,7 +62,7 @@
     .menu-card {
       background: white;
       text-decoration: none;
-      padding: 20px;
+      padding: 18px;
       border-radius: 25px;
       display: flex;
       align-items: center;
@@ -67,7 +77,6 @@
       border-color: var(--primary);
     }
 
-    /* Özel Renkler */
     .menu-card.parola:hover { border-color: var(--parola-color); }
     .menu-card.xox:hover { border-color: var(--xox-color); }
 
@@ -78,14 +87,14 @@
     }
 
     .icon-box {
-      font-size: 35px;
-      background: var(--bg);
-      width: 60px;
-      height: 60px;
+      font-size: 30px;
+      background: #fff0f3;
+      width: 55px;
+      height: 55px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 15px;
+      border-radius: 18px;
     }
 
     .text-box {
@@ -94,7 +103,7 @@
 
     .text-box h2 {
       margin: 0;
-      font-size: 18px;
+      font-size: 17px;
       color: #333;
     }
 
@@ -106,12 +115,9 @@
 
     .arrow {
       color: var(--primary);
-      font-weight: bold;
-      font-size: 20px;
+      font-size: 18px;
+      opacity: 0.6;
     }
-
-    .parola .arrow { color: var(--parola-color); }
-    .xox .arrow { color: var(--xox-color); }
 
     .logout-btn {
       margin-top: 40px;
@@ -124,8 +130,10 @@
 </head>
 <body>
 
-  <h1>💞 BizApp Dünyası</h1>
-  <div class="room-info">Oda: <span id="roomName">...</span></div>
+  <div class="header-area">
+    <h1>💞 Taha 💞 Bahar</h1>
+    <div class="room-info">Oda: <span id="roomName">...</span></div>
+  </div>
 
   <div class="menu-grid">
     <a href="kiss.html" class="menu-card">
