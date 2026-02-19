@@ -97,3 +97,60 @@ function createHearts(count) {
 <script src="app.js"></script>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Öpücük Gönder</title>
+    <style>
+        :root { --primary: #ff4d6d; --bg: #f3e7ea; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .back-btn { position: fixed; top: 20px; left: 20px; text-decoration: none; color: var(--primary); font-weight: bold; background: white; padding: 10px 15px; border-radius: 12px; }
+        .kiss-btn { width: 150px; height: 150px; border-radius: 50%; border: none; background: white; font-size: 70px; cursor: pointer; shadow: 0 10px 20px rgba(0,0,0,0.1); transition: 0.3s; }
+        .kiss-btn:active { transform: scale(0.9); }
+        h2 { color: #333; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <a href="menu.html" class="back-btn">⬅ Geri</a>
+    
+    <button class="kiss-btn" onclick="sendKiss()">💋</button>
+    <h2>Ona Bir Öpücük Gönder</h2>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
+            authDomain: "sadece-biz.firebaseapp.com",
+            databaseURL: "https://sadece-biz-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "sadece-biz",
+            storageBucket: "sadece-biz.firebasestorage.app",
+            appId: "1:868755199002:web=e8c18eb0cd11abb2292da3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const room = localStorage.getItem("room") || "genel";
+        const userId = localStorage.getItem("userId") || "user-" + Math.random().toString(16).slice(2);
+
+        window.sendKiss = function() {
+            const kissRef = ref(db, "rooms/" + room);
+            const newKissRef = push(kissRef);
+            
+            // BURASI KRİTİK: timestamp ekliyoruz
+            set(newKissRef, {
+                type: 'kiss',
+                sender: userId,
+                timestamp: Date.now() 
+            }).then(() => {
+                alert("Öpücük gönderildi! 💋");
+            });
+        }
+    </script>
+</body>
+</html>
