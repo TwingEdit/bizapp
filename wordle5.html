@@ -111,20 +111,24 @@ const db = getDatabase(app);
 const room = localStorage.getItem("room") || "genel";
 const userId = localStorage.getItem("userId");
 
-// --- ÖPÜCÜK YAKALAMA SİSTEMİ (FİLTRELİ) ---
+// --- ÖPÜCÜK YAKALAMA SİSTEMİ (ÇİFT KİLİTLİ) ---
 const pageLoadTime = Date.now();
 const kissRef = ref(db, "rooms/" + room);
-let isReady = false;
+let initialDataLoaded = false;
 
-// Sayfa ilk açıldığında veritabanındaki eski verileri pas geçmek için 1 saniye bekle
-setTimeout(() => { isReady = true; }, 1000);
+// İlk yükleme tamamlandığında bu çalışır
+onValue(kissRef, () => {
+    initialDataLoaded = true;
+}, { onlyOnce: true });
 
 onChildAdded(kissRef, (snapshot) => {
+    // Sadece ilk yükleme bittikten SONRA (gerçek zamanlı) gelenleri kabul et
+    if (!initialDataLoaded) return;
+
     const data = snapshot.val();
     const sentTime = data.timestamp || data.time || 0;
 
-    // SADECE: 1 sn geçmişse, tip kiss ise, başkası atmışsa ve yeni atılmışsa göster
-    if (isReady && data.type === 'kiss' && data.sender !== userId && sentTime > pageLoadTime) {
+    if (data.type === 'kiss' && data.sender !== userId && sentTime > pageLoadTime) {
         showKiss();
     }
 });
