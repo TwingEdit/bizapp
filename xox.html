@@ -4,30 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BizApp - Online XOX</title>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <style>
-    :root {
-      --bg: #121213;
-      --cell-bg: #1e1e1e;
-      --text: #ffffff;
-      --x-color: #ff4d6d;
-      --o-color: #4cc9f0;
-    }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-    .back-btn { position: fixed; top: 20px; left: 20px; background: white; color: #ff4d6d; padding: 10px 15px; border-radius: 12px; text-decoration: none; font-weight: bold; }
+    :root { --bg: #121213; --cell-bg: #1e1e1e; --text: #ffffff; --x-color: #ff4d6d; --o-color: #4cc9f0; --win-bg: #6aaa64; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
     
-    .scoreboard { display: flex; gap: 30px; margin-bottom: 20px; background: #2a2a2a; padding: 15px; border-radius: 20px; }
-    .score-item { text-align: center; }
-    
-    .board { display: grid; grid-template-columns: repeat(3, 90px); gap: 10px; }
-    .cell { width: 90px; height: 90px; background: var(--cell-bg); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; cursor: pointer; }
+    .back-btn { position: fixed; top: 20px; left: 20px; background: white; border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; color: #ff4d6d; font-weight: bold; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; }
+
+    .scoreboard { display: flex; gap: 30px; margin-bottom: 20px; background: #2a2a2a; padding: 15px 25px; border-radius: 20px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    #score-x { color: var(--x-color); font-size: 24px; }
+    #score-o { color: var(--o-color); font-size: 24px; }
+
+    #status { margin-bottom: 15px; font-size: 20px; font-weight: bold; height: 30px; }
+
+    .board { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(3, 100px); gap: 10px; }
+    .cell { width: 100px; height: 100px; background: var(--cell-bg); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: bold; cursor: pointer; transition: 0.2s; }
     .cell.x { color: var(--x-color); }
     .cell.o { color: var(--o-color); }
-    .cell.winner { background: #6aaa64; }
-    
-    #status { margin: 20px 0; font-weight: bold; height: 25px; }
-    #reset-btn { padding: 10px 20px; background: transparent; border: 2px solid white; color: white; border-radius: 8px; cursor: pointer; }
+    .cell.winner { background: var(--win-bg); color: white; transform: scale(1.05); }
+
+    .btn-reset { margin-top: 30px; padding: 12px 25px; background: transparent; border: 2px solid white; color: white; border-radius: 10px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
+    .btn-reset:hover { background: white; color: black; }
   </style>
 </head>
 <body>
@@ -35,11 +31,11 @@
   <a href="menu.html" class="back-btn">⬅ Geri</a>
 
   <div class="scoreboard">
-    <div class="score-item">X (Skor)<br><span id="score-x">0</span></div>
-    <div class="score-item">O (Skor)<br><span id="score-o">0</span></div>
+    <div style="text-align:center">SEN (X)<br><span id="score-x">0</span></div>
+    <div style="text-align:center">O (SKOR)<br><span id="score-o">0</span></div>
   </div>
 
-  <div id="status">Bağlanılıyor...</div>
+  <div id="status">Bağlanıyor...</div>
 
   <div class="board" id="board">
     <div class="cell" data-index="0"></div>
@@ -53,84 +49,130 @@
     <div class="cell" data-index="8"></div>
   </div>
 
-  <button id="reset-btn" style="margin-top:20px">OYUNU SIFIRLA</button>
+  <button class="btn-reset" onclick="resetOnline()">Tahtayı Temizle</button>
 
-  <script>
-    // --- BURAYA DİKKAT ---
-    // Eğer projende başka bir yerde firebaseConfig varsa onu buraya yapıştır!
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    // KİSS.HTML'DEN ALINAN GÜNCEL AYARLARIN
     const firebaseConfig = {
-      apiKey: "AIza...",
-      databaseURL: "https://senin-projen.firebaseio.com",
-      projectId: "senin-projen",
-      // ... diğer bilgiler
+      apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
+      authDomain: "sadece-biz.firebaseapp.com",
+      databaseURL: "https://sadece-biz-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "sadece-biz",
+      storageBucket: "sadece-biz.firebasestorage.app",
+      messagingSenderId: "868755199002",
+      appId: "1:868755199002:web=e8c18eb0cd11abb2292da3"
     };
-    
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const roomName = localStorage.getItem("room") || "genel_oda";
-    const gameRef = database.ref('rooms/' + roomName + '/xox');
 
-    let localGameState = Array(9).fill("");
-    let currentTurn = "X";
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-    // Veritabanını Dinle (Diğer oyuncu basınca senin ekranın değişir)
-    gameRef.on('value', (snapshot) => {
+    const room = localStorage.getItem("room") || "genel";
+    const xoxRef = ref(db, "rooms/" + room + "/xox_game");
+
+    const cells = document.querySelectorAll('.cell');
+    const statusEl = document.getElementById('status');
+    const scoreXEl = document.getElementById('score-x');
+    const scoreOEl = document.getElementById('score-o');
+
+    let board = Array(9).fill("");
+    let turn = "X";
+    let gameActive = true;
+
+    // VERİTABANINI DİNLE (Gerçek Zamanlı Güncelleme)
+    onValue(xoxRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        localGameState = data.board || Array(9).fill("");
-        currentTurn = data.turn || "X";
-        updateUI(data.scores || {X:0, O:0});
+        board = data.board || Array(9).fill("");
+        turn = data.turn || "X";
+        gameActive = data.gameActive !== false;
+        
+        scoreXEl.innerText = data.scores?.X || 0;
+        scoreOEl.innerText = data.scores?.O || 0;
+        
+        renderBoard();
+        
+        if (gameActive) {
+          statusEl.innerText = `Sıra: ${turn}`;
+          statusEl.style.color = turn === "X" ? "var(--x-color)" : "var(--o-color)";
+        }
+      } else {
+        // İlk kez açılıyorsa veritabanını kur
+        resetOnline();
       }
     });
 
-    function updateUI(scores) {
-      const cells = document.querySelectorAll('.cell');
-      localGameState.forEach((val, i) => {
+    function renderBoard() {
+      board.forEach((val, i) => {
         cells[i].innerText = val;
-        cells[i].className = "cell " + val.toLowerCase();
+        cells[i].className = "cell " + (val ? val.toLowerCase() : "");
       });
-      document.getElementById('status').innerText = "Sıra: " + currentTurn;
-      document.getElementById('score-x').innerText = scores.X;
-      document.getElementById('score-o').innerText = scores.O;
     }
 
-    // Hücreye tıklama
-    document.querySelectorAll('.cell').forEach(cell => {
-      cell.addEventListener('click', () => {
-        const idx = cell.getAttribute('data-index');
-        if (localGameState[idx] === "" && currentTurn) {
-          localGameState[idx] = currentTurn;
-          const nextTurn = currentTurn === "X" ? "O" : "X";
-          
-          // Veritabanını güncelle (İki cihazda da anında değişir)
-          gameRef.update({
-            board: localGameState,
-            turn: nextTurn
-          });
-          
-          checkWinnerLocally();
-        }
+    // TIKLAMA OLAYI
+    cells.forEach(cell => {
+      cell.addEventListener('click', (e) => {
+        const idx = e.target.getAttribute('data-index');
+        
+        if (board[idx] !== "" || !gameActive) return;
+
+        board[idx] = turn;
+        const nextTurn = turn === "X" ? "O" : "X";
+        
+        update(xoxRef, {
+          board: board,
+          turn: nextTurn
+        });
+
+        checkWin();
       });
     });
 
-    function checkWinnerLocally() {
-        const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-        for (let [a, b, c] of wins) {
-            if (localGameState[a] && localGameState[a] === localGameState[b] && localGameState[a] === localGameState[c]) {
-                alert(localGameState[a] + " KAZANDI!");
-                // Kazanan skoru artır ve board'u temizle mantığı buraya eklenebilir
-                resetGameData();
-                break;
+    function checkWin() {
+      const wins = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
+      
+      for (let combo of wins) {
+        const [a, b, c] = combo;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          const winner = board[a];
+          statusEl.innerText = winner + " Kazandı! ✨";
+          statusEl.style.color = "var(--win-bg)";
+          
+          // Skoru güncelle
+          const currentX = parseInt(scoreXEl.innerText);
+          const currentO = parseInt(scoreOEl.innerText);
+          
+          update(xoxRef, {
+            gameActive: false,
+            scores: {
+              X: winner === "X" ? currentX + 1 : currentX,
+              O: winner === "O" ? currentO + 1 : currentO
             }
+          });
+          return;
         }
+      }
+
+      if (!board.includes("")) {
+        statusEl.innerText = "Berabere! 🤝";
+        update(xoxRef, { gameActive: false });
+      }
     }
 
-    document.getElementById('reset-btn').onclick = resetGameData;
-
-    function resetGameData() {
-      gameRef.update({
+    // TAHTAYI SIFIRLA (Online)
+    window.resetOnline = function() {
+      const currentScores = {
+        X: parseInt(scoreXEl.innerText) || 0,
+        O: parseInt(scoreOEl.innerText) || 0
+      };
+      
+      set(xoxRef, {
         board: Array(9).fill(""),
-        turn: "X"
+        turn: "X",
+        gameActive: true,
+        scores: currentScores
       });
     }
   </script>
