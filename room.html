@@ -109,7 +109,7 @@ if (!userId) {
 const msgsContainer = document.getElementById("msgList");
 const kissBtn = document.getElementById("kissButton");
 
-// Kalp patlatma fonksiyonu (random konum)
+// Kalp patlatma fonksiyonu
 function createHearts(count = 20) {
   for (let i = 0; i < count; i++) {
     const heart = document.createElement("div");
@@ -152,9 +152,9 @@ onValue(roomRef, (snapshot) => {
 
     msgsContainer.appendChild(p);
 
-    // **Kalpler sadece gönderici farklıysa**
+    // **Kalpler sadece gönderici farklıysa ve sadece alıcı taraf için**
     if (data.sender !== userId) {
-      createHearts(20); // alıcı tarafında kalp patlasın
+      createHearts(20); // alıcı ekranında kalp patlasın
     }
   });
 });
