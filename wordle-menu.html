@@ -31,7 +31,6 @@
     }
     .play-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-3px); box-shadow: 0 6px 12px rgba(255, 77, 109, 0.1); }
 
-    /* Öpücük Bildirim Stilleri */
     .kiss-notify { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: white; color: var(--primary); padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 10px 25px rgba(255, 77, 109, 0.3); z-index: 9999; display: flex; align-items: center; gap: 10px; animation: slideDown 0.5s ease-out; }
     @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
     .floating-heart { position: fixed; color: var(--primary); pointer-events: none; animation: heartPop 1.5s forwards; z-index: 10000; font-size: 25px; }
@@ -48,9 +47,9 @@
     <p>Kaç harfli kelime ile yarışmak istersiniz?</p>
     
     <div class="option-list">
-        <a href="wordle.html?len=5" class="play-btn">5 Harfli Kelimeler</a>
-        <a href="wordle.html?len=6" class="play-btn">6 Harfli Kelimeler</a>
-        <a href="wordle.html?len=7" class="play-btn">7 Harfli Kelimeler</a>
+        <a href="wordle-game.html?len=5" class="play-btn">5 Harfli Kelimeler</a>
+        <a href="wordle-game.html?len=6" class="play-btn">6 Harfli Kelimeler</a>
+        <a href="wordle-game.html?len=7" class="play-btn">7 Harfli Kelimeler</a>
     </div>
   </div>
 
@@ -64,14 +63,13 @@
       databaseURL: "https://sadece-biz-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "sadece-biz",
       storageBucket: "sadece-biz.firebasestorage.app",
-      messagingSenderId: "868755199002",
       appId: "1:868755199002:web=e8c18eb0cd11abb2292da3"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     let room = localStorage.getItem("room") || "genel";
-    let userId = localStorage.getItem("userId") || Math.random().toString(36).substring(2, 10);
+    let userId = localStorage.getItem("userId") || "user-" + Math.random().toString(16).slice(2);
     const kissRef = ref(db, "rooms/" + room);
 
     onChildAdded(kissRef, (snapshot) => {
