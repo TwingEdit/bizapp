@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parolla Final v6.0</title>
+  <title>Parolla Kusursuz Sürüm</title>
   <style>
     :root {
       --bg: #121213;
@@ -50,6 +50,7 @@
       margin-bottom: 20px; 
       text-transform: uppercase; 
       color: #fff;
+      padding: 0 15px;
     }
 
     input {
@@ -90,38 +91,39 @@
   </div>
 
 <script>
-const alphabet = ["A", "B", "C", "Ç", "D", "E", "F", "G", "H", "I", "İ", "J", "K", "L", "M", "N", "O", "Ö", "P", "R", "S", "Ş", "T", "U", "Ü", "V", "Y", "Z"];
+const alphabet = ["A", "B", "C", "Ç", "D", "E", "F", "G", "Ğ", "H", "I", "İ", "J", "K", "L", "M", "N", "O", "Ö", "P", "R", "S", "Ş", "T", "U", "Ü", "V", "Y", "Z"];
 
-// BURADA SADECE SORUNUN KENDİSİNİ YAZMAN YETERLİ
+// TÜM HARFLER İÇİN GERÇEK SORULAR (BURADA ARTIK "X İLE BAŞLAYAN" YAZISI YOK)
 const questionBank = {
   "A": {q: "IŞIK SAÇACAK BEYAZLIĞA VARINCAYA KADAR ISITILMIŞ OLAN?", a: "AKKOR"},
   "B": {q: "DOĞANIN CANLANDIĞI VE SEVGİLİNİN İSMİ OLAN MEVSİM?", a: "BAHAR"},
-  "C": {q: "BİR SORUYA VERİLEN KARŞILIK?", a: "CEVAP"},
-  "Ç": {q: "HÜCRENİN YÖNETİM MERKEZİ?", a: "ÇEKİRDEK"},
-  "D": {q: "BİR CANLININ GENETİK ŞİFRESİ?", a: "DNA"},
-  "E": {q: "İŞ YAPABİLME YETENEĞİ?", a: "ENERJİ"},
-  "F": {q: "BİTKİLERİN GÜNEŞ IŞIĞIYLA BESİN ÜRETMESİ?", a: "FOTOSENTEZ"},
-  "G": {q: "ISI VE IŞIK KAYNAĞI OLAN YILDIZIMIZ?", a: "GÜNEŞ"},
-  "H": {q: "CANLILARIN EN KÜÇÜK YAPI BİRİMİ?", a: "HÜCRE"},
-  "I": {q: "CISIMLERI GÖRMEMIZI SAĞLAYAN ENERJI?", a: "IŞIK"},
-  "İ": {q: "VÜCUDUN KEMİK ÇATISI?", a: "İSKELET"},
-  "J": {q: "ELEKTRİK ÜRETEN MAKİNE?", a: "JENERATÖR"},
-  "K": {q: "AĞIRLIKLA KARIŞTIRILAN MADDE MİKTARI?", a: "KÜTLE"},
-  "L": {q: "DENEY YAPILAN YER?", a: "LABORATUVAR"},
-  "M": {q: "DEMİRİ ÇEKEN NESNE?", a: "MIKNATIS"},
-  "N": {q: "SOLUK ALIP VERME?", a: "NEFES"},
-  "O": {q: "YAŞAM İÇİN SOLUDUĞUMUZ GAZ?", a: "OKSİJEN"},
-  "Ö": {q: "BİR CİSMİN KÜTLESİNİN HACMİNE ORANI?", a: "ÖZKÜTLE"},
-  "P": {q: "GÜNEŞ SİSTEMİNDEKİ GÖK CİSİMLERİ?", a: "PLANET"},
-  "R": {q: "HAVANIN YATAY HAREKETİ?", a: "RÜZGAR"},
-  "S": {q: "MADDENİN AKIŞKAN HALİ?", a: "SIVI"},
-  "Ş": {q: "BÜYÜK YERLEŞİM YERİ?", a: "ŞEHİR"},
-  "T": {q: "SICAKLIĞI ÖLÇEN ALET?", a: "TERMOMETRE"},
-  "U": {q: "SONSUZ BOŞLUK?", a: "UZAY"},
-  "Ü": {q: "CANLILARIN NESLİNİ DEVAM ETTİRMESİ?", a: "ÜREME"},
-  "V": {q: "VÜCUT SAĞLIĞI İÇİN GEREKLİ MADDELER?", a: "VİTAMİN"},
-  "Y": {q: "BULUTLARDAN DÜŞEN SU DAMLALARI?", a: "YAĞMUR"},
-  "Z": {q: "OLAYLARIN İÇİNDE GEÇTİĞİ SÜRE?", a: "ZAMAN"}
+  "C": {q: "BİR SORUYA VERİLEN KARŞILIK, YANIT?", a: "CEVAP"},
+  "Ç": {q: "HÜCRENİN YÖNETİM MERKEZİ OLAN YAPI?", a: "ÇEKİRDEK"},
+  "D": {q: "BİR CANLININ TÜM GENETİK ŞİFRESİNİ TAŞIYAN MOLEKÜL?", a: "DNA"},
+  "E": {q: "FEN BİLİMLERİNDE İŞ YAPABİLME YETENEĞİ?", a: "ENERJİ"},
+  "F": {q: "BİTKİLERİN GÜNEŞ IŞIĞI İLE BESİN ÜRETMESİ?", a: "FOTOSENTEZ"},
+  "G": {q: "DÜNYAMIZIN ISI VE IŞIK KAYNAĞI OLAN YILDIZ?", a: "GÜNEŞ"},
+  "Ğ": {q: "DİĞER ADI 'GÖK' OLAN, MAVİ BOŞLUK?", a: "GÖKYÜZÜ"}, // Başıyla değil içinde geçmesiyle de olabilir ama genelde 'G' sayılır, burada sembolik.
+  "H": {q: "CANLILARIN YAŞAMSAL FAALİYETLERİNİ GÖSTEREN EN KÜÇÜK BİRİM?", a: "HÜCRE"},
+  "I": {q: "ETRAFI AYDINLATAN GÖRÜNÜR ENERJİ TÜRÜ?", a: "IŞIK"},
+  "İ": {q: "İNSAN VÜCUDUNUN KEMİKTEN OLUŞAN ÇATISI?", a: "İSKELET"},
+  "J": {q: "ELEKTRİK KESİNTİSİNDE DEVREYE GİREN GÜÇ KAYNAĞI?", a: "JENERATÖR"},
+  "K": {q: "MADDENİN DEĞİŞMEYEN MİKTARI?", a: "KÜTLE"},
+  "L": {q: "BİLİMSEL ARAŞTIRMALARIN YAPILDIĞI ÇALIŞMA ALANI?", a: "LABORATUVAR"},
+  "M": {q: "DEMİRİ VE ÇELİĞİ ÇEKME ÖZELLİĞİ OLAN MADDE?", a: "MIKNATIS"},
+  "N": {q: "YAŞAMAK İÇİN AKCİĞERLERE ALINIP VERİLEN HAVA?", a: "NEFES"},
+  "O": {q: "SOLUNUM YAPARKEN İHTİYAÇ DUYDUĞUMUZ TEMEL GAZ?", a: "OKSİJEN"},
+  "Ö": {q: "BİR CİSMİN KÜTLESİNİN HACMİNE BÖLÜNMESİYLE BULUNAN DEĞER?", a: "ÖZKÜTLE"},
+  "P": {q: "YILDIZLARIN ETRAFINDA DÖNEN GÖK CİSİMLERİ, GEZEGEN?", a: "PLANET"},
+  "R": {q: "HAVANIN YATAY YÖNDE HAREKET ETMESİYLE OLUŞAN DOĞA OLAYI?", a: "RÜZGAR"},
+  "S": {q: "MADDENİN KATI VE GAZ DIŞINDAKİ AKIŞKAN HALİ?", a: "SIVI"},
+  "Ş": {q: "İNSANLARIN TOPLU YAŞADIĞI BÜYÜK YERLEŞİM YERİ?", a: "ŞEHİR"},
+  "T": {q: "SICAKLIĞI ÖLÇMEYE YARAYAN ALET?", a: "TERMOMETRE"},
+  "U": {q: "DÜNYA'NIN ATMOSFERİ DIŞINDA KALAN SONSUZ BOŞLUK?", a: "UZAY"},
+  "Ü": {q: "FABRİKALARDA YENİ BİR MAL MEYDANA GETİRME İŞİ?", a: "ÜRETİM"},
+  "V": {q: "HASTALIKLARA KARŞI VÜCUT DİRENCİNİ ARTIRAN BİLEŞİKLER?", a: "VİTAMİN"},
+  "Y": {q: "BULUTLARDAKİ SU BUHARININ DAMLALAR HALİNDE YERE DÜŞMESİ?", a: "YAĞMUR"},
+  "Z": {q: "OLAYLARIN GEÇMİŞTEN GÜNÜMÜZE AKIP GİTTİĞİ SÜREÇ?", a: "ZAMAN"}
 };
 
 let currentIndex = 0;
@@ -152,7 +154,8 @@ function updateUI() {
     document.getElementById(`l-${letter}`).classList.add("active");
 
     const qObj = questionBank[letter];
-    document.getElementById("question-text").innerText = qObj ? qObj.q : "SORU TANIMLANMAMIŞ";
+    // Eğer harf için soru yoksa boş göstermemesi için ufak bir kontrol
+    document.getElementById("question-text").innerText = qObj ? qObj.q : "BU HARF İÇİN SORU HAZIRLANIYOR...";
     document.getElementById("answer-input").value = "";
     document.getElementById("answer-input").focus();
 }
@@ -160,10 +163,11 @@ function updateUI() {
 window.handleCheck = function() {
     const input = document.getElementById("answer-input").value.trim().toUpperCase();
     const letter = alphabet[currentIndex];
-    const el = document.getElementById(`l-${letter}`);
     if (input === "" || !questionBank[letter]) return;
 
+    const el = document.getElementById(`l-${letter}`);
     el.classList.remove("passed");
+
     if (input === questionBank[letter].a.toUpperCase()) {
         el.classList.add("correct");
         results[letter] = "correct";
@@ -208,7 +212,7 @@ function showFinalResults() {
     const c = Object.values(results).filter(v => v === "correct").length;
     const w = Object.values(results).filter(v => v === "wrong").length;
     const e = Object.values(results).filter(v => v === "empty").length;
-    document.getElementById("stats-summary").innerText = `DOĞRU: ${c} | YANLIŞ: ${w} | BOŞ: ${e}`;
+    document.getElementById("stats-summary").innerText = `✅ DOĞRU: ${c} | ❌ YANLIŞ: ${w} | ⏳ BOŞ: ${e}`;
 }
 
 document.getElementById("answer-input").addEventListener("keypress", (e) => {
