@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BizApp - XOX Aşk Modu</title>
+  <style>
+    :root {
+      --bg: #121213;
+      --cell-bg: #1e1e1e;
+      --text: #ffffff;
+      --x-color: #ff4d6d; /* Senin pembe tonun */
+      --o-color: #4cc9f0; /* Parolla mavisi */
+      --win-bg: #6aaa64;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* O MEŞHUR GERİ BUTONU */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 12px;
+      cursor: pointer;
+      color: #ff4d6d;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      z-index: 1000;
+      font-size: 14px;
+    }
+
+    h2 { margin-bottom: 10px; font-size: 28px; }
+    #status { margin-bottom: 20px; font-size: 18px; font-weight: bold; color: var(--x-color); }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 10px;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      background: var(--cell-bg);
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .cell:hover { background: #2a2a2a; }
+    .cell.x { color: var(--x-color); }
+    .cell.o { color: var(--o-color); }
+    .cell.winner { background: var(--win-bg); color: white; }
+
+    #reset-btn {
+      margin-top: 30px;
+      padding: 12px 25px;
+      background: transparent;
+      border: 2px solid white;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    #reset-btn:hover { background: white; color: black; }
+  </style>
+</head>
+<body>
+
+  <a href="menu.html" class="back-btn">⬅ Geri</a>
+
+  <h2>XOX OYUNU</h2>
+  <div id="status">Sıra: X (Sende!)</div>
+
+  <div class="board" id="board">
+    <div class="cell" data-index="0"></div>
+    <div class="cell" data-index="1"></div>
+    <div class="cell" data-index="2"></div>
+    <div class="cell" data-index="3"></div>
+    <div class="cell" data-index="4"></div>
+    <div class="cell" data-index="5"></div>
+    <div class="cell" data-index="6"></div>
+    <div class="cell" data-index="7"></div>
+    <div class="cell" data-index="8"></div>
+  </div>
+
+  <button id="reset-btn" onclick="resetGame()">Yeniden Başla</button>
+
+  <script>
+    const boardEl = document.getElementById('board');
+    const cells = document.querySelectorAll('.cell');
+    const statusEl = document.getElementById('status');
+    let currentPlayer = 'X';
+    let gameState = ["", "", "", "", "", "", "", "", ""];
+    let gameActive = true;
+
+    const winningConditions = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8], // Yatay
+      [0, 3, 6], [1, 4, 7], [2, 5, 8], // Dikey
+      [0, 4, 8], [2, 4, 6]             // Çapraz
+    ];
+
+    function handleCellClick(e) {
+      const clickedCell = e.target;
+      const index = parseInt(clickedCell.getAttribute('data-index'));
+
+      if (gameState[index] !== "" || !gameActive) return;
+
+      gameState[index] = currentPlayer;
+      clickedCell.innerText = currentPlayer;
+      clickedCell.classList.add(currentPlayer.toLowerCase());
+
+      checkResult();
+    }
+
+    function checkResult() {
+      let roundWon = false;
+      for (let i = 0; i < winningConditions.length; i++) {
+        const [a, b, c] = winningConditions[i];
+        if (gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
+          roundWon = true;
+          document.querySelector(`[data-index="${a}"]`).classList.add('winner');
+          document.querySelector(`[data-index="${b}"]`).classList.add('winner');
+          document.querySelector(`[data-index="${c}"]`).classList.add('winner');
+          break;
+        }
+      }
+
+      if (roundWon) {
+        statusEl.innerText = `TEBRİKLER! ${currentPlayer} KAZANDI! 🎉`;
+        statusEl.style.color = "#6aaa64";
+        gameActive = false;
+        return;
+      }
+
+      if (!gameState.includes("")) {
+        statusEl.innerText = "BERABERE! 🤝";
+        statusEl.style.color = "#ffffff";
+        gameActive = false;
+        return;
+      }
+
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      statusEl.innerText = `Sıra: ${currentPlayer}`;
+      statusEl.style.color = currentPlayer === "X" ? "var(--x-color)" : "var(--o-color)";
+    }
+
+    function resetGame() {
+      currentPlayer = 'X';
+      gameState = ["", "", "", "", "", "", "", "", ""];
+      gameActive = true;
+      statusEl.innerText = "Sıra: X";
+      statusEl.style.color = "var(--x-color)";
+      cells.forEach(cell => {
+        cell.innerText = "";
+        cell.classList.remove('x', 'o', 'winner');
+      });
+    }
+
+    cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+  </script>
+</body>
+</html>
