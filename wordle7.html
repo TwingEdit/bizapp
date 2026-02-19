@@ -32,11 +32,11 @@
     .back-link { color: var(--primary); text-decoration: none; font-weight: bold; font-size: 18px; }
 
     #grid { display: grid; grid-template-rows: repeat(6, 1fr); gap: 5px; margin-top: 10px; }
-    .row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; } /* 7 Sütun */
+    .row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
     .tile { 
-      width: 45px; height: 45px; border: 2px solid #3a3a3c;
+      width: 42px; height: 42px; border: 2px solid #3a3a3c;
       display: flex; align-items: center; justify-content: center;
-      font-size: 22px; font-weight: bold; text-transform: uppercase;
+      font-size: 20px; font-weight: bold; text-transform: uppercase;
       background: transparent;
     }
 
@@ -111,20 +111,25 @@ const db = getDatabase(app);
 const room = localStorage.getItem("room") || "genel";
 const userId = localStorage.getItem("userId");
 
-// --- ÖPÜCÜK YAKALAMA SİSTEMİ (ÇİFT KİLİTLİ) ---
+// --- ÖPÜCÜK YAKALAMA SİSTEMİ (EN GÜNCEL ÇİFT KİLİT) ---
 const pageLoadTime = Date.now();
 const kissRef = ref(db, "rooms/" + room);
 let initialDataLoaded = false;
 
-onValue(kissRef, () => {
+// İlk yükleme bittiğinde işaretle
+onValue(kissRef, (snapshot) => {
     initialDataLoaded = true;
 }, { onlyOnce: true });
 
 onChildAdded(kissRef, (snapshot) => {
+    // Sadece başlangıç verileri yüklendikten SONRA gelenleri göster
     if (!initialDataLoaded) return;
+
     const data = snapshot.val();
     const sentTime = data.timestamp || data.time || 0;
-    if (data.type === 'kiss' && data.sender !== userId && sentTime > pageLoadTime) {
+
+    // Kriterler: Tip kiss, başkası göndermiş ve sayfa yüklendikten sonra atılmış
+    if (data.type === 'kiss' && data.sender !== userId && sentTime > (pageLoadTime - 5000)) {
         showKiss();
     }
 });
@@ -147,13 +152,12 @@ function showKiss() {
 }
 
 // --- WORDLE OYUN MANTIĞI (7 HARFLİ) ---
-const wordList = ["ÖMRÜMCE", "HERŞEYİM", "GÖKYÜZÜ", "SEVDALI", "MUTLULUK", "UMUDUMZ", "BİRİCİK"];
+const wordList = ["SONSUZA", "KALBİNE", "SEVDİĞİ", "BİRTANE", "HERŞEYİ", "GÜLÜŞÜN", "CANIMIN"];
 const targetWord = wordList[Math.floor(Math.random() * wordList.length)].toUpperCase();
 
 let currentRow = 0;
 let currentGuess = "";
 
-// Grid Oluştur (6 satır x 7 sütun)
 const gridDiv = document.getElementById("grid");
 for (let i = 0; i < 6; i++) {
     const row = document.createElement("div"); row.className = "row";
@@ -164,7 +168,6 @@ for (let i = 0; i < 6; i++) {
     gridDiv.appendChild(row);
 }
 
-// Klavye Oluştur
 const keys = [
     ["E", "R", "T", "Y", "U", "I", "O", "P", "Ğ", "Ü"],
     ["A", "S", "D", "F", "G", "H", "J", "K", "L", "Ş", "İ"],
