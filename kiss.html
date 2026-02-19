@@ -6,28 +6,51 @@
   <title>BizApp - Öpücük Odası</title>
   <style>
     :root { --main-pink: #ff4d6d; --bg-color: #f3e7ea; }
-    body { font-family: 'Segoe UI', sans-serif; text-align: center; background: var(--bg-color); margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+    body { 
+        font-family: 'Segoe UI', sans-serif; 
+        text-align: center; 
+        background: var(--bg-color); 
+        margin: 0; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        height: 100vh; 
+        overflow: hidden; 
+    }
     
-    .back-btn { position: fixed; top: 20px; left: 20px; background: white; border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; color: var(--main-pink); font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .back-btn { position: fixed; top: 20px; left: 20px; background: white; border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; color: var(--main-pink); font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-decoration: none; z-index: 1000; }
 
-    .kiss-card { background: white; padding: 40px; border-radius: 40px; box-shadow: 0 15px 35px rgba(255, 77, 109, 0.2); width: 85%; max-width: 400px; }
+    /* Ana Kart Tasarımı */
+    .kiss-card { 
+        background: white; 
+        padding: 40px; 
+        border-radius: 40px; 
+        box-shadow: 0 15px 35px rgba(255, 77, 109, 0.15); 
+        width: 85%; 
+        max-width: 380px; 
+        position: relative;
+    }
     
-    .kiss-icon { font-size: 80px; margin-bottom: 20px; display: block; animation: pulse 2s infinite; }
+    .kiss-icon { font-size: 80px; margin-bottom: 20px; display: block; animation: pulse 2s infinite; cursor: default; }
     @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-    .btn-kiss { background: var(--main-pink); border: none; padding: 20px; color: white; font-size: 18px; border-radius: 20px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.2s; margin-bottom: 15px; }
-    .btn-push { background: #666; border: none; padding: 10px; color: white; font-size: 12px; border-radius: 10px; cursor: pointer; opacity: 0.7; }
+    .btn-kiss { background: var(--main-pink); border: none; padding: 18px; color: white; font-size: 18px; border-radius: 20px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; margin-bottom: 12px; }
+    .btn-kiss:active { transform: scale(0.95); }
     
-    #msgList { margin-top: 20px; max-height: 150px; overflow-y: auto; width: 100%; }
-    .msg-item { background: #fff5f7; padding: 8px; border-radius: 10px; margin: 5px 0; font-size: 13px; color: #555; border-left: 4px solid var(--main-pink); }
+    .btn-push { background: #adb5bd; border: none; padding: 8px 15px; color: white; font-size: 12px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
+    .btn-push:hover { background: #6c757d; }
+    
+    #msgList { margin-top: 25px; max-height: 120px; overflow-y: auto; width: 100%; border-top: 1px solid #eee; padding-top: 15px; }
+    .msg-item { background: #fff5f7; padding: 10px; border-radius: 12px; margin: 8px 0; font-size: 13px; color: #555; border-left: 4px solid var(--main-pink); animation: slideIn 0.3s ease-out; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     .heart { position: absolute; color: var(--main-pink); pointer-events: none; animation: heartPop 1s forwards; z-index: 100; }
-    @keyframes heartPop { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-100px) scale(1.5); opacity: 0; } }
+    @keyframes heartPop { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-120px) rotate(20deg) scale(1.5); opacity: 0; } }
   </style>
 </head>
 <body>
 
-<button class="back-btn" onclick="location.href='menu.html'">⬅ Geri</button>
+<a href="menu.html" class="back-btn">⬅ Geri</a>
 
 <div class="kiss-card">
     <span class="kiss-icon">💋</span>
@@ -35,7 +58,7 @@
     <button class="btn-push" id="enablePush">Bildirimleri Aktif Et 🔔</button>
     
     <div id="msgList">
-        <p style="font-size: 12px; color: #999;">Gelen öpücükler burada görünecek...</p>
+        <p style="font-size: 12px; color: #bbb;">Gelen öpücükler burada görünecek...</p>
     </div>
 </div>
 
@@ -58,25 +81,31 @@ const db = getDatabase(app);
 
 let room = localStorage.getItem("room") || "genel";
 const roomRef = ref(db, "rooms/" + room);
-let userId = localStorage.getItem("userId") || Math.random().toString(36).substring(2, 10);
+let userId = localStorage.getItem("userId") || "user-" + Math.random().toString(16).slice(2);
 localStorage.setItem("userId", userId);
+
+const list = document.getElementById("msgList");
 
 // ÖPÜCÜK GÖNDERME
 document.getElementById("kissBtn").onclick = () => {
     push(roomRef, { sender: userId, type: 'kiss', time: Date.now() });
-    createHearts(10);
+    createHearts(15);
 };
 
 // ÖPÜCÜK ALMA
 onChildAdded(roomRef, (snapshot) => {
     const data = snapshot.val();
     if (data.type === 'kiss') {
+        // İlk mesaj uyarısını sil
+        if(list.querySelector('p')) list.innerHTML = '';
+
         const p = document.createElement("div");
         p.className = "msg-item";
-        p.innerText = `💋 ${new Date(data.time).toLocaleTimeString()} - Öpüldün!`;
-        const list = document.getElementById("msgList");
+        p.innerText = `💋 ${new Date(data.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - Öpüldün!`;
         list.prepend(p);
-        if (data.sender !== userId) createHearts(30);
+        
+        // Eğer öpücüğü başkası gönderdiyse efekt yap
+        if (data.sender !== userId) createHearts(25);
     }
 });
 
@@ -84,73 +113,14 @@ function createHearts(count) {
     for (let i = 0; i < count; i++) {
         const heart = document.createElement("div");
         heart.className = "heart";
-        heart.innerText = "💖";
-        heart.style.left = Math.random() * 100 + "%";
-        heart.style.top = Math.random() * 100 + "%";
-        heart.style.fontSize = (Math.random() * 20 + 20) + "px";
+        heart.innerText = i % 2 === 0 ? "💖" : "💋";
+        heart.style.left = (Math.random() * 80 + 10) + "%";
+        heart.style.top = (Math.random() * 50 + 20) + "%";
+        heart.style.fontSize = (Math.random() * 15 + 15) + "px";
         document.body.appendChild(heart);
         setTimeout(() => heart.remove(), 1000);
     }
 }
 </script>
-
-<script src="app.js"></script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Öpücük Gönder</title>
-    <style>
-        :root { --primary: #ff4d6d; --bg: #f3e7ea; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .back-btn { position: fixed; top: 20px; left: 20px; text-decoration: none; color: var(--primary); font-weight: bold; background: white; padding: 10px 15px; border-radius: 12px; }
-        .kiss-btn { width: 150px; height: 150px; border-radius: 50%; border: none; background: white; font-size: 70px; cursor: pointer; shadow: 0 10px 20px rgba(0,0,0,0.1); transition: 0.3s; }
-        .kiss-btn:active { transform: scale(0.9); }
-        h2 { color: #333; margin-top: 20px; }
-    </style>
-</head>
-<body>
-
-    <a href="menu.html" class="back-btn">⬅ Geri</a>
-    
-    <button class="kiss-btn" onclick="sendKiss()">💋</button>
-    <h2>Ona Bir Öpücük Gönder</h2>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
-            authDomain: "sadece-biz.firebaseapp.com",
-            databaseURL: "https://sadece-biz-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "sadece-biz",
-            storageBucket: "sadece-biz.firebasestorage.app",
-            appId: "1:868755199002:web=e8c18eb0cd11abb2292da3"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const room = localStorage.getItem("room") || "genel";
-        const userId = localStorage.getItem("userId") || "user-" + Math.random().toString(16).slice(2);
-
-        window.sendKiss = function() {
-            const kissRef = ref(db, "rooms/" + room);
-            const newKissRef = push(kissRef);
-            
-            // BURASI KRİTİK: timestamp ekliyoruz
-            set(newKissRef, {
-                type: 'kiss',
-                sender: userId,
-                timestamp: Date.now() 
-            }).then(() => {
-                alert("Öpücük gönderildi! 💋");
-            });
-        }
-    </script>
 </body>
 </html>
