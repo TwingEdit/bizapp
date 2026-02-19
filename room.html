@@ -2,54 +2,99 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Bizim Odamız</title>
+  <title>Bizim Odamız - Ayıcık Bakımı</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       text-align: center;
       background: #f3e7ea;
-      margin-top: 80px;
+      margin-top: 50px;
       overflow-x: hidden;
       position: relative;
+    }
+
+    /* Ayıcık Konteynırı */
+    #petCard {
+      background: white;
+      padding: 30px;
+      border-radius: 30px;
+      display: inline-block;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      min-width: 300px;
+    }
+
+    #petVisual {
+      font-size: 100px;
+      margin-bottom: 20px;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    #petVisual:active {
+      transform: scale(1.2);
+    }
+
+    /* Bar Tasarımları */
+    .stat-container {
+      width: 250px;
+      margin: 10px auto;
+      text-align: left;
+    }
+
+    .bar-bg {
+      background: #eee;
+      height: 12px;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 100%;
+      transition: width 0.5s ease;
+    }
+
+    #hungerBar { background: #ff9f43; }
+    #hygieneBar { background: #54a0ff; }
+    #bondBar { background: #ff4d6d; }
+
+    /* Butonlar */
+    .button-group {
+      margin-top: 20px;
     }
 
     button {
       background: #ff4d6d;
       border: none;
-      padding: 15px 30px;
+      padding: 12px 20px;
       color: white;
-      font-size: 18px;
-      border-radius: 15px;
+      font-size: 16px;
+      border-radius: 12px;
       cursor: pointer;
-      margin: 8px;
+      margin: 5px;
+      transition: 0.2s;
     }
 
+    button:hover { opacity: 0.9; transform: translateY(-2px); }
+    #feedBtn { background: #ff9f43; }
+    #washBtn { background: #54a0ff; }
+
+    /* Mesaj Listesi */
     #msgList {
-      margin-top: 30px;
-      font-size: 20px;
-      text-align: center;
-      padding: 0 20px;
-      max-height: 500px;
-      overflow-y: auto;
+      margin-top: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
     }
 
     #msgList p {
-      margin: 6px 0;
-      padding: 10px 14px;
       background: white;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      min-width: 180px;
-      max-width: 90%;
-    }
-
-    .latest {
-      background-color: #ffccd5;
-      transition: background-color 0.5s ease;
+      padding: 10px 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      margin: 4px;
     }
 
     @keyframes heartPop {
@@ -71,16 +116,42 @@
 
 <h1>💞 Bizim Odamız</h1>
 
-<button id="kissButton">💋 Öpücük Gönder</button>
-<button id="enablePush">Bildirimleri Aç 💖</button>
+<div id="petCard">
+    <div id="petVisual">🧸</div>
+    <div id="petStatusText" style="font-weight: bold; color: #555; margin-bottom: 10px;">Ayıcık seni bekliyor!</div>
+
+    <div class="stat-container">
+        <label>🍎 Açlık: <span id="hungerVal">100</span>%</label>
+        <div class="bar-bg"><div id="hungerBar" class="bar-fill"></div></div>
+    </div>
+
+    <div class="stat-container">
+        <label>🧼 Temizlik: <span id="hygieneVal">100</span>%</label>
+        <div class="bar-bg"><div id="hygieneBar" class="bar-fill"></div></div>
+    </div>
+
+    <div class="stat-container">
+        <label>💖 Bağ Puanı: <span id="bondVal">0</span></label>
+        <div class="bar-bg"><div id="bondBar" class="bar-fill" style="width: 0%;"></div></div>
+    </div>
+
+    <div class="button-group">
+        <button id="feedBtn">Besle</button>
+        <button id="washBtn">Yıka</button>
+        <button id="kissButton">💋 Öpücük</button>
+    </div>
+</div>
+
+<div class="system-controls">
+    <button id="enablePush" style="background: #666; font-size: 12px;">Bildirimleri Aç 🔔</button>
+</div>
 
 <div id="msgList"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, push, onChildAdded, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// Firebase ayarları
 const firebaseConfig = {
   apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
   authDomain: "sadece-biz.firebaseapp.com",
@@ -95,58 +166,100 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 let room = localStorage.getItem("room") || "genel";
-room = room.trim().toLowerCase();
 const roomRef = ref(db, "rooms/" + room);
+const petRef = ref(db, "rooms/" + room + "/pet");
 
-let userId = localStorage.getItem("userId");
-if (!userId) {
-  userId = Math.random().toString(36).substring(2, 10);
-  localStorage.setItem("userId", userId);
-}
+let userId = localStorage.getItem("userId") || Math.random().toString(36).substring(2, 10);
+localStorage.setItem("userId", userId);
 
+const petVisual = document.getElementById("petVisual");
 const msgsContainer = document.getElementById("msgList");
-const kissBtn = document.getElementById("kissButton");
 
-// Kalp patlatma
-function createHearts(count = 20) {
-  for (let i = 0; i < count; i++) {
-    const heart = document.createElement("div");
-    heart.className = "heart";
-    heart.innerText = "💖";
-    heart.style.left = Math.random() * window.innerWidth + "px";
-    heart.style.top = Math.random() * (window.innerHeight - 100) + "px";
-    heart.style.fontSize = 20 + Math.random() * 30 + "px";
-    document.body.appendChild(heart);
-    setTimeout(() => heart.remove(), 800);
-  }
+// --- AYICIK MANTIK ---
+
+// Veritabanından durumu çek
+onValue(petRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        updatePetUI(data);
+    } else {
+        // İlk kurulum
+        set(petRef, { hunger: 100, hygiene: 100, bond: 0, lastUpdate: Date.now() });
+    }
+});
+
+function updatePetUI(data) {
+    document.getElementById("hungerVal").innerText = data.hunger;
+    document.getElementById("hungerBar").style.width = data.hunger + "%";
+    document.getElementById("hygieneVal").innerText = data.hygiene;
+    document.getElementById("hygieneBar").style.width = data.hygiene + "%";
+    document.getElementById("bondVal").innerText = data.bond;
+    document.getElementById("bondBar").style.width = (data.bond % 100) + "%";
+
+    if (data.hunger < 30) petVisual.innerText = "😫";
+    else if (data.hygiene < 30) petVisual.innerText = "🤢";
+    else petVisual.innerText = "🧸";
 }
 
-// Öpücük gönder
-kissBtn.onclick = () => {
-  push(roomRef, { sender: userId, time: Date.now() });
+// Besleme
+document.getElementById("feedBtn").onclick = () => {
+    onValue(petRef, (snapshot) => {
+        const d = snapshot.val();
+        update(petRef, { 
+            hunger: Math.min(d.hunger + 15, 100),
+            bond: d.bond + 2 
+        });
+    }, { onlyOnce: true });
+    createHearts(5);
 };
 
-// Sadece **yeni gelen öpücükleri** dinle
+// Yıkama
+document.getElementById("washBtn").onclick = () => {
+    onValue(petRef, (snapshot) => {
+        const d = snapshot.val();
+        update(petRef, { 
+            hygiene: 100,
+            bond: d.bond + 5 
+        });
+    }, { onlyOnce: true });
+    petVisual.innerText = "🧼";
+    setTimeout(() => petVisual.innerText = "🧸", 2000);
+};
+
+// --- ÖPÜCÜK VE BİLDİRİM ---
+
+document.getElementById("kissButton").onclick = () => {
+    push(roomRef, { sender: userId, type: 'kiss', time: Date.now() });
+    onValue(petRef, (snapshot) => {
+        const d = snapshot.val();
+        update(petRef, { bond: d.bond + 1 });
+    }, { onlyOnce: true });
+};
+
 onChildAdded(roomRef, (snapshot) => {
-  const data = snapshot.val();
-  const t = new Date(data.time).toLocaleTimeString();
-
-  // Mesajı ekle
-  const p = document.createElement("p");
-  p.innerText = `💋 Seni Öptü! (${t})`;
-  p.classList.add("latest");
-  setTimeout(() => p.classList.remove("latest"), 5000);
-  msgsContainer.appendChild(p);
-  msgsContainer.scrollTop = msgsContainer.scrollHeight;
-
-  // Kalpler **sadece gönderen kendin değilse** patlasın
-  if (data.sender !== userId) {
-    createHearts(20); // karşı taraf ekranında kalpler
-  }
+    const data = snapshot.val();
+    if (data.type === 'kiss') {
+        const t = new Date(data.time).toLocaleTimeString();
+        const p = document.createElement("p");
+        p.innerText = `💋 Öpücük geldi! (${t})`;
+        msgsContainer.prepend(p);
+        if (data.sender !== userId) createHearts(25);
+    }
 });
+
+function createHearts(count) {
+    for (let i = 0; i < count; i++) {
+        const heart = document.createElement("div");
+        heart.className = "heart";
+        heart.innerText = "💖";
+        heart.style.left = Math.random() * window.innerWidth + "px";
+        heart.style.top = Math.random() * window.innerHeight + "px";
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 800);
+    }
+}
 </script>
 
 <script src="app.js"></script>
-
 </body>
 </html>
