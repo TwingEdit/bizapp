@@ -1,6 +1,74 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Bizim Odamız</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f3e7ea;
+      margin-top: 80px;
+    }
+
+    button {
+      background: #ff4d6d;
+      border: none;
+      padding: 15px 30px;
+      color: white;
+      font-size: 18px;
+      border-radius: 15px;
+      cursor: pointer;
+      margin: 8px;
+    }
+
+    #msgList {
+      margin-top: 30px;
+      font-size: 20px;
+      text-align: center;
+      padding: 0 20px;
+      max-height: 500px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #msgList p {
+      margin: 6px 0;
+      padding: 10px 14px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      min-width: 180px;
+      max-width: 90%;
+    }
+
+    .latest {
+      background-color: #ffccd5;
+      transition: background-color 0.5s ease;
+    }
+
+    /* BURAYA EKLE */
+    @keyframes heartPop {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.5); opacity: 1; }
+      100% { transform: scale(1); opacity: 0; }
+    }
+    .heart {
+      position: absolute;
+      color: #ff4d6d;
+      font-size: 30px;
+      pointer-events: none;
+      animation: heartPop 0.8s ease forwards;
+    }
+  </style>
+</head>
+
+
   <meta charset="UTF-8">
   <title>Bizim Odamız</title>
 
