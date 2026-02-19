@@ -8,29 +8,28 @@
     :root { --primary: #ff4d6d; --bg: #f3e7ea; }
     body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; }
     
-    .back-btn { position: fixed; top: 20px; left: 20px; background: white; border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; color: var(--primary); font-weight: bold; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .back-btn { position: fixed; top: 20px; left: 20px; background: white; border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; color: var(--primary); font-weight: bold; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 100; }
 
-    .menu-card { background: white; padding: 30px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 85%; max-width: 350px; }
-    .icon { font-size: 50px; margin-bottom: 10px; }
-    h2 { color: #333; margin-bottom: 5px; }
+    .menu-card { background: white; padding: 30px; border-radius: 40px; box-shadow: 0 15px 35px rgba(255, 77, 109, 0.2); width: 85%; max-width: 350px; position: relative; }
+    .icon { font-size: 60px; margin-bottom: 10px; display: block; }
+    h2 { color: #333; margin: 10px 0; font-size: 24px; }
     p { color: #888; font-size: 14px; margin-bottom: 25px; }
 
     .option-list { display: flex; flex-direction: column; gap: 12px; }
     .play-btn { 
       background: white; 
       color: #333; 
-      padding: 15px; 
-      border-radius: 15px; 
+      padding: 18px; 
+      border-radius: 20px; 
       text-decoration: none; 
       font-weight: bold; 
-      border: 2px solid #f0f0f0;
+      border: 2px solid #f8f8f8;
       transition: 0.3s; 
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
+      display: block;
+      font-size: 16px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
     }
-    .play-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+    .play-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-3px); box-shadow: 0 6px 12px rgba(255, 77, 109, 0.1); }
 
     /* Öpücük Bildirim Stilleri */
     .kiss-notify { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: white; color: var(--primary); padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 10px 25px rgba(255, 77, 109, 0.3); z-index: 9999; display: flex; align-items: center; gap: 10px; animation: slideDown 0.5s ease-out; }
@@ -49,9 +48,9 @@
     <p>Kaç harfli kelime ile yarışmak istersiniz?</p>
     
     <div class="option-list">
-        <a href="wordle-game.html?len=5" class="play-btn"><span>5</span> Harfli Kelimeler</a>
-        <a href="wordle-game.html?len=6" class="play-btn"><span>6</span> Harfli Kelimeler</a>
-        <a href="wordle-game.html?len=7" class="play-btn"><span>7</span> Harfli Kelimeler</a>
+        <a href="wordle.html?len=5" class="play-btn">5 Harfli Kelimeler</a>
+        <a href="wordle.html?len=6" class="play-btn">6 Harfli Kelimeler</a>
+        <a href="wordle.html?len=7" class="play-btn">7 Harfli Kelimeler</a>
     </div>
   </div>
 
@@ -65,13 +64,14 @@
       databaseURL: "https://sadece-biz-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "sadece-biz",
       storageBucket: "sadece-biz.firebasestorage.app",
+      messagingSenderId: "868755199002",
       appId: "1:868755199002:web=e8c18eb0cd11abb2292da3"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     let room = localStorage.getItem("room") || "genel";
-    let userId = localStorage.getItem("userId");
+    let userId = localStorage.getItem("userId") || Math.random().toString(36).substring(2, 10);
     const kissRef = ref(db, "rooms/" + room);
 
     onChildAdded(kissRef, (snapshot) => {
