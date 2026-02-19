@@ -56,7 +56,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, onChildAdded, query, orderByChild, startAt } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { getDatabase, ref, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
@@ -72,21 +72,19 @@
     const room = localStorage.getItem("room") || "genel";
     const userId = localStorage.getItem("userId");
     
-    // Sayfanın açıldığı anı alıyoruz
-    const startTime = Date.now();
+    // Sayfa yüklendiği anı milisaniye olarak kaydet
+    const pageLoadTime = Date.now();
+    const kissRef = ref(db, "rooms/" + room);
 
-    // Sadece şimdiden sonra gelen öpücükleri dinleyen sorgu
-    const kissQuery = query(
-      ref(db, "rooms/" + room),
-      orderByChild("timestamp"),
-      startAt(startTime)
-    );
-
-    onChildAdded(kissQuery, (snapshot) => {
+    onChildAdded(kissRef, (snapshot) => {
       const data = snapshot.val();
       
-      // Filtre: Hem öpücük olacak, hem başkası atmış olacak
-      if (data.type === 'kiss' && data.sender !== userId) {
+      // Hem timestamp hem time kontrolü yapıyoruz (hangisini gönderirsen kabul eder)
+      const kissTime = data.timestamp || data.time || 0;
+
+      // Filtre: Tip öpücük olacak, başkası atmış olacak ve ŞU ANDAN sonra atılmış olacak
+      if (data.type === 'kiss' && data.sender !== userId && kissTime > pageLoadTime) {
+        
         const notify = document.createElement("div");
         notify.className = "kiss-notify";
         notify.innerHTML = `<span>💋</span> Balım sana bir öpücük gönderdi!`;
