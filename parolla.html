@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BizApp - Parolla Final</title>
+  <title>Parolla Final v6.0</title>
   <style>
     :root {
       --bg: #121213;
@@ -28,26 +28,6 @@
       overflow: hidden;
     }
 
-    #top-bar {
-      position: absolute;
-      top: 20px;
-      width: 90%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 10;
-    }
-
-    .home-btn {
-      background: #3a3a3c;
-      color: white;
-      padding: 8px 15px;
-      border-radius: 5px;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
     #wheel-container { position: relative; width: 310px; height: 310px; margin-bottom: 20px; flex-shrink: 0; }
     
     .letter {
@@ -70,7 +50,6 @@
       margin-bottom: 20px; 
       text-transform: uppercase; 
       color: #fff;
-      padding: 0 10px;
     }
 
     input {
@@ -80,7 +59,7 @@
     }
 
     .btn-group { display: flex; gap: 20px; width: 80%; justify-content: center; margin-top: 25px; }
-    button.action-btn { flex: 1; padding: 18px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 16px; }
+    button.action-btn { flex: 1; padding: 18px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; }
     .btn-check { background: var(--correct); color: white; }
     .btn-pass { background: var(--passed); color: #333; }
 
@@ -93,15 +72,10 @@
 </head>
 <body>
 
-  <div id="top-bar">
-    <button class="home-btn" onclick="window.location.href='index.html'">← ANA EKRAN</button>
-    <div style="font-weight: bold; color: var(--active);">PAROLLA</div>
-  </div>
-
   <div id="wheel-container"></div>
 
   <div id="question-card">
-    <div id="question-text">BAŞLIYOR...</div>
+    <div id="question-text">YÜKLENİYOR...</div>
     <input type="text" id="answer-input" placeholder="CEVABI YAZIN" autocomplete="off">
     <div class="btn-group">
       <button class="action-btn btn-pass" onclick="handlePass()">PAS</button>
@@ -118,21 +92,37 @@
 <script>
 const alphabet = ["A", "B", "C", "Ç", "D", "E", "F", "G", "H", "I", "İ", "J", "K", "L", "M", "N", "O", "Ö", "P", "R", "S", "Ş", "T", "U", "Ü", "V", "Y", "Z"];
 
-const questionBank = {};
-alphabet.forEach(l => {
-    questionBank[l] = [];
-    for(let i=0; i<30; i++) {
-        // Özel soruları tanımla
-        if(l === "B" && i === 0) questionBank[l].push({q: "Doğanın canlandığı ve sevgilinin ismi olan mevsim?", a: "BAHAR"});
-        else if(l === "D" && i === 0) questionBank[l].push({q: "Bir canlının genetik şifresi?", a: "DNA"});
-        else if(l === "A" && i === 0) questionBank[l].push({q: "Işık saçacak beyazlığa varıncaya kadar ısıtılmış olan?", a: "AKKOR"});
-        else if(l === "Ç" && i === 0) questionBank[l].push({q: "Hücrenin yönetim merkezi?", a: "ÇEKİRDEK"});
-        else {
-            // Buradaki "X harfi ile başlayan..." kısmını tamamen kaldırdım, doğrudan soru metni gelecek
-            questionBank[l].push({q: `Bu harf için tanımlanmış ${i+1}. genel kültür sorusu burada yer alacak.`, a: l + "TEST"});
-        }
-    }
-});
+// BURADA SADECE SORUNUN KENDİSİNİ YAZMAN YETERLİ
+const questionBank = {
+  "A": {q: "IŞIK SAÇACAK BEYAZLIĞA VARINCAYA KADAR ISITILMIŞ OLAN?", a: "AKKOR"},
+  "B": {q: "DOĞANIN CANLANDIĞI VE SEVGİLİNİN İSMİ OLAN MEVSİM?", a: "BAHAR"},
+  "C": {q: "BİR SORUYA VERİLEN KARŞILIK?", a: "CEVAP"},
+  "Ç": {q: "HÜCRENİN YÖNETİM MERKEZİ?", a: "ÇEKİRDEK"},
+  "D": {q: "BİR CANLININ GENETİK ŞİFRESİ?", a: "DNA"},
+  "E": {q: "İŞ YAPABİLME YETENEĞİ?", a: "ENERJİ"},
+  "F": {q: "BİTKİLERİN GÜNEŞ IŞIĞIYLA BESİN ÜRETMESİ?", a: "FOTOSENTEZ"},
+  "G": {q: "ISI VE IŞIK KAYNAĞI OLAN YILDIZIMIZ?", a: "GÜNEŞ"},
+  "H": {q: "CANLILARIN EN KÜÇÜK YAPI BİRİMİ?", a: "HÜCRE"},
+  "I": {q: "CISIMLERI GÖRMEMIZI SAĞLAYAN ENERJI?", a: "IŞIK"},
+  "İ": {q: "VÜCUDUN KEMİK ÇATISI?", a: "İSKELET"},
+  "J": {q: "ELEKTRİK ÜRETEN MAKİNE?", a: "JENERATÖR"},
+  "K": {q: "AĞIRLIKLA KARIŞTIRILAN MADDE MİKTARI?", a: "KÜTLE"},
+  "L": {q: "DENEY YAPILAN YER?", a: "LABORATUVAR"},
+  "M": {q: "DEMİRİ ÇEKEN NESNE?", a: "MIKNATIS"},
+  "N": {q: "SOLUK ALIP VERME?", a: "NEFES"},
+  "O": {q: "YAŞAM İÇİN SOLUDUĞUMUZ GAZ?", a: "OKSİJEN"},
+  "Ö": {q: "BİR CİSMİN KÜTLESİNİN HACMİNE ORANI?", a: "ÖZKÜTLE"},
+  "P": {q: "GÜNEŞ SİSTEMİNDEKİ GÖK CİSİMLERİ?", a: "PLANET"},
+  "R": {q: "HAVANIN YATAY HAREKETİ?", a: "RÜZGAR"},
+  "S": {q: "MADDENİN AKIŞKAN HALİ?", a: "SIVI"},
+  "Ş": {q: "BÜYÜK YERLEŞİM YERİ?", a: "ŞEHİR"},
+  "T": {q: "SICAKLIĞI ÖLÇEN ALET?", a: "TERMOMETRE"},
+  "U": {q: "SONSUZ BOŞLUK?", a: "UZAY"},
+  "Ü": {q: "CANLILARIN NESLİNİ DEVAM ETTİRMESİ?", a: "ÜREME"},
+  "V": {q: "VÜCUT SAĞLIĞI İÇİN GEREKLİ MADDELER?", a: "VİTAMİN"},
+  "Y": {q: "BULUTLARDAN DÜŞEN SU DAMLALARI?", a: "YAĞMUR"},
+  "Z": {q: "OLAYLARIN İÇİNDE GEÇTİĞİ SÜRE?", a: "ZAMAN"}
+};
 
 let currentIndex = 0;
 let results = {};
@@ -161,8 +151,8 @@ function updateUI() {
     document.querySelectorAll(".letter").forEach(el => el.classList.remove("active"));
     document.getElementById(`l-${letter}`).classList.add("active");
 
-    // Soru metnini temiz şekilde ekrana bas
-    document.getElementById("question-text").innerText = questionBank[letter][0].q;
+    const qObj = questionBank[letter];
+    document.getElementById("question-text").innerText = qObj ? qObj.q : "SORU TANIMLANMAMIŞ";
     document.getElementById("answer-input").value = "";
     document.getElementById("answer-input").focus();
 }
@@ -171,10 +161,10 @@ window.handleCheck = function() {
     const input = document.getElementById("answer-input").value.trim().toUpperCase();
     const letter = alphabet[currentIndex];
     const el = document.getElementById(`l-${letter}`);
-    if (input === "") return;
+    if (input === "" || !questionBank[letter]) return;
 
     el.classList.remove("passed");
-    if (input === questionBank[letter][0].a.toUpperCase()) {
+    if (input === questionBank[letter].a.toUpperCase()) {
         el.classList.add("correct");
         results[letter] = "correct";
     } else {
@@ -188,7 +178,6 @@ window.handlePass = function() {
     const letter = alphabet[currentIndex];
     const el = document.getElementById(`l-${letter}`);
 
-    // 2. Tur Kuralı: Harfe 2. kez gelindiyse ve pas denirse BOŞ olarak kapat
     if (visitCount[letter] >= 2) {
         results[letter] = "empty";
         el.classList.add("passed");
