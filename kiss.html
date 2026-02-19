@@ -6,63 +6,17 @@
   <title>BizApp - Öpücük Odası</title>
   <style>
     :root { --main-pink: #ff4d6d; --bg-color: #f3e7ea; }
-    body { 
-        font-family: 'Segoe UI', sans-serif; 
-        text-align: center; 
-        background: var(--bg-color); 
-        margin: 0; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        height: 100vh; 
-        overflow: hidden; 
-    }
-    
-    /* Geri Butonu */
-    .back-btn { 
-        position: fixed; 
-        top: 20px; 
-        left: 20px; 
-        background: white; 
-        border: none; 
-        padding: 10px 15px; 
-        border-radius: 12px; 
-        cursor: pointer; 
-        color: var(--main-pink); 
-        font-weight: bold; 
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
-        text-decoration: none; 
-        z-index: 1000; 
-    }
-
-    /* Ana Kart Tasarımı */
-    .kiss-card { 
-        background: white; 
-        padding: 40px; 
-        border-radius: 40px; 
-        box-shadow: 0 15px 35px rgba(255, 77, 109, 0.15); 
-        width: 85%; 
-        max-width: 380px; 
-        position: relative;
-    }
-    
-    .kiss-icon { font-size: 80px; margin-bottom: 20px; display: block; animation: pulse 2s infinite; cursor: default; }
+    body { font-family: 'Segoe UI', sans-serif; text-align: center; background: var(--bg-color); margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+    .back-btn { position: fixed; top: 20px; left: 20px; background: white; border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; color: var(--main-pink); font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-decoration: none; z-index: 1000; }
+    .kiss-card { background: white; padding: 40px; border-radius: 40px; box-shadow: 0 15px 35px rgba(255, 77, 109, 0.15); width: 85%; max-width: 380px; position: relative; }
+    .kiss-icon { font-size: 80px; margin-bottom: 20px; display: block; animation: pulse 2s infinite; }
     @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-
-    /* Butonlar */
     .btn-kiss { background: var(--main-pink); border: none; padding: 18px; color: white; font-size: 18px; border-radius: 20px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; margin-bottom: 12px; }
-    .btn-kiss:active { transform: scale(0.95); }
-    
-    .btn-push { background: #adb5bd; border: none; padding: 8px 15px; color: white; font-size: 12px; border-radius: 10px; cursor: pointer; transition: 0.2s; }
-    
-    /* Mesaj Listesi */
+    .btn-push { background: #adb5bd; border: none; padding: 8px 15px; color: white; font-size: 12px; border-radius: 10px; cursor: pointer; }
     #msgList { margin-top: 25px; max-height: 120px; overflow-y: auto; width: 100%; border-top: 1px solid #eee; padding-top: 15px; }
-    .msg-item { background: #fff5f7; padding: 10px; border-radius: 12px; margin: 8px 0; font-size: 13px; color: #555; border-left: 4px solid var(--main-pink); animation: slideIn 0.3s ease-out; text-align: left; }
-    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Kalp Efekti */
+    .msg-item { background: #fff5f7; padding: 10px; border-radius: 12px; margin: 8px 0; font-size: 13px; color: #555; border-left: 4px solid var(--main-pink); text-align: left; }
     .heart { position: absolute; color: var(--main-pink); pointer-events: none; animation: heartPop 1s forwards; z-index: 100; }
-    @keyframes heartPop { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-120px) rotate(20deg) scale(1.5); opacity: 0; } }
+    @keyframes heartPop { 0% { transform: scale(0); opacity: 0; } 100% { transform: translateY(-120px) scale(1.5); opacity: 0; } }
   </style>
 </head>
 <body>
@@ -72,11 +26,8 @@
 <div class="kiss-card">
     <span class="kiss-icon">💋</span>
     <button class="btn-kiss" id="kissBtn">Öpücük Gönder</button>
-    <button class="btn-push" id="enablePush">Bildirimleri Aktif Et 🔔</button>
-    
-    <div id="msgList">
-        <p id="emptyMsg" style="font-size: 12px; color: #bbb;">Gelen öpücükler burada görünecek...</p>
-    </div>
+    <button class="btn-push">Bildirimleri Aktif Et 🔔</button>
+    <div id="msgList"><p id="emptyMsg" style="font-size: 12px; color: #bbb;">Gelen öpücükler burada görünecek...</p></div>
 </div>
 
 <script type="module">
@@ -89,39 +40,30 @@ const firebaseConfig = {
   databaseURL: "https://sadece-biz-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "sadece-biz",
   storageBucket: "sadece-biz.firebasestorage.app",
-  messagingSenderId: "868755199002",
   appId: "1:868755199002:web=e8c18eb0cd11abb2292da3"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
 let room = localStorage.getItem("room") || "genel";
 const roomRef = ref(db, "rooms/" + room);
 let userId = localStorage.getItem("userId") || "user-" + Math.random().toString(16).slice(2);
-localStorage.setItem("userId", userId);
 
-const list = document.getElementById("msgList");
-
-// ÖPÜCÜK GÖNDERME
 document.getElementById("kissBtn").onclick = () => {
     push(roomRef, { sender: userId, type: 'kiss', time: Date.now() });
-    createHearts(15);
+    createHearts(10);
 };
 
-// ÖPÜCÜK ALMA
 onChildAdded(roomRef, (snapshot) => {
     const data = snapshot.val();
     if (data.type === 'kiss') {
         const emptyMsg = document.getElementById("emptyMsg");
         if(emptyMsg) emptyMsg.remove();
-
         const p = document.createElement("div");
         p.className = "msg-item";
         p.innerText = `💋 ${new Date(data.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - Öpüldün!`;
-        list.prepend(p);
-        
-        if (data.sender !== userId) createHearts(25);
+        document.getElementById("msgList").prepend(p);
+        if (data.sender !== userId) createHearts(20);
     }
 });
 
@@ -129,10 +71,9 @@ function createHearts(count) {
     for (let i = 0; i < count; i++) {
         const heart = document.createElement("div");
         heart.className = "heart";
-        heart.innerText = i % 2 === 0 ? "💖" : "💋";
+        heart.innerText = "💖";
         heart.style.left = (Math.random() * 80 + 10) + "%";
         heart.style.top = (Math.random() * 50 + 20) + "%";
-        heart.style.fontSize = (Math.random() * 15 + 15) + "px";
         document.body.appendChild(heart);
         setTimeout(() => heart.remove(), 1000);
     }
