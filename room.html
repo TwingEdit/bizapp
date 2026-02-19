@@ -2,14 +2,13 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>💞 Bizim Odamız</title>
+  <title>Bizim Odamız</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       background: #f3e7ea;
-      margin: 0;
-      padding-top: 80px;
+      margin-top: 80px;
       overflow-x: hidden;
       position: relative;
     }
@@ -53,16 +52,16 @@
       transition: background-color 0.5s ease;
     }
 
-    /* Kalp animasyonu */
     @keyframes heartPop {
       0% { transform: scale(0); opacity: 0; }
       50% { transform: scale(1.5); opacity: 1; }
       100% { transform: scale(1); opacity: 0; }
     }
+
     .heart {
       position: absolute;
       color: #ff4d6d;
-      font-size: 30px;
+      font-size: 25px;
       pointer-events: none;
       animation: heartPop 0.8s ease forwards;
     }
@@ -81,7 +80,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// Firebase config
+// Firebase ayarları
 const firebaseConfig = {
   apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
   authDomain: "sadece-biz.firebaseapp.com",
@@ -95,11 +94,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Oda ve kullanıcı ID
+// Oda ayarı
 let room = localStorage.getItem("room") || "genel";
 room = room.trim().toLowerCase();
 const roomRef = ref(db, "rooms/" + room);
 
+// Kullanıcı ID
 let userId = localStorage.getItem("userId");
 if (!userId) {
   userId = Math.random().toString(36).substring(2, 10);
@@ -109,33 +109,30 @@ if (!userId) {
 const msgsContainer = document.getElementById("msgList");
 const kissBtn = document.getElementById("kissButton");
 
-// Kalp efekti oluştur
-function createHearts(num = 20) {
-  for (let i = 0; i < num; i++) {
+// Kalp patlatma fonksiyonu (random konum)
+function createHearts(count = 20) {
+  for (let i = 0; i < count; i++) {
     const heart = document.createElement("div");
     heart.className = "heart";
     heart.innerText = "💖";
-
-    const xOffset = (Math.random() - 0.5) * window.innerWidth;
-    const yOffset = (Math.random() - 0.5) * window.innerHeight;
-    heart.style.left = (window.innerWidth/2 + xOffset) + "px";
-    heart.style.top = (window.innerHeight/2 + yOffset) + "px";
-    heart.style.fontSize = (20 + Math.random() * 40) + "px";
-
+    heart.style.left = Math.random() * window.innerWidth + "px";
+    heart.style.top = Math.random() * (window.innerHeight - 100) + "px";
+    heart.style.fontSize = 20 + Math.random() * 30 + "px";
     document.body.appendChild(heart);
     setTimeout(() => heart.remove(), 800);
   }
 }
 
-// Öpücük gönderme (yalnızca Firebase)
+// Öpücük gönder butonu
 kissBtn.onclick = () => {
   push(roomRef, { sender: userId, time: Date.now() });
 };
 
-// Mesajları dinleme (alıcı taraf için kalp)
+// Firebase dinleme
 onValue(roomRef, (snapshot) => {
   msgsContainer.innerHTML = "";
   const messages = [];
+
   snapshot.forEach(childSnap => {
     const data = childSnap.val();
     messages.push(data);
@@ -144,9 +141,6 @@ onValue(roomRef, (snapshot) => {
   const lastMsgs = messages.slice(-3);
 
   lastMsgs.forEach((data, index) => {
-    // Eğer mesajın göndereni sen değilsen, kalpler patlasın
-    if (data.sender !== userId) createHearts(20);
-
     const p = document.createElement("p");
     const t = new Date(data.time).toLocaleTimeString();
     p.innerText = `💋 Seni Öptü! (${t})`;
@@ -157,10 +151,17 @@ onValue(roomRef, (snapshot) => {
     }
 
     msgsContainer.appendChild(p);
+
+    // **Kalpler sadece gönderici farklıysa**
+    if (data.sender !== userId) {
+      createHearts(20); // alıcı tarafında kalp patlasın
+    }
   });
 });
 </script>
 
+<!-- Push sistemi (app.js) -->
 <script src="app.js"></script>
+
 </body>
 </html>
