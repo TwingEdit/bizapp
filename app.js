@@ -43,3 +43,13 @@ function urlBase64ToUint8Array(base64String) {
   const rawData = atob(base64);
   return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
 }
+function createHeart(x, y) {
+  const heart = document.createElement("div");
+  heart.className = "heart";
+  heart.style.left = x + "px";
+  heart.style.top = y + "px";
+  heart.innerText = "💖";
+  document.body.appendChild(heart);
+  setTimeout(() => heart.remove(), 800);
+}
+
