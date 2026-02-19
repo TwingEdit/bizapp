@@ -1,70 +1,70 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<title>Bizim Odamız</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background: #f3e7ea;
-    margin-top: 50px;
-    overflow-x: hidden;
-  }
+  <meta charset="UTF-8">
+  <title>💞 Bizim Odamız</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f3e7ea;
+      margin: 0;
+      padding-top: 80px;
+      overflow-x: hidden;
+    }
 
-  button {
-    background: #ff4d6d;
-    border: none;
-    padding: 15px 30px;
-    color: white;
-    font-size: 18px;
-    border-radius: 15px;
-    cursor: pointer;
-    margin: 8px;
-  }
+    button {
+      background: #ff4d6d;
+      border: none;
+      padding: 15px 30px;
+      color: white;
+      font-size: 18px;
+      border-radius: 15px;
+      cursor: pointer;
+      margin: 8px;
+    }
 
-  #msgList {
-    margin-top: 30px;
-    font-size: 20px;
-    text-align: center;
-    padding: 0 20px;
-    max-height: 500px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
+    #msgList {
+      margin-top: 30px;
+      font-size: 20px;
+      text-align: center;
+      padding: 0 20px;
+      max-height: 500px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
 
-  #msgList p {
-    margin: 6px 0;
-    padding: 10px 14px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    min-width: 180px;
-    max-width: 90%;
-  }
+    #msgList p {
+      margin: 6px 0;
+      padding: 10px 14px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      min-width: 180px;
+      max-width: 90%;
+    }
 
-  .latest {
-    background-color: #ffccd5;
-    transition: background-color 0.5s ease;
-  }
+    .latest {
+      background-color: #ffccd5;
+      transition: background-color 0.5s ease;
+    }
 
-  @keyframes heartPop {
-    0% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1.5); opacity: 1; }
-    100% { transform: scale(1); opacity: 0; }
-  }
+    @keyframes heartPop {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.5); opacity: 1; }
+      100% { transform: scale(1); opacity: 0; }
+    }
 
-  .heart {
-    position: absolute;
-    color: #ff4d6d;
-    font-size: 30px;
-    pointer-events: none;
-    animation: heartPop 0.8s ease forwards;
-  }
-</style>
+    .heart {
+      position: absolute;
+      color: #ff4d6d;
+      pointer-events: none;
+      animation: heartPop 0.8s ease forwards;
+    }
+  </style>
 </head>
 <body>
 
@@ -75,10 +75,12 @@
 
 <div id="msgList"></div>
 
+<!-- Firebase + Oda sistemi -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
+// Firebase config
 const firebaseConfig = {
   apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
   authDomain: "sadece-biz.firebaseapp.com",
@@ -105,28 +107,32 @@ if (!userId) {
 const msgsContainer = document.getElementById("msgList");
 const kissBtn = document.getElementById("kissButton");
 
-// Rastgele kalp patlatma (birden fazla)
-function createHearts(num = 5) {
+// Random kalp efekti
+function createHearts(num = 8) {
   for (let i = 0; i < num; i++) {
     const heart = document.createElement("div");
     heart.className = "heart";
     heart.innerText = "💖";
-    // Ortadan biraz rastgele dağıt
-    heart.style.left = (window.innerWidth/2 + Math.random()*100 -50) + "px";
-    heart.style.top = (window.innerHeight/2 + Math.random()*100 -50) + "px";
-    heart.style.fontSize = (20 + Math.random()*20) + "px";
+
+    const xOffset = (Math.random() - 0.5) * 200; // -100px ila +100px
+    const yOffset = (Math.random() - 0.5) * 200;
+    heart.style.left = (window.innerWidth / 2 + xOffset) + "px";
+    heart.style.top = (window.innerHeight / 2 + yOffset) + "px";
+
+    heart.style.fontSize = (20 + Math.random() * 20) + "px";
+
     document.body.appendChild(heart);
     setTimeout(() => heart.remove(), 800);
   }
 }
 
-// Öpücük gönderme
+// Öpücük gönder
 kissBtn.onclick = () => {
   createHearts(8); // 8 kalp patlasın
   push(roomRef, { sender: userId, time: Date.now() });
 };
 
-// Realtime DB ile mesajları dinle
+// Mesajları göster
 onValue(roomRef, (snapshot) => {
   msgsContainer.innerHTML = "";
 
@@ -137,7 +143,6 @@ onValue(roomRef, (snapshot) => {
   });
 
   const lastMsgs = messages.slice(-3);
-
   lastMsgs.forEach((data, index) => {
     const p = document.createElement("p");
     const t = new Date(data.time).toLocaleTimeString();
@@ -149,25 +154,13 @@ onValue(roomRef, (snapshot) => {
     }
 
     msgsContainer.appendChild(p);
-
-    // Bildirim (uygulama açıkken)
-    if (Notification.permission === "granted") {
-      new Notification("💋 Seni Öptü!", {
-        body: "Yeni bir öpücük mesajı geldi 💖",
-        icon: "/icon.png"
-      });
-    }
   });
-});
 
-// Push izin butonu
-document.getElementById("enablePush").onclick = async () => {
-  if (!("Notification" in window)) return alert("Tarayıcınız bildirimleri desteklemiyor.");
-  const permission = await Notification.requestPermission();
-  if (permission === "granted") alert("Bildirimler aktif 💖");
-  else alert("İzin verilmedi ❌");
-};
+});
 </script>
+
+<!-- PUSH sistemi -->
+<script src="app.js"></script>
 
 </body>
 </html>
