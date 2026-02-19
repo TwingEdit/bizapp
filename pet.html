@@ -101,11 +101,14 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 let room = localStorage.getItem("room") || "genel";
-let userId = localStorage.getItem("userId") || Math.random().toString(36).substring(2, 10);
-localStorage.setItem("userId", userId);
+let userId = localStorage.getItem("userId");
 
 const petRef = ref(db, "rooms/" + room + "/pet");
-const kissRef = ref(db, "rooms/" + room); // Öpücükleri dinlemek için ana oda referansı
+const kissRef = ref(db, "rooms/" + room);
+
+// --- KESİN ÇÖZÜM İÇİN DEĞİŞKENLER ---
+const pageLoadTime = Date.now();
+let initialDataLoaded = false;
 
 // --- AYICIK VERİLERİNİ DİNLE ---
 onValue(petRef, (snapshot) => {
@@ -144,26 +147,47 @@ document.getElementById("washBtn").onclick = () => {
     }, { onlyOnce: true });
 };
 
-// --- ÖPÜCÜK BİLDİRİM SİSTEMİ ---
+// --- ÖPÜCÜK BİLDİRİM SİSTEMİ (GELİŞTİRİLMİŞ) ---
+
+// 1. Önce odadaki mevcut verilerin yüklenmesini bekle (Kilidi Aç)
+onValue(kissRef, () => {
+    initialDataLoaded = true;
+}, { onlyOnce: true });
+
+// 2. Yeni eklenen verileri dinle
 onChildAdded(kissRef, (snapshot) => {
+    // Eğer veritabanı taraması bitmediyse hiçbir şey yapma
+    if (!initialDataLoaded) return;
+
     const data = snapshot.val();
-    // Eğer gelen veri bir öpücükse ve gönderen sevgilinse
-    if (data.type === 'kiss' && data.sender !== userId) {
+    const sentTime = data.timestamp || data.time || 0;
+
+    // KONTROLLER: 
+    // - Tip 'kiss' olmalı
+    // - Gönderen ben olmamalıyım
+    // - Zamanı sayfa açılışından sonra olmalı
+    if (data.type === 'kiss' && data.sender !== userId && sentTime > pageLoadTime) {
         showKissNotification();
     }
 });
 
 function showKissNotification() {
+    // Varsa eski bildirimi kaldır
+    const oldNotify = document.querySelector(".kiss-notify");
+    if (oldNotify) oldNotify.remove();
+
     const notify = document.createElement("div");
     notify.className = "kiss-notify";
     notify.innerHTML = `<span>💋</span> Balım sana bir öpücük gönderdi!`;
     document.body.appendChild(notify);
 
-    createHearts(20); // Öpücük gelince bolca kalp uçur
+    createHearts(20);
 
     setTimeout(() => {
-        notify.style.animation = "slideUp 0.5s ease-in";
-        setTimeout(() => notify.remove(), 500);
+        if (notify.parentNode) {
+            notify.style.animation = "slideUp 0.5s ease-in";
+            setTimeout(() => notify.remove(), 500);
+        }
     }, 3000);
 }
 
