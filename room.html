@@ -107,19 +107,19 @@ if (!userId) {
 const msgsContainer = document.getElementById("msgList");
 const kissBtn = document.getElementById("kissButton");
 
-// Random kalp efekti
-function createHearts(num = 8) {
+// Random kalp efekti, daha dağınık ve fazla sayı
+function createHearts(num = 15) {
   for (let i = 0; i < num; i++) {
     const heart = document.createElement("div");
     heart.className = "heart";
     heart.innerText = "💖";
 
-    const xOffset = (Math.random() - 0.5) * 200; // -100px ila +100px
-    const yOffset = (Math.random() - 0.5) * 200;
+    const xOffset = (Math.random() - 0.5) * 600; // -300px ila +300px
+    const yOffset = (Math.random() - 0.5) * 400; // -200px ila +200px
     heart.style.left = (window.innerWidth / 2 + xOffset) + "px";
     heart.style.top = (window.innerHeight / 2 + yOffset) + "px";
 
-    heart.style.fontSize = (20 + Math.random() * 20) + "px";
+    heart.style.fontSize = (20 + Math.random() * 30) + "px";
 
     document.body.appendChild(heart);
     setTimeout(() => heart.remove(), 800);
@@ -128,7 +128,7 @@ function createHearts(num = 8) {
 
 // Öpücük gönder
 kissBtn.onclick = () => {
-  createHearts(8); // 8 kalp patlasın
+  createHearts(); // 15 kalp patlasın
   push(roomRef, { sender: userId, time: Date.now() });
 };
 
