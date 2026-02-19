@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parolla Final v7.5</title>
+  <title>Parolla Final v7.7</title>
   <style>
     :root {
       --bg: #121213;
@@ -12,7 +12,7 @@
       --wrong: #ff4d6d;
       --active: #4cc9f0;
       --passed: #f9c74f;
-      --bizapp-pink: #ff4d6d;
+      --main-pink: #ff4d6d; /* Wordle menüsündeki renk */
     }
 
     body {
@@ -29,36 +29,27 @@
       overflow: hidden;
     }
 
-    /* ÜST BAR VE MENÜ BUTONU */
-    #nav-bar {
+    /* WORDLE MENÜSÜYLE AYNI TARZ GERİ BUTONU */
+    .back-btn {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      padding: 15px;
-      z-index: 9999;
-      pointer-events: none;
-    }
-
-    .home-btn {
-      background: #3a3a3c;
-      color: white;
-      padding: 12px 20px;
+      top: 20px;
+      left: 20px;
+      background: white;
+      border: none;
+      padding: 10px 15px;
       border-radius: 12px;
-      border: 2px solid #565758;
       cursor: pointer;
+      color: var(--main-pink);
       font-weight: bold;
-      pointer-events: auto;
-      transition: 0.3s;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       text-decoration: none;
-      display: inline-block;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      z-index: 9999;
+      font-size: 14px;
+      transition: transform 0.2s;
     }
 
-    .home-btn:hover {
-      background: var(--bizapp-pink);
-      border-color: var(--bizapp-pink);
-      transform: translateY(-2px);
+    .back-btn:hover {
+      transform: scale(1.05);
     }
 
     #wheel-container { position: relative; width: 310px; height: 310px; margin-bottom: 20px; flex-shrink: 0; }
@@ -100,9 +91,7 @@
 </head>
 <body>
 
-  <div id="nav-bar">
-    <button class="home-btn" onclick="window.location.href='menu.html'">← BİZAPP DÜNYASI</button>
-  </div>
+  <a href="menu.html" class="back-btn">⬅ Geri</a>
 
   <div id="wheel-container"></div>
 
@@ -119,12 +108,12 @@
     <h2 style="color: var(--active); font-size: 32px;">OYUN BİTTİ</h2>
     <div id="stats-summary" style="font-size: 24px; margin-bottom: 30px;"></div>
     <button class="action-btn btn-check" style="max-width: 250px; margin-bottom: 10px;" onclick="location.reload()">YENİDEN BAŞLA</button>
-    <button class="home-btn" style="pointer-events: auto;" onclick="window.location.href='menu.html'">MENÜYE DÖN</button>
+    <a href="menu.html" class="back-btn" style="position: static; margin-top: 20px;">⬅ Geri</a>
   </div>
 
 <script>
-// Soru bankası v7.1'deki o çok sevdiğin sade ve düzgün haliyle duruyor
 const alphabet = ["A", "B", "C", "Ç", "D", "E", "F", "G", "Ğ", "H", "I", "İ", "J", "K", "L", "M", "N", "O", "Ö", "P", "R", "S", "Ş", "T", "U", "Ü", "V", "Y", "Z"];
+
 const questionBank = {
   "A": {q: "IŞIK SAÇACAK BEYAZLIĞA VARINCAYA KADAR ISITILMIŞ OLAN?", a: "AKKOR"},
   "B": {q: "DOĞANIN CANLANDIĞI VE SEVGİLİNİN İSMİ OLAN MEVSİM?", a: "BAHAR"},
