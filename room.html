@@ -1,77 +1,92 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<title>Bizim Odamız</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background: #f3e7ea;
-    margin-top: 80px;
-  }
-  button {
-    background: #ff4d6d;
-    border: none;
-    padding: 15px 30px;
-    color: white;
-    font-size: 18px;
-    border-radius: 15px;
-    cursor: pointer;
-    margin: 8px;
-  }
-  #msgList {
-    margin-top: 30px;
-    font-size: 20px;
-    text-align: center;
-    padding: 0 20px;
-    max-height: 500px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  #msgList p {
-    margin: 6px 0;
-    padding: 10px 14px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    min-width: 180px;
-    max-width: 90%;
-  }
-  .latest {
-    background-color: #ffccd5;
-    transition: background-color 0.5s ease;
-  }
+  <meta charset="UTF-8">
+  <title>Bizim Odamız</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f3e7ea;
+      margin: 0;
+      padding: 50px 0;
+      overflow-x: hidden;
+      position: relative;
+      height: 100vh;
+    }
 
-  @keyframes heartPop {
-    0% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1.5); opacity: 1; }
-    100% { transform: scale(1); opacity: 0; }
-  }
-  .heart {
-    position: absolute;
-    color: #ff4d6d;
-    font-size: 30px;
-    pointer-events: none;
-    animation: heartPop 0.8s ease forwards;
-  }
-</style>
+    button {
+      background: #ff4d6d;
+      border: none;
+      padding: 15px 30px;
+      color: white;
+      font-size: 18px;
+      border-radius: 15px;
+      cursor: pointer;
+      margin: 8px;
+    }
+
+    #msgList {
+      margin-top: 30px;
+      font-size: 20px;
+      text-align: center;
+      padding: 0 20px;
+      max-height: 400px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #msgList p {
+      margin: 6px 0;
+      padding: 10px 14px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      min-width: 180px;
+      max-width: 90%;
+    }
+
+    .latest {
+      background-color: #ffccd5;
+      transition: background-color 0.5s ease;
+    }
+
+    /* Kalp animasyonu */
+    @keyframes heartPop {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.5); opacity: 1; }
+      100% { transform: scale(1) translateY(-100px); opacity: 0; }
+    }
+
+    .heart {
+      position: absolute;
+      color: #ff4d6d;
+      font-size: 30px;
+      pointer-events: none;
+      animation: heartPop 1s ease forwards;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+  </style>
 </head>
 <body>
 
 <h1>💞 Bizim Odamız</h1>
+
 <button id="kissButton">💋 Öpücük Gönder</button>
 <button id="enablePush">Bildirimleri Aç 💖</button>
+
 <div id="msgList"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// Firebase ayarları
+// Firebase config
 const firebaseConfig = {
   apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
   authDomain: "sadece-biz.firebaseapp.com",
@@ -85,6 +100,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// Room ve userId
 let room = localStorage.getItem("room") || "genel";
 room = room.trim().toLowerCase();
 const roomRef = ref(db, "rooms/" + room);
@@ -98,56 +114,56 @@ if (!userId) {
 const msgsContainer = document.getElementById("msgList");
 const kissBtn = document.getElementById("kissButton");
 
-// Kalp animasyonu fonksiyonu
+// Kalp oluşturma fonksiyonu
 function createHeart(x, y) {
-  const heart = document.createElement('div');
-  heart.classList.add('heart');
-  // Rastgele biraz kaydır
-  heart.style.left = (x - 15 + (Math.random()*30-15)) + 'px';
-  heart.style.top = (y - 15 + (Math.random()*30-15)) + 'px';
-  heart.innerText = '💖';
+  const heart = document.createElement("div");
+  heart.classList.add("heart");
+  heart.innerText = "💖";
+  heart.style.left = x + "px";
+  heart.style.top = y + "px";
   document.body.appendChild(heart);
-  setTimeout(() => heart.remove(), 800);
+  setTimeout(() => heart.remove(), 1000);
 }
 
-// Öpücük gönderme
-kissBtn.onclick = (e) => {
-  // Mouse koordinatları yoksa ortadan göster
-  const x = e.clientX || window.innerWidth/2;
-  const y = e.clientY || window.innerHeight/2;
-  createHeart(x, y);       
+// Öpücük butonu
+kissBtn.onclick = () => {
+  // Ekranın ortasına kalp
+  const x = window.innerWidth / 2;
+  const y = window.innerHeight / 2;
+  createHeart(x, y);
+
+  // Firebase'e kaydet
   push(roomRef, { sender: userId, time: Date.now() });
 };
 
-// Son 3 mesajı göster
+// Mesajları dinle ve göster
 onValue(roomRef, (snapshot) => {
   msgsContainer.innerHTML = "";
   const messages = [];
+
   snapshot.forEach(childSnap => {
     const data = childSnap.val();
     if (data.sender !== userId) messages.push(data);
   });
+
   const lastMsgs = messages.slice(-3);
+
   lastMsgs.forEach((data, index) => {
     const p = document.createElement("p");
     const t = new Date(data.time).toLocaleTimeString();
     p.innerText = `💋 Seni Öptü! (${t})`;
+
     if (index === lastMsgs.length - 1) {
       p.classList.add("latest");
       setTimeout(() => p.classList.remove("latest"), 5000);
     }
+
     msgsContainer.appendChild(p);
   });
 });
-
-// Push izin butonu
-document.getElementById("enablePush").onclick = async () => {
-  if (!("Notification" in window)) return alert("Tarayıcı bildirimleri desteklemiyor!");
-  const permission = await Notification.requestPermission();
-  if (permission === "granted") alert("Bildirimler aktif 💖");
-  else alert("İzin verilmedi ❌");
-};
 </script>
+
+<script src="app.js"></script>
 
 </body>
 </html>
