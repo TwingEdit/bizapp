@@ -5,7 +5,7 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.error('SW hata:', err));
 }
 
-// Buton
+// Buton ve Bildirim İşlemleri
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("enablePush");
   if (!btn) return;
@@ -14,35 +14,39 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const permission = await Notification.requestPermission();
       if (permission !== "granted") {
-        alert("İzin verilmedi");
+        alert("Bildirim izni verilmedi ❌");
         return;
       }
 
       const reg = await navigator.serviceWorker.ready;
 
+      // YENİ PUBLIC KEY BURAYA ENTEGRE EDİLDİ
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array("BB1e5kOUhOQjUW-i3_olooiI1Orafb7rKY-ETyeQ3A7smnDpr6OGAyq8o0opRT0iHqVPoLzptgHTtagmhfdMjCw")
+        applicationServerKey: urlBase64ToUint8Array("BErDrUJX0GwdyREvm9MuPHoUsjM9_tXoxUI5bGVAZLKFocnBjiZB7x9cClYvnh1UWJ-z5Pa24vo9UGNhStDYSTE")
       });
 
       console.log("SUBSCRIPTION_JSON_START");
       console.log(JSON.stringify(sub));
       console.log("SUBSCRIPTION_JSON_END");
 
-      alert("Bildirimler aktif 💖");
+      alert("Bildirimler ve Ayıcık Takibi Aktif! 💖");
     } catch (e) {
-      console.error("Push hata:", e);
-      alert("Push hata: " + e.message);
+      console.error("Push abonelik hatası:", e);
+      alert("Bir hata oluştu: " + e.message);
     }
   };
 });
 
+// VAPID anahtarını dönüştüren yardımcı fonksiyon
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
   const rawData = atob(base64);
   return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
 }
+
+// Kalp efekti fonksiyonu
 function createHeart(x, y) {
   const heart = document.createElement("div");
   heart.className = "heart";
@@ -52,4 +56,3 @@ function createHeart(x, y) {
   document.body.appendChild(heart);
   setTimeout(() => heart.remove(), 800);
 }
-
