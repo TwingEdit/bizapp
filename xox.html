@@ -3,111 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BizApp - XOX Skorbordlu</title>
+  <title>BizApp - Online XOX</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <style>
     :root {
       --bg: #121213;
       --cell-bg: #1e1e1e;
       --text: #ffffff;
-      --x-color: #ff4d6d; /* Pembe */
-      --o-color: #4cc9f0; /* Mavi */
-      --win-bg: #6aaa64;
+      --x-color: #ff4d6d;
+      --o-color: #4cc9f0;
     }
-
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    /* GERİ BUTONU */
-    .back-btn {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 12px;
-      cursor: pointer;
-      color: #ff4d6d;
-      font-weight: bold;
-      text-decoration: none;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      z-index: 1000;
-      font-size: 14px;
-    }
-
-    /* SKOR TABLOSU */
-    .scoreboard {
-      display: flex;
-      gap: 30px;
-      margin-bottom: 20px;
-      background: #2a2a2a;
-      padding: 15px 25px;
-      border-radius: 20px;
-      font-size: 18px;
-      font-weight: bold;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
-
-    .score-item { text-align: center; line-height: 1.4; }
-    #score-x { color: var(--x-color); font-size: 24px; }
-    #score-o { color: var(--o-color); font-size: 24px; }
-
-    #status { margin-bottom: 15px; font-size: 20px; font-weight: bold; min-height: 30px; }
-
-    .board {
-      display: grid;
-      grid-template-columns: repeat(3, 100px);
-      grid-template-rows: repeat(3, 100px);
-      gap: 10px;
-    }
-
-    .cell {
-      width: 100px;
-      height: 100px;
-      background: var(--cell-bg);
-      border-radius: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 48px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .cell:hover { background: #2a2a2a; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+    .back-btn { position: fixed; top: 20px; left: 20px; background: white; color: #ff4d6d; padding: 10px 15px; border-radius: 12px; text-decoration: none; font-weight: bold; }
+    
+    .scoreboard { display: flex; gap: 30px; margin-bottom: 20px; background: #2a2a2a; padding: 15px; border-radius: 20px; }
+    .score-item { text-align: center; }
+    
+    .board { display: grid; grid-template-columns: repeat(3, 90px); gap: 10px; }
+    .cell { width: 90px; height: 90px; background: var(--cell-bg); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; cursor: pointer; }
     .cell.x { color: var(--x-color); }
     .cell.o { color: var(--o-color); }
-    .cell.winner { background: var(--win-bg); color: white; animation: pulse 0.5s infinite alternate; }
-
-    @keyframes pulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.05); }
-    }
-
-    #reset-btn {
-      margin-top: 25px;
-      padding: 12px 25px;
-      background: transparent;
-      border: 2px solid white;
-      color: white;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-
-    #reset-btn:hover { background: white; color: black; }
+    .cell.winner { background: #6aaa64; }
+    
+    #status { margin: 20px 0; font-weight: bold; height: 25px; }
+    #reset-btn { padding: 10px 20px; background: transparent; border: 2px solid white; color: white; border-radius: 8px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -115,11 +35,11 @@
   <a href="menu.html" class="back-btn">⬅ Geri</a>
 
   <div class="scoreboard">
-    <div class="score-item">SEN (X)<br><span id="score-x">0</span></div>
-    <div class="score-item">SEVGİLİN (O)<br><span id="score-o">0</span></div>
+    <div class="score-item">X (Skor)<br><span id="score-x">0</span></div>
+    <div class="score-item">O (Skor)<br><span id="score-o">0</span></div>
   </div>
 
-  <div id="status">Sıra sende! (X)</div>
+  <div id="status">Bağlanılıyor...</div>
 
   <div class="board" id="board">
     <div class="cell" data-index="0"></div>
@@ -133,89 +53,86 @@
     <div class="cell" data-index="8"></div>
   </div>
 
-  <button id="reset-btn" onclick="resetBoard()">TURU SIFIRLA</button>
+  <button id="reset-btn" style="margin-top:20px">OYUNU SIFIRLA</button>
 
   <script>
-    const cells = document.querySelectorAll('.cell');
-    const statusEl = document.getElementById('status');
-    const scoreXEl = document.getElementById('score-x');
-    const scoreOEl = document.getElementById('score-o');
+    // --- BURAYA DİKKAT ---
+    // Eğer projende başka bir yerde firebaseConfig varsa onu buraya yapıştır!
+    const firebaseConfig = {
+      apiKey: "AIza...",
+      databaseURL: "https://senin-projen.firebaseio.com",
+      projectId: "senin-projen",
+      // ... diğer bilgiler
+    };
     
-    let currentPlayer = 'X';
-    let gameState = ["", "", "", "", "", "", "", "", ""];
-    let gameActive = true;
-    let scores = { X: 0, O: 0 };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const roomName = localStorage.getItem("room") || "genel_oda";
+    const gameRef = database.ref('rooms/' + roomName + '/xox');
 
-    const winConditions = [
-      [0, 1, 2], [3, 4, 5], [6, 7, 8],
-      [0, 3, 6], [1, 4, 7], [2, 5, 8],
-      [0, 4, 8], [2, 4, 6]
-    ];
+    let localGameState = Array(9).fill("");
+    let currentTurn = "X";
 
-    function handleCellClick(e) {
-      const idx = e.target.getAttribute('data-index');
-      if (gameState[idx] !== "" || !gameActive) return;
+    // Veritabanını Dinle (Diğer oyuncu basınca senin ekranın değişir)
+    gameRef.on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        localGameState = data.board || Array(9).fill("");
+        currentTurn = data.turn || "X";
+        updateUI(data.scores || {X:0, O:0});
+      }
+    });
 
-      gameState[idx] = currentPlayer;
-      e.target.innerText = currentPlayer;
-      e.target.classList.add(currentPlayer.toLowerCase());
-
-      checkResult();
+    function updateUI(scores) {
+      const cells = document.querySelectorAll('.cell');
+      localGameState.forEach((val, i) => {
+        cells[i].innerText = val;
+        cells[i].className = "cell " + val.toLowerCase();
+      });
+      document.getElementById('status').innerText = "Sıra: " + currentTurn;
+      document.getElementById('score-x').innerText = scores.X;
+      document.getElementById('score-o').innerText = scores.O;
     }
 
-    function checkResult() {
-      let roundWon = false;
-      let winningCombo = [];
-
-      for (let condition of winConditions) {
-        let [a, b, c] = condition;
-        if (gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
-          roundWon = true;
-          winningCombo = [a, b, c];
-          break;
+    // Hücreye tıklama
+    document.querySelectorAll('.cell').forEach(cell => {
+      cell.addEventListener('click', () => {
+        const idx = cell.getAttribute('data-index');
+        if (localGameState[idx] === "" && currentTurn) {
+          localGameState[idx] = currentTurn;
+          const nextTurn = currentTurn === "X" ? "O" : "X";
+          
+          // Veritabanını güncelle (İki cihazda da anında değişir)
+          gameRef.update({
+            board: localGameState,
+            turn: nextTurn
+          });
+          
+          checkWinnerLocally();
         }
-      }
+      });
+    });
 
-      if (roundWon) {
-        statusEl.innerText = `${currentPlayer} kazandı! ✨`;
-        statusEl.style.color = "var(--win-bg)";
-        winningCombo.forEach(i => cells[i].classList.add('winner'));
-        scores[currentPlayer]++;
-        updateScores();
-        gameActive = false;
-        return;
-      }
-
-      if (!gameState.includes("")) {
-        statusEl.innerText = "Berabere! 🤝";
-        statusEl.style.color = "white";
-        gameActive = false;
-        return;
-      }
-
-      currentPlayer = currentPlayer === "X" ? "O" : "X";
-      statusEl.innerText = `Sıra: ${currentPlayer === 'X' ? 'SEN (X)' : 'SEVGİLİN (O)'}`;
-      statusEl.style.color = currentPlayer === 'X' ? 'var(--x-color)' : 'var(--o-color)';
+    function checkWinnerLocally() {
+        const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        for (let [a, b, c] of wins) {
+            if (localGameState[a] && localGameState[a] === localGameState[b] && localGameState[a] === localGameState[c]) {
+                alert(localGameState[a] + " KAZANDI!");
+                // Kazanan skoru artır ve board'u temizle mantığı buraya eklenebilir
+                resetGameData();
+                break;
+            }
+        }
     }
 
-    function updateScores() {
-      scoreXEl.innerText = scores.X;
-      scoreOEl.innerText = scores.O;
-    }
+    document.getElementById('reset-btn').onclick = resetGameData;
 
-    function resetBoard() {
-      currentPlayer = 'X';
-      gameState = ["", "", "", "", "", "", "", "", ""];
-      gameActive = true;
-      statusEl.innerText = "Sıra sende! (X)";
-      statusEl.style.color = "var(--x-color)";
-      cells.forEach(cell => {
-        cell.innerText = "";
-        cell.classList.remove('x', 'o', 'winner');
+    function resetGameData() {
+      gameRef.update({
+        board: Array(9).fill(""),
+        turn: "X"
       });
     }
-
-    cells.forEach(cell => cell.addEventListener('click', handleCellClick));
   </script>
 </body>
 </html>
