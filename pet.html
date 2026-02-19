@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BizApp - Ayıcık Bakımı</title>
+  <style>
+    :root { --main-pink: #ff4d6d; --bg-color: #f3e7ea; }
+    body { font-family: 'Segoe UI', sans-serif; text-align: center; background: var(--bg-color); margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; transition: background 1s; }
+    
+    .back-btn { position: fixed; top: 20px; left: 20px; background: white; border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; color: var(--main-pink); font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10; }
+
+    #petCard {
+      background: white; padding: 25px; border-radius: 40px;
+      display: inline-block; box-shadow: 0 15px 35px rgba(255, 77, 109, 0.2);
+      width: 85%; max-width: 350px; position: relative;
+    }
+
+    #petVisual { font-size: 100px; display: block; margin: 10px 0; transition: 0.3s; }
+    .floating { animation: float 3s infinite ease-in-out; }
+    @keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0); } }
+
+    .stat-row { width: 100%; margin: 12px 0; text-align: left; }
+    .bar-bg { background: #f0f0f0; height: 12px; border-radius: 6px; overflow: hidden; margin-top: 4px; border: 1px solid #eee; }
+    .bar-fill { height: 100%; transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    
+    #hungerBar { background: linear-gradient(90deg, #ff9f43, #ffbd82); }
+    #hygieneBar { background: linear-gradient(90deg, #54a0ff, #00d2ff); }
+    #bondBar { background: linear-gradient(90deg, #ff4d6d, #ff8fa3); }
+
+    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+    button.action-btn {
+      border: none; padding: 15px; color: white; font-size: 15px;
+      border-radius: 15px; cursor: pointer; transition: 0.2s; font-weight: bold;
+    }
+    .btn-feed { background: #ff9f43; }
+    .btn-wash { background: #54a0ff; }
+    
+    .heart { position: absolute; color: var(--main-pink); pointer-events: none; animation: heartPop 1s forwards; }
+    @keyframes heartPop { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-100px) scale(1.5); opacity: 0; } }
+  </style>
+</head>
+<body>
+
+<button class="back-btn" onclick="location.href='menu.html'">⬅ Geri</button>
+
+<div id="petCard">
+    <div id="petVisual" class="floating">🧸</div>
+    
+    <div class="stat-row">
+        <span>🍎 Açlık: <b id="hungerVal">100</b>%</span>
+        <div class="bar-bg"><div id="hungerBar" class="bar-fill"></div></div>
+    </div>
+
+    <div class="stat-row">
+        <span>🧼 Hijyen: <b id="hygieneVal">100</b>%</span>
+        <div class="bar-bg"><div id="hygieneBar" class="bar-fill"></div></div>
+    </div>
+
+    <div class="stat-row">
+        <span>💝 Bağ Seviyesi: <b id="bondVal">0</b></span>
+        <div class="bar-bg"><div id="bondBar" class="bar-fill"></div></div>
+    </div>
+
+    <div class="btn-grid">
+        <button class="action-btn btn-feed" id="feedBtn">Besle</button>
+        <button class="action-btn btn-wash" id="washBtn">Yıka</button>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, update, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
+  authDomain: "sadece-biz.firebaseapp.com",
+  databaseURL: "https://sadece-biz-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "sadece-biz",
+  storageBucket: "sadece-biz.firebasestorage.app",
+  messagingSenderId: "868755199002",
+  appId: "1:868755199002:web=e8c18eb0cd11abb2292da3"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+let room = localStorage.getItem("room") || "genel";
+const petRef = ref(db, "rooms/" + room + "/pet");
+
+onValue(petRef, (snapshot) => {
+    const data = snapshot.val();
+    if (!data) {
+        set(petRef, { hunger: 100, hygiene: 100, bond: 0 });
+        return;
+    }
+
+    document.getElementById("hungerVal").innerText = data.hunger;
+    document.getElementById("hungerBar").style.width = data.hunger + "%";
+    document.getElementById("hygieneVal").innerText = data.hygiene;
+    document.getElementById("hygieneBar").style.width = data.hygiene + "%";
+    document.getElementById("bondVal").innerText = data.bond;
+    document.getElementById("bondBar").style.width = (data.bond % 100) + "%";
+
+    const visual = document.getElementById("petVisual");
+    if (data.hunger < 20) { visual.innerText = "😵‍💫"; document.body.style.background = "#dfe6e9"; }
+    else if (data.hygiene < 20) { visual.innerText = "🤢"; document.body.style.background = "#dcdde1"; }
+    else { visual.innerText = "🧸"; document.body.style.background = "#f3e7ea"; }
+});
+
+document.getElementById("feedBtn").onclick = () => {
+    onValue(petRef, (s) => {
+        const d = s.val();
+        update(petRef, { hunger: Math.min(d.hunger + 20, 100), bond: d.bond + 5 });
+    }, { onlyOnce: true });
+    createHearts(5);
+};
+
+document.getElementById("washBtn").onclick = () => {
+    onValue(petRef, (s) => {
+        const d = s.val();
+        update(petRef, { hygiene: 100, bond: d.bond + 10 });
+    }, { onlyOnce: true });
+};
+
+function createHearts(count) {
+    for (let i = 0; i < count; i++) {
+        const heart = document.createElement("div");
+        heart.className = "heart";
+        heart.innerText = "💖";
+        heart.style.left = Math.random() * 100 + "%";
+        heart.style.top = Math.random() * 100 + "%";
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 1000);
+    }
+}
+</script>
+</body>
+</html>
