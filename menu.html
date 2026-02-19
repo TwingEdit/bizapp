@@ -10,6 +10,7 @@
       --secondary: #ff8fa3;
       --bg: #f3e7ea;
       --parola-color: #4cc9f0;
+      --xox-color: #6aaa64; /* XOX için yeşil tonu */
     }
 
     body {
@@ -20,8 +21,9 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       text-align: center;
+      padding: 20px 0;
     }
 
     h1 {
@@ -65,9 +67,9 @@
       border-color: var(--primary);
     }
 
-    .menu-card.parola:hover {
-      border-color: var(--parola-color);
-    }
+    /* Özel Renkler */
+    .menu-card.parola:hover { border-color: var(--parola-color); }
+    .menu-card.xox:hover { border-color: var(--xox-color); }
 
     .card-content {
       display: flex;
@@ -108,9 +110,8 @@
       font-size: 20px;
     }
 
-    .parola .arrow {
-      color: var(--parola-color);
-    }
+    .parola .arrow { color: var(--parola-color); }
+    .xox .arrow { color: var(--xox-color); }
 
     .logout-btn {
       margin-top: 40px;
@@ -166,6 +167,17 @@
         <div class="text-box">
           <h2>Parolla</h2>
           <p>Harf çemberini tamamla</p>
+        </div>
+      </div>
+      <div class="arrow">→</div>
+    </a>
+
+    <a href="xox.html" class="menu-card xox">
+      <div class="card-content">
+        <div class="icon-box">❌</div>
+        <div class="text-box">
+          <h2>XOX Oyunu</h2>
+          <p>Sevgilinle karşılıklı oyna</p>
         </div>
       </div>
       <div class="arrow">→</div>
