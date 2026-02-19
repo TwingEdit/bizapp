@@ -6,8 +6,9 @@
   <title>BizApp - Parolla</title>
   <style>
     :root {
-      --primary: #ff4d6d;
       --bg: #121213;
+      --card-bg: #1e1e1e;
+      --text: #d7dadc;
       --correct: #6aaa64;
       --wrong: #ff4d6d;
       --active: #4cc9f0;
@@ -17,166 +18,142 @@
     body {
       font-family: 'Segoe UI', sans-serif;
       background: var(--bg);
-      color: white;
+      color: var(--text);
       display: flex;
       flex-direction: column;
       align-items: center;
       margin: 0;
       padding: 10px;
       height: 100vh;
-      overflow: hidden;
     }
 
-    .header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px; }
-    .back-link { color: var(--primary); text-decoration: none; font-weight: bold; }
-
-    #wheel-container {
-      position: relative;
-      width: 310px;
-      height: 310px;
-      margin: 20px 0;
-      flex-shrink: 0;
-    }
-
+    /* Çember ve Harfler */
+    #wheel-container { position: relative; width: 310px; height: 310px; margin: 20px 0; flex-shrink: 0; }
     .letter {
-      position: absolute;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #3a3a3c;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 13px;
-      transition: all 0.3s ease;
-      border: 2px solid transparent;
+      position: absolute; width: 32px; height: 32px; border-radius: 50%;
+      background: #3a3a3c; display: flex; align-items: center; justify-content: center;
+      font-weight: bold; font-size: 13px; transition: 0.3s; color: white;
     }
-
-    .active { 
-      background: var(--active); 
-      transform: scale(1.3); 
-      box-shadow: 0 0 15px var(--active); 
-      border-color: white; 
-      z-index: 5;
-    }
-
+    .active { background: var(--active); transform: scale(1.3); box-shadow: 0 0 15px var(--active); z-index: 5; }
     .correct { background: var(--correct) !important; }
     .wrong { background: var(--wrong) !important; }
     .passed { background: var(--passed) !important; color: #333; }
 
+    /* Soru Kartı */
     #question-card {
-      background: #1e1e1e;
+      background: var(--bg);
       padding: 20px;
-      border-radius: 25px;
-      width: 90%;
-      max-width: 400px;
+      width: 95%;
+      max-width: 500px;
       text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      border-bottom: 5px solid var(--active);
     }
 
-    #letter-info { font-weight: bold; color: var(--active); font-size: 22px; margin-bottom: 5px; }
-    #question-text { font-size: 17px; margin-bottom: 20px; min-height: 50px; line-height: 1.4; }
-    
+    #question-text {
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.3;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+      min-height: 80px;
+    }
+
     input {
       width: 80%;
-      padding: 12px;
-      border-radius: 12px;
-      border: 2px solid #333;
-      background: #2c2c2e;
+      padding: 15px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid #3a3a3c;
       color: white;
-      font-size: 18px;
+      font-size: 20px;
       text-align: center;
       text-transform: uppercase;
       outline: none;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
 
-    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    button { padding: 12px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; }
+    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    button { padding: 15px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; }
     .btn-check { background: var(--correct); color: white; }
     .btn-pass { background: var(--passed); color: #333; }
+
+    /* Sonuç Ekranı */
+    .results-overlay {
+      position: fixed; top:0; left:0; width:100%; height:100%;
+      background: var(--bg); display: none; flex-direction: column;
+      align-items: center; padding: 20px; overflow-y: auto; z-index: 100;
+    }
+    .result-item { margin: 5px 0; font-size: 14px; width: 100%; max-width: 300px; display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 5px; }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <a href="menu.html" class="back-link">⬅ Menü</a>
-    <div id="score-display">Doğru: 0 | Yanlış: 0</div>
-  </div>
-
   <div id="wheel-container"></div>
 
   <div id="question-card">
-    <div id="letter-info">A HARFİ</div>
-    <div id="question-text">Soru yükleniyor...</div>
-    <input type="text" id="answer-input" placeholder="Cevabı yaz..." autocomplete="off">
+    <div id="question-text">BAŞLATILIYOR...</div>
+    <input type="text" id="answer-input" placeholder="CEVABI YAZIN" autocomplete="off">
     <div class="btn-group">
       <button class="btn-pass" onclick="handlePass()">PAS</button>
       <button class="btn-check" onclick="handleCheck()">CEVAPLA</button>
     </div>
   </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  <div id="results-screen" class="results-overlay">
+    <h2>OYUN TAMAMLANDI</h2>
+    <div id="stats-summary" style="font-size: 18px; margin-bottom: 20px;"></div>
+    <div id="answers-list" style="width: 100%;"></div>
+    <button onclick="location.reload()" style="margin-top:20px; background:var(--active); width:200px;">YENİDEN OYNA</button>
+  </div>
 
-const firebaseConfig = {
-  apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
-  authDomain: "sadece-biz.firebaseapp.com",
-  databaseURL: "https://sadece-biz-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "sadece-biz",
-  storageBucket: "sadece-biz.firebasestorage.app",
-  messagingSenderId: "868755199002",
-  appId: "1:868755199002:web=e8c18eb0cd11abb2292da3"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const room = localStorage.getItem("room") || "genel";
-
+<script>
 const alphabet = ["A", "B", "C", "Ç", "D", "E", "F", "G", "H", "I", "İ", "J", "K", "L", "M", "N", "O", "Ö", "P", "R", "S", "Ş", "T", "U", "Ü", "V", "Y", "Z"];
-const questions = {
-  "A": { q: "Sana olan duygumun en saf hali?", a: "AŞK" },
-  "B": { q: "Aşkımızın başladığı mevsim?", a: "BAHAR" },
-  "C": { q: "Kalbimin diğer yarısı?", a: "CANIM" },
-  "Ç": { q: "Birlikte içtiğimiz en tatlı şey?", a: "ÇAY" },
-  "D": { q: "Gözlerin kadar derin olan mavilik?", a: "DENİZ" },
-  "E": { q: "Seninle kurduğumuz sıcak yuva?", a: "EVİMİZ" },
-  "F": { q: "Karanlığımı aydınlatan gülüşün?", a: "FENER" },
-  "G": { q: "Her sabah içimi ısıtan?", a: "GÜNEŞ" },
-  "H": { q: "Senin yanında bulduğum huzur?", a: "HUZUR" },
-  "I": { q: "Gecemize sızan ayın hediyesi?", a: "IŞIK" },
-  "İ": { q: "Aşkımızın en güzel şehri?", a: "İSTANBUL" },
-  "J": { q: "Şansımızın simgesi oyun kartı?", a: "JOKER" },
-  "K": { q: "Seni her gördüğümde hızlanan?", a: "KALP" },
-  "L": { q: "Zarafetin simgesi olan çiçek?", a: "LALE" },
-  "M": { q: "Ruhumun eşi, sevgilim?", a: "MELEĞİM" },
-  "N": { q: "Sen olmayınca kesilen şey?", a: "NEFES" },
-  "O": { q: "Bizim hikayemiz koca bir...?", a: "OKYANUS" },
-  "Ö": { q: "Uzakken kalbimi sızlatan?", a: "ÖZLEM" },
-  "P": { q: "Geleceğimiz kadar renkli bir renk?", a: "PEMBE" },
-  "R": { q: "Uykuda seninle olduğum yer?", a: "RÜYA" },
-  "S": { q: "Seni sevme sürem?", a: "SONSUZ" },
-  "Ş": { q: "Gözlerindeki o tatlı pırıltı?", a: "ŞEKER" },
-  "T": { q: "Dudaklarındaki o eşsiz lezzet?", a: "TATLI" },
-  "U": { q: "Geleceğe dair beslediğimiz?", a: "UMUT" },
-  "Ü": { q: "Ayrılık kelimesinin yarattığı his?", a: "ÜZÜNTÜ" },
-  "V": { q: "Bizim lugatımızda olmayan kelime?", a: "VEDA" },
-  "Y": { q: "Hayatımdaki en güzel...?", a: "YAZIM" },
-  "Z": { q: "Aşkın en kıymetli, en saf hali?", a: "ZÜMRÜT" }
+
+// SORU HAVUZU (Her harf için rastgele birini seçer)
+const questionBank = {
+  "A": [{q: "Işık saçacak beyazlığa varıncaya kadar ısıtılmış olan?", a: "AKKOR"}, {q: "Bir devletin egemenliği altındaki topraklar?", a: "ANAVATAN"}],
+  "B": [{q: "Üzerine yazı yazmak için hazırlanan kurutulmuş hayvan derisi?", a: "PARŞÖMEN"}, {q: "Bilimsel araştırmaların yapıldığı yer?", a: "LABORATUVAR"}], // Not: Harf kelimenin içinde de geçebilir klasik kurallarda.
+  "C": [{q: "Yeryüzündeki büyük su kütlelerini birbirinden ayıran kıtalar?", a: "COĞRAFYA"}, {q: "Topluluk içinde uyulması gereken nezaket kuralları?", a: "ADABIMUAŞERET"}],
+  "Ç": [{q: "Toprağı kazmak için kullanılan tarım aracı?", a: "ÇAPA"}, {q: "Yazın güneşten korunmak için kullanılan şapka türü?", a: "HASIRŞAPKA"}],
+  "D": [{q: "Gözle görülemeyecek kadar küçük canlıları inceleyen bilim?", a: "MİKROBİYOLOJİ"}, {q: "Sürekli akan büyük su kütlesi?", a: "AKARSU"}],
+  "E": [{q: "Bir işi yapmak için gereken güç?", a: "ENERJİ"}, {q: "Yeryüzündeki tüm canlıların yaşam alanı?", a: "EKOSİSTEM"}],
+  "F": [{q: "Işığı kıran cam nesne?", a: "FRESNEL"}, {q: "Bilimsel varsayım?", a: "HİPOTEZ"}],
+  "G": [{q: "Isı ve ışık kaynağı olan yıldızımız?", a: "GÜNEŞ"}, {q: "Hava katmanlarının oluşturduğu bütün?", a: "ATMOSFER"}],
+  "H": [{q: "Canlıların doğal yaşam alanı?", a: "HABİTAT"}, {q: "Maddenin en küçük yapı taşı?", a: "ATOM"}],
+  "I": [{q: "Cisimleri görmemizi sağlayan enerji?", a: "IŞIK"}, {q: "Sıcaklık ölçen alet?", a: "TERMOMETRE"}],
+  "İ": [{q: "Duygu ve düşüncelerin aktarımı?", a: "İLETİŞİM"}, {q: "Gözün renkli kısmı?", a: "İRS"}],
+  "J": [{q: "Otomobil tekerleğinin metal kısmı?", a: "JANT"}, {q: "Hava kuvvetlerinde savaş uçağı?", a: "JET"}],
+  "K": [{q: "Dünyayı çevreleyen hava tabakası?", a: "KATMANGÜCÜ"}, {q: "Maddenin katı, sıvı, gaz hallerinden biri?", a: "KATI"}],
+  "L": [{q: "Gemilerin park yeri?", a: "LİMAN"}, {q: "Bir dili konuşan topluluk?", a: "LİSAN"}],
+  "M": [{q: "Küçük varlıkları görme aracı?", a: "MİKROSKOP"}, {q: "Evrenin sırlarını inceleyen bilim?", a: "MATEMATİK"}],
+  "N": [{q: "Yaşam için gerekli gaz?", a: "AZOT"}, {q: "Sıfırın altındaki sıcaklık?", a: "NEGATİF"}],
+  "O": [{q: "Devasa su kütlesi?", a: "OKYANUS"}, {q: "Bitkilerin besin üretme süreci?", a: "FOTOSENTEZ"}],
+  "Ö": [{q: "Başkalarından ayıran hal?", a: "ÖZELLİK"}, {q: "Bir sıvının akmaya karşı direnci?", a: "VİSKOZİTE"}],
+  "P": [{q: "Işığı yansıtan yüzey?", a: "AYNA"}, {q: "Elementlerin tablosu?", a: "PERİYODİK"}],
+  "R": [{q: "Hava akımı?", a: "RÜZGAR"}, {q: "Sayısal işlem yapan beyin?", a: "ROBOT"}],
+  "S": [{q: "Havadaki su buharının yoğunlaşması?", a: "SİS"}, {q: "Uzun süreli yağışsızlık?", a: "KURAKLIK"}],
+  "Ş": [{q: "Yerleşim yeri?", a: "ŞEHİR"}, {q: "Elektrik devresini kesen araç?", a: "ŞALTER"}],
+  "T": [{q: "Geçmişin kalıntısı?", a: "TARİH"}, {q: "Isı ileten madde?", a: "TERMAL"}],
+  "U": [{q: "Dünya dışı boşluk?", a: "UZAY"}, {q: "Gök cismi?", a: "UYDU"}],
+  "Ü": [{q: "İnsan topluluğu?", a: "ÜLKE"}, {q: "Mıknatısın ucu?", a: "ÜRETİM"}],
+  "V": [{q: "Kandaki oksijen taşıyıcı?", a: "HEMOGLOBİN"}, {q: "Hastalık yapan mikroorganizma?", a: "VİRÜS"}],
+  "Y": [{q: "Gökten düşen su?", a: "YAĞMUR"}, {q: "Yerin sarsılması?", a: "DEPREM"}],
+  "Z": [{q: "Süreç?", a: "ZAMAN"}, {q: "Zekayı ölçen test?", a: "IQ"}]
 };
 
 let currentIndex = 0;
-let results = {}; // correct, wrong
-let corrects = 0;
-let wrongs = 0;
+let sessionQuestions = {}; // O anki oyunun soruları
+let results = {}; // correct, wrong, passed
+let passes = 0;
 
-function initWheel() {
+function initGame() {
   const container = document.getElementById("wheel-container");
   const radius = 130;
+  
   alphabet.forEach((letter, i) => {
+    // Rastgele soru seç
+    const options = questionBank[letter];
+    sessionQuestions[letter] = options[Math.floor(Math.random() * options.length)];
+
     const angle = (i / alphabet.length) * (2 * Math.PI) - (Math.PI / 2);
     const x = 155 + radius * Math.cos(angle) - 16;
     const y = 155 + radius * Math.sin(angle) - 16;
@@ -189,34 +166,31 @@ function initWheel() {
 }
 
 function updateUI() {
-  const currentLetter = alphabet[currentIndex];
+  const letter = alphabet[currentIndex];
   document.querySelectorAll(".letter").forEach(el => el.classList.remove("active"));
-  document.getElementById(`l-${currentLetter}`).classList.add("active");
-  document.getElementById("letter-info").innerText = `${currentLetter} HARFİ`;
-  document.getElementById("question-text").innerText = questions[currentLetter].q;
-  document.getElementById("score-display").innerText = `Doğru: ${corrects} | Yanlış: ${wrongs}`;
+  document.getElementById(`l-${letter}`).classList.add("active");
+  document.getElementById("question-text").innerText = sessionQuestions[letter].q;
 }
 
 window.handleCheck = function() {
   const input = document.getElementById("answer-input").value.trim().toUpperCase();
-  const currentLetter = alphabet[currentIndex];
-  const el = document.getElementById(`l-${currentLetter}`);
+  const letter = alphabet[currentIndex];
+  const el = document.getElementById(`l-${letter}`);
 
-  if (input === questions[currentLetter].a.toUpperCase()) {
+  if (input === sessionQuestions[letter].a.toUpperCase()) {
     el.classList.add("correct");
-    results[currentLetter] = "correct";
-    corrects++;
-    addBond(10);
+    results[letter] = {status: "correct", ans: sessionQuestions[letter].a};
   } else {
     el.classList.add("wrong");
-    results[currentLetter] = "wrong";
-    wrongs++;
+    results[letter] = {status: "wrong", ans: sessionQuestions[letter].a};
   }
   document.getElementById("answer-input").value = "";
   moveToNext();
 };
 
 window.handlePass = function() {
+  const letter = alphabet[currentIndex];
+  document.getElementById(`l-${letter}`).classList.add("passed");
   document.getElementById("answer-input").value = "";
   moveToNext();
 };
@@ -231,23 +205,41 @@ function moveToNext() {
     }
     count++;
   }
-  finishGame();
+  showFinalResults();
 }
 
-function addBond(pts) {
-  const petRef = ref(db, `rooms/${room}/pet`);
-  onValue(petRef, (s) => {
-    const d = s.val() || {bond: 0};
-    update(petRef, { bond: d.bond + pts });
-  }, { onlyOnce: true });
-}
+function showFinalResults() {
+  const screen = document.getElementById("results-screen");
+  const stats = document.getElementById("stats-summary");
+  const list = document.getElementById("answers-list");
+  
+  let c = 0, w = 0, p = 0;
+  list.innerHTML = "<h3>CEVAP ANAHTARI:</h3>";
 
-function finishGame() {
-  document.getElementById("question-card").innerHTML = `<h3>Oyun Bitti! ✨</h3><p>${corrects} Doğru ile harika iş çıkardınız!</p><button onclick="location.reload()" style="background:var(--active); color:white; width:100%">Yeniden Oyna</button>`;
+  alphabet.forEach(l => {
+    const res = results[l];
+    const item = document.createElement("div");
+    item.className = "result-item";
+    
+    if (res?.status === "correct") {
+        c++;
+        item.innerHTML = `<span>${l}:</span> <span style="color:var(--correct)">DOĞRU</span>`;
+    } else if (res?.status === "wrong") {
+        w++;
+        item.innerHTML = `<span>${l}: ${res.ans}</span> <span style="color:var(--wrong)">YANLIŞ</span>`;
+    } else {
+        p++;
+        item.innerHTML = `<span>${l}: ${sessionQuestions[l].a}</span> <span style="color:var(--passed)">PAS</span>`;
+    }
+    list.appendChild(item);
+  });
+
+  stats.innerHTML = `✅ ${c} DOĞRU | ❌ ${w} YANLIŞ | ⏳ ${p} PAS`;
+  screen.style.display = "flex";
 }
 
 document.getElementById("answer-input").addEventListener("keypress", (e) => { if (e.key === "Enter") handleCheck(); });
-initWheel();
+initGame();
 </script>
 </body>
 </html>
