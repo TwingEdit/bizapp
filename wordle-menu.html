@@ -5,113 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Taha 💞 Bahar - Wordle Menü</title>
   <style>
-    :root {
-      --primary: #ff4d6d;
-      --bg: #f3e7ea;
-      --text: #333;
-    }
-
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: var(--bg);
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-      overflow: hidden;
-    }
-
-    /* Geri Butonu */
-    .back-btn {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 12px;
-      cursor: pointer;
-      color: var(--primary);
-      font-weight: bold;
-      text-decoration: none;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-      z-index: 100;
-      transition: 0.2s;
-    }
-    .back-btn:hover { transform: scale(1.05); background: #fff5f6; }
-
-    /* Menü Kartı */
-    .menu-card {
-      background: white;
-      padding: 30px;
-      border-radius: 40px;
-      box-shadow: 0 15px 35px rgba(255, 77, 109, 0.2);
-      width: 85%;
-      max-width: 350px;
-      position: relative;
-    }
-
-    .icon { font-size: 60px; margin-bottom: 10px; display: block; }
-    h2 { color: var(--text); margin: 10px 0; font-size: 24px; }
-    p { color: #888; font-size: 14px; margin-bottom: 25px; }
-
-    /* Buton Listesi */
-    .option-list { display: flex; flex-direction: column; gap: 12px; }
-    .play-btn { 
-      background: white; 
-      color: var(--text); 
-      padding: 18px; 
-      border-radius: 20px; 
-      text-decoration: none; 
-      font-weight: bold; 
-      border: 2px solid #f8f8f8;
-      transition: 0.3s; 
-      display: block;
-      font-size: 16px;
-    }
-    .play-btn:hover { 
-      border-color: var(--primary); 
-      color: var(--primary); 
-      transform: translateY(-3px); 
-      box-shadow: 0 6px 12px rgba(255, 77, 109, 0.1); 
-    }
-
-    /* Öpücük Bildirim ve Kalp Efektleri */
-    .kiss-notify {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: white;
-      color: var(--primary);
-      padding: 15px 25px;
-      border-radius: 50px;
-      font-weight: bold;
-      box-shadow: 0 10px 25px rgba(255, 77, 109, 0.3);
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      animation: slideDown 0.5s ease-out;
-    }
+    :root { --primary: #ff4d6d; --bg: #f3e7ea; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; }
+    .back-btn { position: fixed; top: 20px; left: 20px; background: white; border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; color: var(--primary); font-weight: bold; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .menu-card { background: white; padding: 30px; border-radius: 40px; box-shadow: 0 15px 35px rgba(255, 77, 109, 0.2); width: 85%; max-width: 350px; }
+    .option-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+    .play-btn { background: white; color: #333; padding: 18px; border-radius: 20px; text-decoration: none; font-weight: bold; border: 2px solid #f8f8f8; transition: 0.3s; display: block; }
+    .play-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-3px); }
+    .kiss-notify { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: white; color: var(--primary); padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 10px 25px rgba(255, 77, 109, 0.3); z-index: 9999; display: flex; align-items: center; gap: 10px; animation: slideDown 0.5s ease-out; }
     @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
-
-    .floating-heart {
-      position: fixed;
-      color: var(--primary);
-      pointer-events: none;
-      animation: heartPop 1.5s forwards;
-      z-index: 10000;
-      font-size: 25px;
-    }
-    @keyframes heartPop {
-      0% { transform: scale(0); opacity: 0; }
-      50% { opacity: 1; }
-      100% { transform: translateY(-150px) rotate(20deg) scale(1.5); opacity: 0; }
-    }
+    .floating-heart { position: fixed; color: var(--primary); pointer-events: none; animation: heartPop 1.5s forwards; z-index: 10000; font-size: 25px; }
+    @keyframes heartPop { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-150px) rotate(20deg) scale(1.5); opacity: 0; } }
   </style>
 </head>
 <body>
@@ -119,10 +23,9 @@
   <a href="menu.html" class="back-btn">⬅ Geri</a>
 
   <div class="menu-card">
-    <div class="icon">🧩</div>
+    <div style="font-size: 60px;">🧩</div>
     <h2>Wordle Türkçe</h2>
     <p>Harf sayısını seç balım:</p>
-    
     <div class="option-list">
         <a href="wordle5.html" class="play-btn">5 Harfli Kelimeler</a>
         <a href="wordle6.html" class="play-btn">6 Harfli Kelimeler</a>
@@ -132,7 +35,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { getDatabase, ref, onChildAdded, query, orderByChild, startAt } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
@@ -147,38 +50,33 @@
     const db = getDatabase(app);
     const room = localStorage.getItem("room") || "genel";
     const userId = localStorage.getItem("userId");
-    const kissRef = ref(db, "rooms/" + room);
+    
+    // ŞİMDİKİ ZAMANI AL
+    const startTime = Date.now();
 
-    // SAYFA YÜKLENME ZAMANI (Geçmiş öpücükleri engellemek için)
-    const pageLoadTime = Date.now();
+    // Sadece 'timestamp' değeri 'startTime'dan büyük olanları getir (En temiz çözüm)
+    const kissQuery = query(
+      ref(db, "rooms/" + room),
+      orderByChild("timestamp"),
+      startAt(startTime)
+    );
 
-    onChildAdded(kissRef, (snapshot) => {
+    onChildAdded(kissQuery, (snapshot) => {
       const data = snapshot.val();
       
-      // ŞARTLAR: 
-      // 1. Veri bir öpücük (kiss) olmalı
-      // 2. Gönderen kişi "sen" olmamalısın (sender !== userId)
-      // 3. Öpücüğün zamanı, sayfayı açtığın zamandan sonra olmalı (timestamp > pageLoadTime)
-      if (data.type === 'kiss' && data.sender !== userId && data.timestamp > pageLoadTime) {
-        
-        // Bildirim oluştur
+      if (data.type === 'kiss' && data.sender !== userId) {
         const notify = document.createElement("div");
         notify.className = "kiss-notify";
         notify.innerHTML = `<span>💋</span> Balım sana bir öpücük gönderdi!`;
         document.body.appendChild(notify);
         
-        // Kalp efekti oluştur
         for(let i=0; i<15; i++) {
             const h = document.createElement("div");
-            h.className="floating-heart"; 
-            h.innerText="💖";
-            h.style.left = Math.random() * 100 + "%"; 
-            h.style.top = "70%";
+            h.className="floating-heart"; h.innerText="💖";
+            h.style.left = Math.random()*100+"%"; h.style.top = "70%";
             document.body.appendChild(h);
-            setTimeout(() => h.remove(), 1500);
+            setTimeout(()=>h.remove(), 1500);
         }
-
-        // 3 saniye sonra bildirimi kaldır
         setTimeout(() => notify.remove(), 3000);
       }
     });
