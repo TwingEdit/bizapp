@@ -3,37 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Taha 💞 Bahar - Wordle Menü</title>
+  <title>Wordle Menü</title>
   <style>
     :root { --primary: #ff4d6d; --bg: #f3e7ea; }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
     
     .back-btn { position: fixed; top: 20px; left: 20px; background: white; border: none; padding: 10px 15px; border-radius: 12px; cursor: pointer; color: var(--primary); font-weight: bold; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 100; }
 
-    .menu-card { background: white; padding: 30px; border-radius: 40px; box-shadow: 0 15px 35px rgba(255, 77, 109, 0.2); width: 85%; max-width: 350px; position: relative; }
+    .menu-card { background: white; padding: 30px; border-radius: 40px; box-shadow: 0 15px 35px rgba(255, 77, 109, 0.2); width: 85%; max-width: 350px; text-align: center; }
     .icon { font-size: 60px; margin-bottom: 10px; display: block; }
     h2 { color: #333; margin: 10px 0; font-size: 24px; }
-    p { color: #888; font-size: 14px; margin-bottom: 25px; }
-
-    .option-list { display: flex; flex-direction: column; gap: 12px; }
+    
+    .option-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
     .play-btn { 
-      background: white; 
-      color: #333; 
-      padding: 18px; 
-      border-radius: 20px; 
-      text-decoration: none; 
-      font-weight: bold; 
-      border: 2px solid #f8f8f8;
-      transition: 0.3s; 
-      display: block;
+      background: white; color: #333; padding: 18px; border-radius: 20px; 
+      text-decoration: none; font-weight: bold; border: 2px solid #f8f8f8;
+      transition: 0.3s; display: block;
     }
-    .play-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-3px); box-shadow: 0 6px 12px rgba(255, 77, 109, 0.1); }
+    .play-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-3px); }
 
     /* Öpücük Bildirim Stilleri */
     .kiss-notify { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: white; color: var(--primary); padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 10px 25px rgba(255, 77, 109, 0.3); z-index: 9999; display: flex; align-items: center; gap: 10px; animation: slideDown 0.5s ease-out; }
     @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
-    .floating-heart { position: fixed; color: var(--primary); pointer-events: none; animation: heartPop 1.5s forwards; z-index: 10000; font-size: 25px; }
-    @keyframes heartPop { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-150px) rotate(20deg) scale(1.5); opacity: 0; } }
   </style>
 </head>
 <body>
@@ -43,12 +34,12 @@
   <div class="menu-card">
     <div class="icon">🧩</div>
     <h2>Wordle Türkçe</h2>
-    <p>Kaç harfli kelime ile yarışmak istersiniz?</p>
+    <p>Harf sayısını seç balım:</p>
     
     <div class="option-list">
-        <a href="./wordle5.html" class="play-btn">5 Harfli Kelimeler</a>
-        <a href="./wordle6.html" class="play-btn">6 Harfli Kelimeler</a>
-        <a href="./wordle7.html" class="play-btn">7 Harfli Kelimeler</a>
+        <a href="wordle5.html" class="play-btn">5 Harfli Kelimeler</a>
+        <a href="wordle6.html" class="play-btn">6 Harfli Kelimeler</a>
+        <a href="wordle7.html" class="play-btn">7 Harfli Kelimeler</a>
     </div>
   </div>
 
@@ -78,14 +69,6 @@
         notify.className = "kiss-notify";
         notify.innerHTML = `<span>💋</span> Balım sana bir öpücük gönderdi!`;
         document.body.appendChild(notify);
-        
-        for(let i=0; i<15; i++) {
-            const h = document.createElement("div");
-            h.className="floating-heart"; h.innerText="💖";
-            h.style.left = Math.random()*100+"%"; h.style.top = "70%";
-            document.body.appendChild(h);
-            setTimeout(()=>h.remove(), 1500);
-        }
         setTimeout(() => notify.remove(), 3000);
       }
     });
