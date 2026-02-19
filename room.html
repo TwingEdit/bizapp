@@ -78,7 +78,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 // Firebase ayarları
 const firebaseConfig = {
@@ -94,12 +94,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Oda ayarı
 let room = localStorage.getItem("room") || "genel";
 room = room.trim().toLowerCase();
 const roomRef = ref(db, "rooms/" + room);
 
-// Kullanıcı ID
 let userId = localStorage.getItem("userId");
 if (!userId) {
   userId = Math.random().toString(36).substring(2, 10);
@@ -109,7 +107,7 @@ if (!userId) {
 const msgsContainer = document.getElementById("msgList");
 const kissBtn = document.getElementById("kissButton");
 
-// Kalp patlatma fonksiyonu
+// Kalp patlatma
 function createHearts(count = 20) {
   for (let i = 0; i < count; i++) {
     const heart = document.createElement("div");
@@ -123,44 +121,31 @@ function createHearts(count = 20) {
   }
 }
 
-// Öpücük gönder butonu
+// Öpücük gönder
 kissBtn.onclick = () => {
   push(roomRef, { sender: userId, time: Date.now() });
 };
 
-// Firebase dinleme
-onValue(roomRef, (snapshot) => {
-  msgsContainer.innerHTML = "";
-  const messages = [];
+// Sadece **yeni gelen öpücükleri** dinle
+onChildAdded(roomRef, (snapshot) => {
+  const data = snapshot.val();
+  const t = new Date(data.time).toLocaleTimeString();
 
-  snapshot.forEach(childSnap => {
-    const data = childSnap.val();
-    messages.push(data);
-  });
+  // Mesajı ekle
+  const p = document.createElement("p");
+  p.innerText = `💋 Seni Öptü! (${t})`;
+  p.classList.add("latest");
+  setTimeout(() => p.classList.remove("latest"), 5000);
+  msgsContainer.appendChild(p);
+  msgsContainer.scrollTop = msgsContainer.scrollHeight;
 
-  const lastMsgs = messages.slice(-3);
-
-  lastMsgs.forEach((data, index) => {
-    const p = document.createElement("p");
-    const t = new Date(data.time).toLocaleTimeString();
-    p.innerText = `💋 Seni Öptü! (${t})`;
-
-    if (index === lastMsgs.length - 1) {
-      p.classList.add("latest");
-      setTimeout(() => p.classList.remove("latest"), 5000);
-    }
-
-    msgsContainer.appendChild(p);
-
-    // **Kalpler sadece gönderici farklıysa ve sadece alıcı taraf için**
-    if (data.sender !== userId) {
-      createHearts(20); // alıcı ekranında kalp patlasın
-    }
-  });
+  // Kalpler **sadece gönderen kendin değilse** patlasın
+  if (data.sender !== userId) {
+    createHearts(20); // karşı taraf ekranında kalpler
+  }
 });
 </script>
 
-<!-- Push sistemi (app.js) -->
 <script src="app.js"></script>
 
 </body>
