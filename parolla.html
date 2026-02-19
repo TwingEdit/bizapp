@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parolla Final v7.8</title>
+  <title>Taha 💞 Bahar - Parolla</title>
   <style>
     :root {
       --bg: #121213;
@@ -29,7 +29,6 @@
       overflow: hidden;
     }
 
-    /* WORDLE MENÜSÜYLE BİREBİR AYNI GERİ BUTONU */
     .back-btn {
       position: fixed;
       top: 20px;
@@ -41,7 +40,7 @@
       cursor: pointer;
       color: var(--main-pink);
       font-weight: bold;
-      text-decoration: none; /* Alt çizgiyi kaldırır */
+      text-decoration: none;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       z-index: 9999;
       font-size: 14px;
@@ -49,11 +48,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    .back-btn:hover {
-      transform: scale(1.05);
-      background: #f8f8f8;
     }
 
     #wheel-container { position: relative; width: 310px; height: 310px; margin-bottom: 20px; flex-shrink: 0; }
@@ -91,6 +85,18 @@
       background: var(--bg); display: none; flex-direction: column;
       align-items: center; justify-content: center; z-index: 10000;
     }
+
+    /* Öpücük Bildirim Stilleri */
+    .kiss-notify {
+        position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+        background: white; color: var(--main-pink); padding: 15px 25px;
+        border-radius: 50px; font-weight: bold; box-shadow: 0 10px 25px rgba(255, 77, 109, 0.3);
+        z-index: 10001; display: flex; align-items: center; gap: 10px;
+        animation: slideDown 0.5s ease-out;
+    }
+    @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
+    .floating-heart { position: fixed; color: var(--main-pink); pointer-events: none; animation: heartPop 1.5s forwards; z-index: 10002; font-size: 25px; }
+    @keyframes heartPop { 0% { transform: scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-150px) rotate(20deg) scale(1.5); opacity: 0; } }
   </style>
 </head>
 <body>
@@ -114,6 +120,47 @@
     <button class="action-btn btn-check" style="max-width: 250px; margin-bottom: 15px;" onclick="location.reload()">YENİDEN BAŞLA</button>
     <a href="menu.html" class="back-btn" style="position: static;">⬅ Geri</a>
   </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AZaSyCwUGShLfuUOSSHSyK0b7HXvPiu45Mtso",
+  authDomain: "sadece-biz.firebaseapp.com",
+  databaseURL: "https://sadece-biz-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "sadece-biz",
+  storageBucket: "sadece-biz.firebasestorage.app",
+  messagingSenderId: "868755199002",
+  appId: "1:868755199002:web=e8c18eb0cd11abb2292da3"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+let room = localStorage.getItem("room") || "genel";
+let userId = localStorage.getItem("userId");
+const kissRef = ref(db, "rooms/" + room);
+
+// ÖPÜCÜK DİNLEYİCİ
+onChildAdded(kissRef, (snapshot) => {
+  const data = snapshot.val();
+  if (data.type === 'kiss' && data.sender !== userId) {
+    const notify = document.createElement("div");
+    notify.className = "kiss-notify";
+    notify.innerHTML = `<span>💋</span> Balım sana bir öpücük gönderdi!`;
+    document.body.appendChild(notify);
+    
+    for(let i=0; i<15; i++) {
+        const h = document.createElement("div");
+        h.className="floating-heart"; h.innerText="💖";
+        h.style.left = Math.random()*100+"%"; h.style.top = "70%";
+        document.body.appendChild(h);
+        setTimeout(()=>h.remove(), 1500);
+    }
+    setTimeout(() => notify.remove(), 3000);
+  }
+});
+</script>
 
 <script>
 const alphabet = ["A", "B", "C", "Ç", "D", "E", "F", "G", "Ğ", "H", "I", "İ", "J", "K", "L", "M", "N", "O", "Ö", "P", "R", "S", "Ş", "T", "U", "Ü", "V", "Y", "Z"];
